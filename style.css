@@ -1,24 +1,14 @@
-html, body{
-    min-height: 100%
+
+
+#container {
+    display: flex; /* establish flex container */
+    flex-direction: column; /* make main-axis vertical */
+    justify-content: center; /* align items vertically, in this case */
+    align-items: center; /* align items horizontally, in this case */
+    height: 100vh;
 }
 
-body{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-svg{
-    background-color: whitesmoke;
-}
-
-#canvas{
-    min-width: 1000px;
-    min-height: 600px
-}
-
-#tooltip {
-    visibility: hidden;
-    height: auto;
-}
+#map {
+    width: 600px;
+    height: 500px;
+  }
