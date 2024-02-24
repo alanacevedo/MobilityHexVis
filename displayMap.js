@@ -5,71 +5,63 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 // https://bost.ocks.org/mike/leaflet/
 // https://d3-graph-gallery.com/graph/bubblemap_leaflet_basic.html
 
-import { accessToken } from "./static.js"
+import { accessToken, VanAreas } from "./static.js"
 
 const INITIAL_CENTER = [-33.471258, -70.646552]
 const INITIAL_ZOOM = 11
 const MAX_ZOOM = 12
 
-const map = L
-    .map('map')
-    .setView(INITIAL_CENTER, INITIAL_ZOOM);
+const map = L.map('map').setView([49.2527, -123.1207], 11.5);
 
-L.tileLayer(
+
+const osmLayer = L.tileLayer(
     `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
     { maxZoom: MAX_ZOOM }
 ).addTo(map)
 
-L.svg().addTo(map)
+L.svg({clickable:true}).addTo(map)
 
-const markers = [
-    { lat: -33.518213, lon: -70.742712 },
-    { lat: -33.442615, lon: -70.568191 },
-]
+const overlay = d3.select(map.getPanes().overlayPane)
+const svg = overlay.select('svg').attr("pointer-events", "auto")
+  // create a group that is hidden during zooming
+const g = svg.append('g').attr('class', 'leaflet-zoom-hide')
+
+// Use Leaflets projection API for drawing svg path (creates a stream of projected points)
+const projectPoint = function(x, y) {
+    const point = map.latLngToLayerPoint(new L.LatLng(y, x))
+    this.stream.point(point.x, point.y)
+  }
+  
+// Use d3's custom geo transform method to implement the above
+const projection = d3.geoTransform({point: projectPoint})
+// creates geopath from projected points (SVG)
+const pathCreator = d3.geoPath().projection(projection)
 
 
 
-const link = { type: "LineString", coordinates: [[100, 60], [-60, -30]] }
-const links = [
-    {
-        start: { lat: -33.518213, lon: -70.742712 },
-        end: { lat: -33.442615, lon: -70.568191 }
-    }]
 
-const path = d3.geoPath()
+const areaPaths = g.selectAll('path')
+    .data(VanAreas.features)
+    .join('path')
+    .attr('fill-opacity', 0.3)
+    .attr('stroke', 'black')
+    .attr("z-index", 3000)
+    .attr('stroke-width', 2.5)
+    .attr("class", "leaflet-interactive")
+    .on("mouseover", function(d){
+        console.log(" XD")
+                d3.select(this).attr("fill", "red")
+            })
+    .on("mouseout", function(d){
+        console.log(" wena")
+                d3.select(this).attr("fill", "black")
+            })
+  
+  // Function to place svg based on zoom
+  const onZoom = () => areaPaths.attr('d', pathCreator)
+  // initialize positioning
+  onZoom()
+  // reset whenever map is moved
+  map.on('zoomend', onZoom)
+  
 
-d3.select("#map")
-    .select("svg")
-    .selectAll("circle")
-    .data(markers)
-    .join("circle")
-    .attr("cx", d => map.latLngToLayerPoint([d.lat, d.lon]).x)
-    .attr("cy", d => map.latLngToLayerPoint([d.lat, d.lon]).y)
-    .attr("r", 14)
-    .style("fill", "red")
-    .attr("stroke", "red")
-    .attr("stroke-width", 3)
-    .attr("fill-opacity", .4)
-
-d3.select("#map")
-    .select("svg")
-    .selectAll("path")
-    .data(links)
-    .join("path")
-    .attr("d", d => path({
-        type: "LineString", coordinates: [
-            [map.latLngToLayerPoint([d.start.lat, d.start.lon]).x, map.latLngToLayerPoint([d.start.lat, d.start.lon]).y],
-            [map.latLngToLayerPoint([d.end.lat, d.end.lon]).x, map.latLngToLayerPoint([d.end.lat, d.end.lon]).y]
-        ]
-    }))
-    .style("fill", "none")
-    .style("stroke", "orange")
-    .style("stroke-width", 7)
-
-function update() {
-    d3.selectAll("circle")
-        .attr("cx", d => map.latLngToLayerPoint([d.lat, d.lon]).x)
-        .attr("cy", d => map.latLngToLayerPoint([d.lat, d.lon]).y)
-}
-
-map.on("moveend", update)
