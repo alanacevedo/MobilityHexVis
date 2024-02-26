@@ -37,7 +37,8 @@ const projection = d3.geoTransform({point: projectPoint})
 // creates geopath from projected points (SVG)
 const pathCreator = d3.geoPath().projection(projection)
 
-
+// lonlat
+const link = [[[-123.167556, 49.235430], [-123.068615, 49.245292]]]
 
 
 const areaPaths = g.selectAll('path')
@@ -49,19 +50,34 @@ const areaPaths = g.selectAll('path')
     .attr('stroke-width', 2.5)
     .attr("class", "leaflet-interactive")
     .on("mouseover", function(d){
-        console.log(" XD")
                 d3.select(this).attr("fill", "red")
             })
     .on("mouseout", function(d){
-        console.log(" wena")
                 d3.select(this).attr("fill", "black")
             })
   
+  const line = g.selectAll("linePath")
+    .data(link)
+    .join("path")
+    .style("fill", "none")
+    .style("stroke", "orange")
+    .style("stroke-width", 7)
+  
   // Function to place svg based on zoom
-  const onZoom = () => areaPaths.attr('d', pathCreator)
+  const update = () => {
+    areaPaths.attr('d', pathCreator)
+    line.attr("d", function(d) {
+        return pathCreator({
+            
+            "type": "LineString",
+            "coordinates": d
+        })
+    })
+  }
   // initialize positioning
-  onZoom()
-  // reset whenever map is moved
-  map.on('zoomend', onZoom)
+  update()
+  // reset whenever map is moved or zoomed
+  map.on('zoomend', update)
+  map.on("moveend", update)
   
 
