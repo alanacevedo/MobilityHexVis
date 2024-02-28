@@ -40,8 +40,11 @@ const pathCreator = d3.geoPath().projection(projection)
 // lonlat
 const link = [[[-123.167556, 49.235430], [-123.068615, 49.245292]]]
 
+let areaPaths, line
 
-const areaPaths = g.selectAll('path')
+// Function to place svg based on zoom
+const initialize = (data) => {
+    areaPaths = g.selectAll('path')
     .data(VanAreas.features)
     .join('path')
     .attr('fill-opacity', 0.3)
@@ -55,16 +58,22 @@ const areaPaths = g.selectAll('path')
     .on("mouseout", function(d){
                 d3.select(this).attr("fill", "black")
             })
-  
-  const line = g.selectAll("linePath")
+    
+
+    line = g.selectAll("linePath")
     .data(link)
     .join("path")
     .style("fill", "none")
     .style("stroke", "orange")
     .style("stroke-width", 7)
-  
-  // Function to place svg based on zoom
-  const update = () => {
+
+    map.on('zoomend', update)
+    map.on("moveend", update)
+
+    update()
+}
+
+const update = () => {
     areaPaths.attr('d', pathCreator)
     line.attr("d", function(d) {
         return pathCreator({
@@ -74,10 +83,17 @@ const areaPaths = g.selectAll('path')
         })
     })
   }
-  // initialize positioning
-  update()
+
+d3.csv("/data/trips_by_category.csv", (d) => {
+    d = d3.autoType(d)
+    return d.count > 15 ? d : null
+})
+.then((data) => {
+    console.log(data)
+    initialize()
+})
+
   // reset whenever map is moved or zoomed
-  map.on('zoomend', update)
-  map.on("moveend", update)
+  
   
 
