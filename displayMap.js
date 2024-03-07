@@ -15,21 +15,21 @@ const osmLayer = L.tileLayer(
     { maxZoom: MAX_ZOOM }
 ).addTo(map)
 
-L.svg({clickable:true}).addTo(map)
+L.svg({ clickable: true }).addTo(map)
 
 const overlay = d3.select(map.getPanes().overlayPane)
 const svg = overlay.select('svg').attr("pointer-events", "auto")
-  // create a group that is hidden during zooming
+// create a group that is hidden during zooming
 const g = svg.append('g').attr('class', 'leaflet-zoom-hide')
 
 // Use Leaflets projection API for drawing svg path (creates a stream of projected points)
-const projectPoint = function(x, y) {
+const projectPoint = function (x, y) {
     const point = map.latLngToLayerPoint(new L.LatLng(x, y))
     this.stream.point(point.x, point.y)
-  }
-  
+}
+
 // Use d3's custom geo transform method to implement the above
-const projection = d3.geoTransform({point: projectPoint})
+const projection = d3.geoTransform({ point: projectPoint })
 // creates geopath from projected points (SVG)
 const pathCreator = d3.geoPath().projection(projection)
 
@@ -47,13 +47,13 @@ let line
 const initialize = (data) => {
 
     line = g.selectAll("linePath")
-    .data(data)
-    .join("path")
-    .style("fill", "none")
-    .style("stroke", (d) => (
-        colorMap[d.category]
-    ))
-    .style("stroke-width", 3)
+        .data(data)
+        .join("path")
+        .style("fill", "none")
+        .style("stroke", (d) => (
+            colorMap[d.category]
+        ))
+        .style("stroke-width", 1)
 
     map.on('zoomend', update)
     map.on("moveend", update)
@@ -64,23 +64,23 @@ const initialize = (data) => {
 const update = () => {
     line.attr("d", (d) => (
         pathCreator({
-            
+
             "type": "LineString",
             "coordinates": [[d.lat_start, d.lon_start], [d.lat_end, d.lon_end]]
         }))
     )
-  }
+}
 
 d3.csv("/data/trips_by_category.csv", (d) => {
     d = d3.autoType(d)
-    return d.count > 15 ? d : null
+    return d.count > 2 ? d : null
 })
-.then((data) => {
-    console.log(data)
-    initialize(data)
-})
+    .then((data) => {
+        console.log(data)
+        initialize(data)
+    })
 
-  // reset whenever map is moved or zoomed
-  
-  
+// reset whenever map is moved or zoomed
+
+
 
