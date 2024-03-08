@@ -40,7 +40,7 @@ const projection = d3.geoTransform({ point: projectPoint })
 const pathCreator = d3.geoPath().projection(projection)
 
 const colorMap = {
-    abc1: "orange",
+    abc1: "brown",
     c2: "red",
     c3: "green",
     d: "blue",
@@ -61,8 +61,9 @@ const initializeSvg = (data) => {
     const edges = g.selectAll("edge")
         .data(paths)
         .join("path")
-        .attr("d", line)
+        .attr("d", d => line(d.path))
         .attr("class", "edge")
+        .style("stroke", d => colorMap[d.category])
 
 
     const layout = d3.forceSimulation()
@@ -76,11 +77,11 @@ const initializeSvg = (data) => {
         // edges want to be as short as possible
         // prevents too much stretching
         .force("link", d3.forceLink()
-            .strength(0.7)
+            .strength(2)
             .distance(0)
         )
         .on("tick", function (d) {
-            edges.attr("d", line);
+            edges.attr("d", d => line(d.path));
         })
         .on("end", function (d) {
             console.log("layout complete");

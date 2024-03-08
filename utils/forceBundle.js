@@ -63,7 +63,7 @@ function generateSegments(links, hypotenuse) {
             target: endNode
         })
 
-        bundle.paths.push(path)
+        bundle.paths.push({ path: path, category: link.category })
     })
 
     return bundle
