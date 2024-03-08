@@ -12,3 +12,10 @@
     width: 600px;
     height: 500px;
   }
+
+  .edge {
+    fill: none;
+    stroke: #252525;
+    stroke-width: 1px;
+    stroke-opacity: 0.3;
+  }
