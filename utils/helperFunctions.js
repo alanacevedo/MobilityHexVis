@@ -1,5 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import { CATEGORIES } from "../static.js";
+import { categories } from "../static.js";
 
 // distance of direct edge between link start and end
 function distance(link) {
@@ -12,7 +12,7 @@ function distance(link) {
 function getLinksByCategory(linksData) {
     const linksByCategory = {}
 
-    CATEGORIES.forEach(category => {
+    categories.forEach(category => {
         linksByCategory[category] = []
     })
 

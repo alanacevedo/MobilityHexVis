@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 
-import { accessToken, CATEGORIES } from "./static.js"
+import { accessToken, categories, colorMap } from "./static.js"
 import { projectPoint } from "./utils/projectPoint.js";
 import { getLinksByCategory } from "./utils/helperFunctions.js";
 
@@ -25,17 +25,9 @@ const g = svg.append('g').attr('class', 'leaflet-zoom-hide') // create a group t
 
 d3.select(".categoryCheckboxes").selectAll(".customCheckbox").property("checked", true)
 
-CATEGORIES.forEach((cat) => {
+categories.forEach((cat) => {
     d3.select("#cbox" + cat).on("change", (e) => updateSvgData(cat, e.target.checked))
 })
-
-const colorMap = {
-    abc1: "brown",
-    c2: "red",
-    c3: "green",
-    d: "blue",
-    e: "purple"
-}
 
 const line = d3.line()
     .x(d => d.x)
@@ -74,7 +66,7 @@ d3.csv("/data/trips_by_category.csv", (d) => {
 })
     .then((linksData) => {
         linksByCategory = getLinksByCategory(linksData)
-        CATEGORIES.forEach((cat) => updateSvgData(cat, true))
+        categories.forEach((cat) => updateSvgData(cat, true))
         map.on('zoomend', updateSvgPaths)
     })
 
