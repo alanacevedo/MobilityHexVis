@@ -1,14 +1,10 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 
-import { accessToken, categories, colorMap } from "./static.js"
+import { accessToken } from "./token.js";
+import { categories, colorMap, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js"
 import { projectPoint } from "./utils/projectPoint.js";
 import { getLinksByCategory } from "./utils/helperFunctions.js";
-
-const INITIAL_CENTER = [-33.471258, -70.646552]
-const INITIAL_ZOOM = 11
-const MAX_ZOOM = 12
-const LINK_COUNT_THRESHOLD = 3
 
 const map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
 
