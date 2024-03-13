@@ -39,8 +39,18 @@ const updateSvgData = (cat, shouldDisplay) => {
         .data(data)
         .join("path")
         .attr("class", "cat" + cat)
+        .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorMap[cat])
         .attr("d", linkData => getPathFromLinkData(linkData, map))
+        .on("mouseover", function (event, d) {
+            // this contiene el elemento path, event es el evento, d contiene los datos
+            d3.select(this).style('stroke', '#00688B')
+        })
+        .on("mouseout", function (d) {
+
+            d3.select(this).style('stroke', colorMap[cat]);
+        })
+
 }
 
 d3.json("/data/kmeans_edges.json")

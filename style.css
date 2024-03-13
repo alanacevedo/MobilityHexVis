@@ -13,9 +13,8 @@
     height: 500px;
   }
 
-  .edge {
+  .catabc1, .catc2, .catc3, .catd, .cate {
     fill: none;
-    stroke: #252525;
-    stroke-width: 1px;
+    stroke-width: 3;
     stroke-opacity: 0.3;
   }
