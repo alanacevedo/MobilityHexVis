@@ -9,7 +9,7 @@ function distance(link) {
     return Math.sqrt(dx2 + dy2)
 }
 
-function getLinksByCategory(linksData) {
+function getRawLinksByCategory(linksData) {
     const linksByCategory = {}
 
     categories.forEach(category => {
@@ -17,10 +17,14 @@ function getLinksByCategory(linksData) {
     })
 
     linksData.forEach(linkData => {
-        linksByCategory[linkData.category].push(linkData)
+        linksByCategory[linkData.category].push([
+            [linkData.lat_start, linkData.lon_start],
+            [linkData.lat_end, linkData.lon_end],
+            linkData.count
+        ])
     })
 
     return linksByCategory
 }
 
-export { getLinksByCategory }
+export { getRawLinksByCategory }
