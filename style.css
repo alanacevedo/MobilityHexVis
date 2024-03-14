@@ -17,4 +17,12 @@
     fill: none;
     stroke-width: 3;
     stroke-opacity: 0.3;
+
   }
+
+  .leaflet-grab {
+    cursor: auto;
+ }
+ .leaflet-dragging .leaflet-grab{
+    cursor: move;
+ }

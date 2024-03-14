@@ -4,7 +4,7 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { accessToken } from "./token.js";
 import { categories, colorMap, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js"
 import { getPathFromLinkData } from "./utils/projectPoint.js";
-import { getRawLinksByCategory } from "./utils/helperFunctions.js";
+import { getMaxCount, getRawLinksByCategory } from "./utils/helperFunctions.js";
 
 const map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
 
@@ -26,6 +26,7 @@ categories.forEach((cat) => {
 })
 
 let rawLinksByCategory, kMeansLinksByCategory
+const scales = {}
 
 const updateSvgPaths = () => {
     g.selectAll("path")
@@ -41,6 +42,8 @@ const updateSvgData = (cat, shouldDisplay) => {
         .attr("class", "cat" + cat)
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorMap[cat])
+        .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
+        .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
         .attr("d", linkData => getPathFromLinkData(linkData, map))
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
@@ -56,6 +59,10 @@ const updateSvgData = (cat, shouldDisplay) => {
 d3.json("/data/kmeans_edges.json")
     .then((data) => {
         kMeansLinksByCategory = data
+        const maxCount = getMaxCount(data)
+        scales["stroke-opacity"] = d3.scaleLinear().domain([0, maxCount]).range([0.5, 1])
+        console.log("XD", scales["stroke-opacity"])
+        scales["stroke-width"] = d3.scaleLinear().domain([0, maxCount]).range([0.5, 10])
     })
 
 d3.csv("/data/trips_by_category.csv", (data) => {

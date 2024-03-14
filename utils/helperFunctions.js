@@ -27,4 +27,14 @@ function getRawLinksByCategory(linksData) {
     return linksByCategory
 }
 
-export { getRawLinksByCategory }
+function getMaxCount(linksData) {
+    let max_count = 0
+    Object.values(linksData).forEach(arr => {
+        const counts = arr.map(x => x[2])
+        max_count = Math.max(max_count, Math.max(...counts))
+    })
+
+    return max_count
+}
+
+export { getRawLinksByCategory, getMaxCount }
