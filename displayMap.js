@@ -33,11 +33,20 @@ const updateSvgPaths = () => {
         .attr("d", linkData => getPathFromLinkData(linkData, map))
 }
 
+const tooltip = d3.select("body").append('div')
+    .attr('class', 'tooltip')
+    .style("position", "absolute")
+    .style("z-index", "1000")
+    .attr('width', 200)
+    .attr('height', 200)
+    .attr('id', 'tooltip')
+    .text("a simple tooltip")
+
 const updateSvgData = (cat, shouldDisplay) => {
-    const data = shouldDisplay ? kMeansLinksByCategory[cat] : []
+    const pathData = shouldDisplay ? kMeansLinksByCategory[cat] : []
 
     g.selectAll("path.cat" + cat)
-        .data(data)
+        .data(pathData)
         .join("path")
         .attr("class", "cat" + cat)
         .attr("style", "pointer-events: auto;")
@@ -46,13 +55,21 @@ const updateSvgData = (cat, shouldDisplay) => {
         .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
         .attr("d", linkData => getPathFromLinkData(linkData, map))
         .on("mouseover", function (event, d) {
+            tooltip
+                .style("left", (event.clientX + 10) + "px")
+                .style("top", (event.clientY - 5) + "px")
+                .text("Count: " + d[2])
+
+            tooltip.transition().duration(150).style("opacity", 0.9)
+            console.log("e", event)
             // this contiene el elemento path, event es el evento, d contiene los datos
             d3.select(this).style('stroke', '#00688B')
         })
-        .on("mouseout", function (d) {
-
+        .on("mouseout", function (event, d) {
+            tooltip.transition().duration(150).style("opacity", 0)
             d3.select(this).style('stroke', colorMap[cat]);
         })
+
 
 }
 
