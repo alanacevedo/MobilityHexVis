@@ -15,7 +15,23 @@ function getPathFromLinkData(linkData, LMap) {
     const [latlon_start, latlon_end, count] = linkData
     const start = projectPoint(latlon_start, LMap)
     const end = projectPoint(latlon_end, LMap)
-    return line([start, end])
+
+    // Usa curva de Bézier cuadrática, podría usar otras más complicadas.
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+
+    const midPoint = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
+    const xDif = (end.x - start.x)
+    const yDif = (end.y - start.y)
+    const theta = Math.atan(yDif / xDif)
+    const distance = Math.sqrt((xDif * xDif) + (yDif * yDif))
+    const offset = distance * 0.3
+    const controlPoint = {
+        x: midPoint.x + (offset * Math.cos(theta + Math.PI / 2)),
+        y: midPoint.y + (offset * Math.sin(theta + Math.PI / 2))
+    }
+
+
+    return `M ${start.x} ${start.y}  Q ${controlPoint.x} ${controlPoint.y}, ${end.x} ${end.y}`
 }
 
 export { getPathFromLinkData }

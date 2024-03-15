@@ -55,18 +55,20 @@ const updateSvgData = (cat, shouldDisplay) => {
         .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
         .attr("d", linkData => getPathFromLinkData(linkData, map))
         .on("mouseover", function (event, d) {
+            // this contiene el elemento path, event es el evento, d contiene los datos
+
             tooltip
-                .style("left", (event.clientX + 10) + "px")
-                .style("top", (event.clientY - 5) + "px")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 5) + "px")
                 .text("Count: " + d[2])
 
             tooltip.transition().duration(150).style("opacity", 0.9)
-            console.log("e", event)
-            // this contiene el elemento path, event es el evento, d contiene los datos
+
             d3.select(this).style('stroke', '#00688B')
         })
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
+
             d3.select(this).style('stroke', colorMap[cat]);
         })
 
@@ -79,7 +81,7 @@ d3.json("/data/kmeans_edges.json")
         const maxCount = getMaxCount(data)
         scales["stroke-opacity"] = d3.scaleLinear().domain([0, maxCount]).range([0.5, 1])
         console.log("XD", scales["stroke-opacity"])
-        scales["stroke-width"] = d3.scaleLinear().domain([0, maxCount]).range([0.5, 10])
+        scales["stroke-width"] = d3.scaleLinear().domain([0, maxCount]).range([0.5, 7])
     })
 
 d3.csv("/data/trips_by_category.csv", (data) => {
