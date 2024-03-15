@@ -22,7 +22,7 @@ function getPathFromLinkData(linkData, LMap) {
     const midPoint = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
     const xDif = (end.x - start.x)
     const yDif = (end.y - start.y)
-    const theta = Math.atan(yDif / xDif)
+    const theta = Math.atan2(yDif, xDif)
     const distance = Math.sqrt((xDif * xDif) + (yDif * yDif))
     const offset = distance * 0.3
     const controlPoint = {
@@ -30,8 +30,46 @@ function getPathFromLinkData(linkData, LMap) {
         y: midPoint.y + (offset * Math.sin(theta + Math.PI / 2))
     }
 
+    // Calculate arrowhead points
+    const angle = Math.atan2(end.y - controlPoint.y, end.x - controlPoint.x);
 
-    return `M ${start.x} ${start.y}  Q ${controlPoint.x} ${controlPoint.y}, ${end.x} ${end.y}`
+    // Define the length of the arrowhead (adjust as needed)
+    // Define the length of the arrowhead and the fraction to subtract from the endpoint
+    const arrowLength = 20;
+    const arrowStartFraction = 0.3; // Adjust as needed
+
+    // Calculate the adjusted endpoint for the arrowhead
+    const adjustedEnd = {
+        x: end.x - arrowStartFraction * arrowLength * Math.cos(angle),
+        y: end.y - arrowStartFraction * arrowLength * Math.sin(angle)
+    };
+
+    // Calculate the coordinates of the points of the arrowhead
+    const arrowheadPointFront = {
+        x: adjustedEnd.x - arrowLength * Math.cos(angle),
+        y: adjustedEnd.y - arrowLength * Math.sin(angle)
+    };
+
+    // Define the angle offset for the points to the left and right of the front point
+    const angleOffset = Math.PI / 8; // Adjust as needed
+
+    // Calculate the coordinates of the points to the left and right of the front point
+    const arrowheadPoint1 = {
+        x: adjustedEnd.x - arrowLength * Math.cos(angle + angleOffset),
+        y: adjustedEnd.y - arrowLength * Math.sin(angle + angleOffset)
+    };
+
+    const arrowheadPoint2 = {
+        x: adjustedEnd.x - arrowLength * Math.cos(angle - angleOffset),
+        y: adjustedEnd.y - arrowLength * Math.sin(angle - angleOffset)
+    };
+    // Construct the path string
+    const pathString = `M ${start.x} ${start.y} Q ${controlPoint.x} ${controlPoint.y}, ${end.x} ${end.y}`;
+
+    // Add arrowhead to the path string
+    const arrowheadPath = `L ${arrowheadPoint1.x} ${arrowheadPoint1.y} L ${arrowheadPointFront.x} ${arrowheadPointFront.y} L ${arrowheadPoint2.x} ${arrowheadPoint2.y} L ${end.x} ${end.y}`;
+
+    return pathString + arrowheadPath;
 }
 
 export { getPathFromLinkData }
