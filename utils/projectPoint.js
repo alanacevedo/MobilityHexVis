@@ -26,7 +26,7 @@ function drawCurvedPath(start, end) {
     const yDif = (end.y - start.y)
     const theta = Math.atan2(yDif, xDif)
     const distance = Math.sqrt((xDif * xDif) + (yDif * yDif))
-    const offset = distance * 0.3
+    const offset = distance * 0.35
     const controlPoint = {
         x: midPoint.x + (offset * Math.cos(theta + Math.PI / 2)),
         y: midPoint.y + (offset * Math.sin(theta + Math.PI / 2))
