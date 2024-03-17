@@ -1,10 +1,10 @@
 body {
-  padding-top: 100px; /* Adjust this value according to navbar height */
+  padding-top: 6vh;
 }
 
-#map {
-    width: 600px;
-    height: 500px;
+.leafletMap {
+    width: 100%;
+    aspect-ratio : 1 / 1;
   }
 
   .catabc1, .catc2, .catc3, .catd, .cate {

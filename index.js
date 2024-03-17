@@ -1,6 +1,8 @@
 import { injectAllHTML } from "./js/injectHTML.js";
-import { displayMap } from "./js/displayMap.js";
+import { categories } from "./js/static.js";
+import { displayGeneralMap } from "./js/displayGeneralMap.js";
 import { loadKMeansData, loadRawData } from "./js/loadData.js";
+import { displayMap } from "./js/displayMap.js";
 
 injectAllHTML()
 
@@ -9,6 +11,7 @@ injectAllHTML()
 const kMeansData = await loadKMeansData()
 const rawData = await loadRawData()
 const data = { kMeansData, rawData }
-displayMap(data)
+displayGeneralMap(data)
 
+categories.forEach((cat) => displayMap(cat, data))
 
