@@ -5,22 +5,11 @@ import { accessToken } from "./token.js";
 import { categories, colorMap, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js"
 import { getPathFromLinkData } from "./utils/projectPoint.js";
 
-function displayMap(cat, data) {
-    const capitalizedCat = cat.charAt(0).toUpperCase() + cat.slice(1);
-    const map = L.map('map' + capitalizedCat).setView(INITIAL_CENTER, INITIAL_ZOOM);
+function displayMap(cat, data, map) {
+    const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
 
-    L.tileLayer(
-        `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
-        { maxZoom: MAX_ZOOM }
-    ).addTo(map)
-
-    L.svg({ clickable: true }).addTo(map)
-
-    const overlay = d3.select(map.getPanes().overlayPane)
-    const svg = overlay.select('svg').attr("pointer-events", "auto")
-
-    // create a group that is hidden during zooming, because svg lines are updated after the zoom finishes
-    const g = svg.append('g').attr('class', 'leaflet-zoom-hide')
+    const pathFuncSelect = d3.select("#smallMapPathFuncSelect") // used for selecting path creation function
+    pathFuncSelect.on("change", e => updateSvgPaths())
 
     const kMeansLinksByCategory = data.kMeansData.data
     const maxCount = data.kMeansData.maxCount
@@ -31,12 +20,12 @@ function displayMap(cat, data) {
     }
 
     const updateSvgPaths = () => {
+        console.log("wena")
         g.selectAll("path")
-            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
+            .attr("d", linkData => getPathFromLinkData(linkData, pathFuncSelect.property("value"), map))
     }
 
 
-    // uses tooltip div created by displayMapGeneral
     const tooltip = d3.select(".tooltip")
 
     const pathData = kMeansLinksByCategory[cat]
@@ -49,7 +38,7 @@ function displayMap(cat, data) {
         .style("stroke", d => colorMap[cat])
         .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
         .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
-        .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
+        .attr("d", linkData => getPathFromLinkData(linkData, pathFuncSelect.property("value"), map))
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 

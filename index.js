@@ -1,17 +1,22 @@
 import { injectAllHTML } from "./js/injectHTML.js";
 import { categories } from "./js/static.js";
-import { displayGeneralMap } from "./js/displayGeneralMap.js";
-import { loadKMeansData, loadRawData } from "./js/loadData.js";
+import { displayLargeSingle } from "./js/displayLargeSingle.js";
+import { loadData } from "./js/loadData.js";
 import { displayMap } from "./js/displayMap.js";
-
-injectAllHTML()
+import { addTooltipDiv, addLeafletMaps } from "./js/utils/domFunctions.js";
 
 // Injects contents from .html files into index.html
+injectAllHTML()
 
-const kMeansData = await loadKMeansData()
-const rawData = await loadRawData()
-const data = { kMeansData, rawData }
-displayGeneralMap(data)
+const data = await loadData()
 
-categories.forEach((cat) => displayMap(cat, data))
+// adds a div that shows data for paths
+addTooltipDiv()
+
+// add leaflet maps to the respective divs
+const maps = addLeafletMaps()
+
+displayLargeSingle(data, maps["largeSingle"])
+
+categories.forEach((cat) => displayMap(cat, data, maps[cat]))
 

@@ -1,6 +1,13 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { getMaxCount, getRawLinksByCategory } from "./utils/helperFunctions.js";
 
+async function loadData() {
+    const kMeansData = await loadKMeansData()
+    const rawData = await loadRawData()
+    const data = { kMeansData, rawData }
+    return data
+}
+
 async function loadKMeansData() {
     try {
         const data = await d3.json("/data/kmeans_edges.json")
@@ -27,4 +34,4 @@ async function loadRawData() {
     }
 }
 
-export { loadKMeansData, loadRawData }
+export { loadData }

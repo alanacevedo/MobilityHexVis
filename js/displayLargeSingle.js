@@ -1,25 +1,16 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 
-import { accessToken } from "./token.js";
-import { categories, colorMap, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js"
+import { categories, colorMap } from "./static.js"
 import { getPathFromLinkData } from "./utils/projectPoint.js";
 
-function displayGeneralMap(data) {
-    const map = L.map('mapGeneral').setView(INITIAL_CENTER, INITIAL_ZOOM);
+function displayLargeSingle(data, map) {
+    const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
 
-    L.tileLayer(
-        `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
-        { maxZoom: MAX_ZOOM }
-    ).addTo(map)
-
-    L.svg({ clickable: true }).addTo(map)
-
-    const overlay = d3.select(map.getPanes().overlayPane)
-    const svg = overlay.select('svg').attr("pointer-events", "auto")
-    const g = svg.append('g').attr('class', 'leaflet-zoom-hide') // create a group that is hidden during zooming, because svg lines are updated after the zoom finishes
 
     d3.select(".categoryCheckboxes").selectAll(".customCheckbox").property("checked", true)
+
+    const pathFuncSelect = d3.select("#bigMapPathFuncSelect") // used for selecting path creation function
+    pathFuncSelect.on("change", e => updateSvgPaths())
 
     categories.forEach((cat) => {
         d3.select("#cbox" + cat).on("change", (e) => updateSvgData(cat, e.target.checked))
@@ -41,17 +32,10 @@ function displayGeneralMap(data) {
 
     const updateSvgPaths = () => {
         g.selectAll("path")
-            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
+            .attr("d", linkData => getPathFromLinkData(linkData, pathFuncSelect.property("value"), map))
     }
 
-    const tooltip = d3.select("body").append('div')
-        .attr('class', 'tooltip')
-        .style("position", "absolute")
-        .style("z-index", "1000")
-        .attr('width', 200)
-        .attr('height', 200)
-        .attr('id', 'tooltip')
-        .text("a simple tooltip")
+    const tooltip = d3.select(".tooltip")
 
     const updateSvgData = (cat, shouldDisplay) => {
         const pathData = shouldDisplay ? kMeansLinksByCategory[cat] : []
@@ -64,7 +48,7 @@ function displayGeneralMap(data) {
             .style("stroke", d => colorMap[cat])
             .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
             .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
-            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
+            .attr("d", linkData => getPathFromLinkData(linkData, pathFuncSelect.property("value"), map))
             .on("mouseover", function (event, d) {
                 // this contiene el elemento path, event es el evento, d contiene los datos
 
@@ -89,4 +73,4 @@ function displayGeneralMap(data) {
 
 }
 
-export { displayGeneralMap }
+export { displayLargeSingle }

@@ -1,16 +1,26 @@
 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Dark offcanvas</h5>
+    <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Configuración</h5>
     <button type="button" class="btn-close " data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
       <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="#">Home</a>
+        <a class="nav-link active" aria-current="page" href="#">Large Single SVG Path Function</a>
+        <select id="bigMapPathFuncSelect" class="form-select">
+          <option value="protoCurve">Prototype Curve</option>
+          <option value="line">Line</option>
+        </select>
       </li>
+
       <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link active" aria-current="page" href="#">Small Multiple SVG Path Function</a>
+        <select id="smallMapPathFuncSelect" class="form-select">
+          <option value="protoCurve">Prototype Curve</option>
+          <option value="line">Line</option>
+        </select>
       </li>
+      
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Dropdown
@@ -25,9 +35,6 @@
         </ul>
       </li>
     </ul>
-    <form class="d-flex mt-3" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-success" type="submit">Search</button>
-    </form>
+    
   </div>
 </div>
