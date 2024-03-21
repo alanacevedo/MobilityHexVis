@@ -8,13 +8,23 @@ function projectPoint(latlon, LMap) {
     return LMap.latLngToLayerPoint(new L.LatLng(latlon[0], latlon[1]))
 }
 
-function getPathFromLinkData(linkData, LMap) {
+function getPathFromLinkData(linkData, pathType, LMap) {
     const [latlon_start, latlon_end, count] = linkData
     const start = projectPoint(latlon_start, LMap)
     const end = projectPoint(latlon_end, LMap)
+    const drawPathFunction = drawPathFunctionMap[pathType]
+    return drawPathFunction(start, end)
 
-    return drawCurvedPath(start, end)
+}
 
+const drawPathFunctionMap = {
+    line: drawLinePath,
+    protoCurve: drawCurvedPath
+}
+
+function drawLinePath(start, end) {
+    const line = d3.line().x(d => d.x).y(d => d.y)
+    return line([start, end])
 }
 
 function drawCurvedPath(start, end) {

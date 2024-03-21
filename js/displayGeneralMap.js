@@ -26,7 +26,12 @@ function displayGeneralMap(data) {
     })
 
     const kMeansLinksByCategory = data.kMeansData.data
-    // filter data.count > LINK_COUNT_THRESHOLD ? data : null
+
+    /*
+    for (const [cat, dataArray] of Object.entries(kMeansLinksByCategory)) {
+        kMeansLinksByCategory[cat] = dataArray.filter(data => data[2] > LINK_COUNT_THRESHOLD)
+    }
+    */
 
     const maxCount = data.kMeansData.maxCount
     const scales = {
@@ -36,7 +41,7 @@ function displayGeneralMap(data) {
 
     const updateSvgPaths = () => {
         g.selectAll("path")
-            .attr("d", linkData => getPathFromLinkData(linkData, map))
+            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
     }
 
     const tooltip = d3.select("body").append('div')
@@ -59,7 +64,7 @@ function displayGeneralMap(data) {
             .style("stroke", d => colorMap[cat])
             .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
             .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
-            .attr("d", linkData => getPathFromLinkData(linkData, map))
+            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
             .on("mouseover", function (event, d) {
                 // this contiene el elemento path, event es el evento, d contiene los datos
 

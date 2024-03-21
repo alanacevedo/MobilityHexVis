@@ -32,7 +32,7 @@ function displayMap(cat, data) {
 
     const updateSvgPaths = () => {
         g.selectAll("path")
-            .attr("d", linkData => getPathFromLinkData(linkData, map))
+            .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
     }
 
 
@@ -49,7 +49,7 @@ function displayMap(cat, data) {
         .style("stroke", d => colorMap[cat])
         .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
         .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
-        .attr("d", linkData => getPathFromLinkData(linkData, map))
+        .attr("d", linkData => getPathFromLinkData(linkData, "protoCurve", map))
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
