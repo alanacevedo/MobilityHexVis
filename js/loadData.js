@@ -4,6 +4,8 @@ import { getMaxCount, getRawLinksByCategory } from "./utils/helperFunctions.js";
 async function loadData() {
     const kMeansData = await loadKMeansData()
     const rawData = await loadRawData()
+    addPercentageToData(kMeansData.data)
+    addPercentageToData(rawData.data)
     const data = { kMeansData, rawData }
     return data
 }
@@ -18,7 +20,6 @@ async function loadKMeansData() {
     } catch (error) {
         console.error("Error loading KMeans data:", error)
     }
-
 }
 
 async function loadRawData() {
@@ -31,6 +32,14 @@ async function loadRawData() {
 
     } catch (error) {
         console.error("Error loading Raw data:", error)
+    }
+}
+
+// agrega a cada arista el peso porcentual de su count respecto al total de su categoría
+function addPercentageToData(data) {
+    for (const [cat, linksData] of Object.entries(data)) {
+        const total = linksData.reduce((currSum, linkData) => currSum + linkData[2], 0)
+        linksData.forEach(linkData => linkData.push(linkData[2] / total))
     }
 }
 

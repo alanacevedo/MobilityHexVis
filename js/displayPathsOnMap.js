@@ -12,15 +12,15 @@ function displayPathsOnMap(cat, pathData, map, scales) {
         .attr("class", "cat" + cat)
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorMap[cat])
-        .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[2]) : 0)
-        .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[2]) : 0)
+        .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[3]) : 0)
+        .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[3]) : 0)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text("Count: " + d[2])
+                .text(d[3].toFixed(2) + " % " + cat)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 

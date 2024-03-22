@@ -13,8 +13,8 @@ function updateSvgPaths(map) {
 
 function getScales(maxCount) {
     const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, maxCount]).range([0.5, 1]),
-        "stroke-width": d3.scaleLinear().domain([0, maxCount]).range([0.5, 7])
+        "stroke-opacity": d3.scaleLinear().domain([0, 1]).range([0.5, 1]),
+        "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7])
     }
 
     return scales
