@@ -1,7 +1,6 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
 import { colorMap } from "./static.js"
-import { getScales } from "./utils/drawFunctions.js";
 
 function displayPathsOnMap(cat, pathData, map, scales) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")

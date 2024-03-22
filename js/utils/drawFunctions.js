@@ -2,10 +2,12 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { getPathFromLinkData } from "./projectPoint.js";
 
 
+
 function updateSvgPaths(map) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const pathFuncSelect = d3.select("#mapPathFuncSelect")
 
+    // could be optimized by using "path.cat" + cat to only update paths of the (un)checked category.
     g.selectAll("path").attr("d", linkData => getPathFromLinkData(linkData, pathFuncSelect.property("value"), map))
 }
 
