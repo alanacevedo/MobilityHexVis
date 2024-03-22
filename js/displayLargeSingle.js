@@ -6,10 +6,7 @@ import { getPathFromLinkData } from "./utils/projectPoint.js";
 function displayLargeSingle(data, map) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
 
-
-    d3.select(".categoryCheckboxes").selectAll(".customCheckbox").property("checked", true)
-
-    const pathFuncSelect = d3.select("#bigMapPathFuncSelect") // used for selecting path creation function
+    const pathFuncSelect = d3.select("#mapPathFuncSelect") // used for selecting path creation function
     pathFuncSelect.on("change", e => updateSvgPaths())
 
     categories.forEach((cat) => {

@@ -1,14 +1,19 @@
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { injectAllHTML } from "./js/injectHTML.js";
 import { categories } from "./js/static.js";
 import { displayLargeSingle } from "./js/displayLargeSingle.js";
 import { loadData } from "./js/loadData.js";
-import { displayMap } from "./js/displayMap.js";
+import { displayPathsOnMap } from "./js/displayPathsOnMap.js";
 import { addTooltipDiv, addLeafletMaps } from "./js/utils/domFunctions.js";
+import { updateSvgPaths, getScales } from "./js/utils/drawFunctions.js";
 
 // Injects contents from .html files into index.html
 injectAllHTML()
 
-const data = await loadData()
+// Data initially displayed by large single
+d3.select(".categoryCheckboxes").selectAll(".customCheckbox").property("checked", true)
+
+const allData = await loadData()
 
 // adds a div that shows data for paths
 addTooltipDiv()
@@ -16,7 +21,22 @@ addTooltipDiv()
 // add leaflet maps to the respective divs
 const maps = addLeafletMaps()
 
-displayLargeSingle(data, maps["largeSingle"])
+displayLargeSingle(allData, maps["largeSingle"])
 
-categories.forEach((cat) => displayMap(cat, data, maps[cat]))
+categories.forEach((cat) => {
+    const { data, maxCount } = allData.kMeansData
+    const scales = getScales(maxCount)
+    const map = maps[cat]
+    const pathData = data[cat]
+
+    displayPathsOnMap(cat, pathData, map, scales)
+    updateSvgPaths(map)
+    map.on('zoomend', () => updateSvgPaths(map))
+})
+
+// used for selecting path creation function
+const pathFuncSelect = d3.select("#mapPathFuncSelect")
+pathFuncSelect.on("change", e => {
+    categories.forEach(cat => updateSvgPaths(maps[cat]))
+})
 

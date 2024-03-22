@@ -12,7 +12,6 @@ function addTooltipDiv() {
         .attr('width', 200)
         .attr('height', 200)
         .attr('id', 'tooltip')
-        .text("a simple tooltip")
 }
 
 function addLeafletMaps() {
