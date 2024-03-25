@@ -12,7 +12,7 @@ function updateSvgPaths(map, displayTypeString) {
 
 function getScales() {
     const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, 1]).range([0.5, 1]),
+        "stroke-opacity": d3.scaleLinear().domain([0, 0.3]).range([0.2, 1]),
         "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7])
     }
 
@@ -51,4 +51,4 @@ function setDataSettingsOnMap(cat, pathData, map) {
         })
 }
 
-export { updateSvgPaths, setDataSettingsOnMap }
+export { updateSvgPaths, setDataSettingsOnMap, getScales }

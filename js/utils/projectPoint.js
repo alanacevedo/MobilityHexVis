@@ -84,4 +84,4 @@ function drawCurvedPath(start, end) {
     return pathString + arrowheadPath;
 }
 
-export { getPathFromLinkData }
+export { getPathFromLinkData, projectPoint }
