@@ -1,36 +1,59 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 
-import { colorMap } from "./static.js"
+import { categories } from "./static.js";
+import { updateSvgPaths, setDataSettingsOnMap } from "./utils/drawFunctions.js";
 
-function displayPathsOnMap(cat, pathData, map, scales) {
-    const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
-    const tooltip = d3.select(".tooltip")
+function displayDataToAllMaps(maps, givenData, displayTypeString) {
+    if (displayTypeString === "forceDirected") {
+        displayForceDirectedToAllMaps(maps, givenData)
+        return
+    }
 
-    g.selectAll("path.cat" + cat)
-        .data(pathData)
-        .join("path")
-        .attr("class", "cat" + cat)
-        .attr("style", "pointer-events: auto;")
-        .style("stroke", d => colorMap[cat])
-        .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[3]) : 0)
-        .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[3]) : 0)
-        .on("mouseover", function (event, d) {
-            // this contiene el elemento path, event es el evento, d contiene los datos
-
-            tooltip
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 5) + "px")
-                .text(d[3].toFixed(2) + " % " + cat)
-
-            tooltip.transition().duration(150).style("opacity", 0.9)
-
-            d3.select(this).style('stroke', '#00688B')
-        })
-        .on("mouseout", function (event, d) {
-            tooltip.transition().duration(150).style("opacity", 0)
-
-            d3.select(this).style('stroke', colorMap[cat]);
-        })
-
+    defaultDisplayDataToAllMaps(maps, givenData, displayTypeString)
 }
-export { displayPathsOnMap }
+
+function defaultDisplayDataToAllMaps(maps, givenData, displayTypeString) {
+    // Set the data to be displayed in each map
+
+    const largeSingleMap = maps["largeSingle"]
+
+    categories.forEach((cat) => {
+        const { data, maxCount } = givenData
+
+        const map = maps[cat]
+        const pathData = data[cat]
+
+        setDataSettingsOnMap(cat, pathData, map)
+        setDataSettingsOnMap(cat, pathData, largeSingleMap)
+
+        // large single checkbox
+        d3.select("#cbox" + cat).on("change", (e) => {
+            const shouldDisplay = e.target.checked
+            setDataSettingsOnMap(cat, shouldDisplay ? pathData : [], largeSingleMap)
+            updateSvgPaths(largeSingleMap, displayTypeString)
+        })
+
+        // Display the data on each map
+        updateSvgPaths(map, displayTypeString)
+        map.on('zoomend', () => updateSvgPaths(map, displayTypeString))
+
+    })
+
+    updateSvgPaths(largeSingleMap, displayTypeString)
+    largeSingleMap.on('zoomend', () => updateSvgPaths(largeSingleMap, displayTypeString))
+}
+
+function displayForceDirectedToAllMaps(maps, givenData) {
+    const largeSingleMap = maps["largeSingle"]
+
+    categories.forEach(cat => {
+        const map = maps[cat]
+        const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
+        g.selectAll("path.cat" + cat)
+            .data([])
+            .join("path")
+            .attr("class", "cat" + cat)
+    })
+}
+
+export { displayDataToAllMaps }
