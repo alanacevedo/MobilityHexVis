@@ -2,10 +2,10 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../js/static.js";
 import { accessToken } from "../js/token.js";
+import { setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
 
 
-
-const MAPS_PER_ROW = 4
+const MAPS_PER_ROW = 5
 
 function addMapRow(insertionIndex) {
     const container = d3.select("#rowsContainer")
@@ -17,6 +17,8 @@ function addMapRow(insertionIndex) {
     newRowDiv.classList.add(...newRowClasses)
 
     container.node().insertBefore(newRowDiv, referenceElement.node())
+
+    const mapRow = []
 
     for (let i = 0; i < MAPS_PER_ROW; i++) {
         const colDiv = document.createElement("div")
@@ -30,9 +32,11 @@ function addMapRow(insertionIndex) {
         mapDiv.classList.add("leafletMap")
         colDiv.appendChild(mapDiv)
 
-        addMap(mapDiv)
+        const map = addMap(mapDiv)
+        mapRow.push(map)
     }
 
+    return mapRow
 }
 
 function addMap(mapDiv) {
@@ -55,4 +59,37 @@ function addMap(mapDiv) {
     return map
 }
 
-export { addMapRow }
+function displayDataOnRow(data, mapRow) {
+
+
+
+    const dataByGroup = getDataByGroup(data)
+
+
+    for (let i = 0; i < mapRow.length - 1; i++) {
+        const map = mapRow[i]
+        const pathData = dataByGroup[i + 1]
+        setDataSettingsOnMap(pathData, map)
+        updateSvgPaths(map, "line")
+    }
+
+
+}
+
+function getDataByGroup(data) {
+    const dataByGroup = {}
+
+    for (const entry of data) {
+        const group = entry.group
+        if (group in dataByGroup) {
+            dataByGroup[group].push(entry)
+        } else {
+            dataByGroup[group] = [entry]
+        }
+    }
+
+    return dataByGroup
+}
+
+
+export { addMapRow, displayDataOnRow }

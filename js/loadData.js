@@ -44,4 +44,13 @@ function addPercentageToData(data) {
     }
 }
 
-export { loadData }
+async function loadRawODData() {
+    try {
+        const data = await d3.csv("/data/od_11_15_cuartil.csv")
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export { loadData, loadRawODData }

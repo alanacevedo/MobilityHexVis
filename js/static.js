@@ -1,10 +1,10 @@
 const categories = ["abc1", "c2", "c3", "d"]
 
 const colorMap = {
-    abc1: "brown",
-    c2: "red",
-    c3: "green",
-    d: "blue",
+    "1": "brown",
+    "2": "red",
+    "3": "green",
+    "4": "blue",
 }
 
 const INITIAL_CENTER = [-33.471258, -70.646552]

@@ -6,7 +6,6 @@ import { colorMap } from "../static.js";
 function updateSvgPaths(map, displayTypeString) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
 
-    // could be optimized by using "path.cat" + cat to only update paths of the (un)checked category.
     g.selectAll("path").attr("d", linkData => getPathFromLinkData(linkData, displayTypeString, map))
 }
 
@@ -19,26 +18,26 @@ function getScales() {
     return scales
 }
 
-function setDataSettingsOnMap(cat, pathData, map) {
+function setDataSettingsOnMap(pathData, map) {
     const scales = getScales()
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const tooltip = d3.select(".tooltip")
 
-    g.selectAll("path.cat" + cat)
+    g.selectAll("path") // ("path.cat" + cat)
         .data(pathData)
         .join("path")
-        .attr("class", "cat" + cat)
+        //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
-        .style("stroke", d => colorMap[cat])
-        .style("stroke-opacity", d => scales["stroke-opacity"] ? scales["stroke-opacity"](d[3]) : 0)
-        .style("stroke-width", d => scales["stroke-width"] ? scales["stroke-width"](d[3]) : 0)
+        .style("stroke", d => colorMap[d.group])
+        .style("stroke-opacity", d => 1)
+        .style("stroke-width", d => 4)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text(d[3].toFixed(2) + " % " + cat)
+                .text(`distance: ${Number(d.distance).toFixed(2)}`)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 
@@ -47,7 +46,7 @@ function setDataSettingsOnMap(cat, pathData, map) {
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
 
-            d3.select(this).style('stroke', colorMap[cat]);
+            d3.select(this).style('stroke', d => colorMap[d.group]);
         })
 }
 

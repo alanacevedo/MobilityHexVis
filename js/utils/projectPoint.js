@@ -9,7 +9,8 @@ function projectPoint(latlon, LMap) {
 }
 
 function getPathFromLinkData(linkData, pathType, LMap) {
-    const [latlon_start, latlon_end, count] = linkData
+    const latlon_start = [linkData.lat_O, linkData.lon_O]
+    const latlon_end = [linkData.lat_D, linkData.lon_D]
     const start = projectPoint(latlon_start, LMap)
     const end = projectPoint(latlon_end, LMap)
     const drawPathFunction = drawPathFunctionMap[pathType]
