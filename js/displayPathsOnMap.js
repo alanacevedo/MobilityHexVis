@@ -20,7 +20,7 @@ function defaultDisplayDataToAllMaps(maps, givenData, displayTypeString) {
     const largeSingleMap = maps["largeSingle"]
 
     categories.forEach((cat) => {
-        const { data, maxCount } = givenData
+        const data = givenData
 
         const map = maps[cat]
         const pathData = data[cat]
@@ -55,7 +55,7 @@ function displayForceDirectedToAllMaps(maps, givenData) {
 
     categories.forEach(cat => {
 
-        const linksData = (givenData.data)[cat]
+        const linksData = givenData[cat]
         const map = maps[cat]
         const bundle = generateSegments(linksData, map)
         const scales = getScales()
@@ -73,7 +73,6 @@ function displayForceDirectedToAllMaps(maps, givenData) {
             .attr("d", d => line(d.path))
             .on("mouseover", function (event, d) {
                 // this contiene el elemento path, event es el evento, d contiene los datos
-
                 tooltip
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 5) + "px")
@@ -95,13 +94,13 @@ function displayForceDirectedToAllMaps(maps, givenData) {
             .alphaDecay(0.2)
             // nearby nodes attract each other
             .force("charge", d3.forceManyBody()
-                .strength(10)
+                .strength(2)
                 .distanceMax(5)
             )
             // edges want to be as short as possible
             // prevents too much stretching
             .force("link", d3.forceLink()
-                .strength(0.7)
+                .strength(1)
                 .distance(0)
             )
             .on("tick", function (d) {

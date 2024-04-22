@@ -27,9 +27,10 @@ function addLeafletMaps() {
 // TODO: Credit Leaflet in About section
 function addLeafletMap(cat) {
     const capitalizedCat = cat.charAt(0).toUpperCase() + cat.slice(1)
-    const map = L.map('map' + capitalizedCat, { attributionControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM)
+    console.log(capitalizedCat)
+    const map = L.map('map' + capitalizedCat, { attributionControl: false, zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM)
     L.tileLayer(
-        `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
+        `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
         { maxZoom: MAX_ZOOM }
     ).addTo(map)
 

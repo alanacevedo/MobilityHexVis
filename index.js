@@ -5,14 +5,15 @@ import { loadData } from "./js/loadData.js";
 import { displayDataToAllMaps } from "./js/displayPathsOnMap.js";
 import { addTooltipDiv, addLeafletMaps } from "./js/utils/domFunctions.js";
 import { updateSvgPaths } from "./js/utils/drawFunctions.js";
+import { addMapRow } from "./js/addMapRow.js";
+
 
 // Injects contents from .html files into index.html
 injectAllHTML()
-
 // Data initially displayed by large single
 d3.select(".categoryCheckboxes").selectAll(".customCheckbox").property("checked", true)
 
-const allData = await loadData()
+// const allData = await loadData()
 
 // adds a div that shows data for paths
 addTooltipDiv()
@@ -22,10 +23,16 @@ const maps = addLeafletMaps()
 
 const pathFuncSelect = d3.select("#mapPathFuncSelect")
 
-displayDataToAllMaps(maps, allData.kMeansData, pathFuncSelect.property("value"))
+
+
+setTimeout(() => d3.select("#addRowButton").on("click", () => addMapRow(1)), 500)
+/*
+
+displayDataToAllMaps(maps, allData.rawData, pathFuncSelect.property("value"))
 
 
 pathFuncSelect.on("change", e => {
-    displayDataToAllMaps(maps, allData.kMeansData, pathFuncSelect.property("value"))
+    displayDataToAllMaps(maps, allData.rawData, pathFuncSelect.property("value"))
 })
 
+*/

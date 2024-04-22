@@ -1,15 +1,14 @@
-const categories = ["abc1", "c2", "c3", "d", "e"]
+const categories = ["abc1", "c2", "c3", "d"]
 
 const colorMap = {
     abc1: "brown",
     c2: "red",
     c3: "green",
     d: "blue",
-    e: "purple"
 }
 
 const INITIAL_CENTER = [-33.471258, -70.646552]
-const INITIAL_ZOOM = 10
+const INITIAL_ZOOM = 9
 const MAX_ZOOM = 12
 
 const LINK_COUNT_THRESHOLD = 2
