@@ -7,7 +7,7 @@ import { setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
 
 const MAPS_PER_ROW = 5
 
-function addMapRow(insertionIndex) {
+function addMapRow(insertionIndex, mapMatrix) {
     const container = d3.select("#rowsContainer")
     const mapRows = container.selectAll(".mapRow")
     const referenceElement = mapRows.filter((d, i) => i === insertionIndex)
@@ -32,14 +32,25 @@ function addMapRow(insertionIndex) {
         mapDiv.classList.add("leafletMap")
         colDiv.appendChild(mapDiv)
 
-        const map = addMap(mapDiv)
+        const map = addMap(mapDiv, mapMatrix)
         mapRow.push(map)
     }
 
-    return mapRow
+    // insert at a certain index?
+    mapMatrix.splice(insertionIndex, 0, mapRow)
+    return
 }
 
-function addMap(mapDiv) {
+function setViewToAllMaps(mapMatrix, center, zoom) {
+    for (const mapRow of mapMatrix) {
+        if (!mapRow) continue;
+        for (const map of mapRow) {
+            map.setView(center, zoom)
+        }
+    }
+}
+
+function addMap(mapDiv, mapMatrix) {
     const map = L.map(mapDiv, { attributionControl: false, zoomControl: false })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
 
@@ -56,15 +67,21 @@ function addMap(mapDiv) {
     // create a group that is hidden during zooming, because svg lines are updated after the zoom finishes
     svg.append('g').attr('class', 'leaflet-zoom-hide')
 
+
+    map.on('zoomend', () => {
+        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
+        updateSvgPaths(map, "line")
+    })
+
+    map.on('mouseup', () => {
+        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
+    })
+
     return map
 }
 
 function displayDataOnRow(data, mapRow) {
-
-
-
     const dataByGroup = getDataByGroup(data)
-
 
     for (let i = 0; i < mapRow.length - 1; i++) {
         const map = mapRow[i]
@@ -72,8 +89,6 @@ function displayDataOnRow(data, mapRow) {
         setDataSettingsOnMap(pathData, map)
         updateSvgPaths(map, "line")
     }
-
-
 }
 
 function getDataByGroup(data) {

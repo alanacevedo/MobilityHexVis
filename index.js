@@ -30,8 +30,7 @@ console.log(slices)
 const mapMatrix = []
 
 for (let i = 0; i < 4; i++) {
-    const row = addMapRow(i)
-    mapMatrix.push(row)
+    addMapRow(i, mapMatrix)
 }
 
 for (let i = 0; i < 4; i++) {
@@ -44,7 +43,7 @@ for (let i = 0; i < 4; i++) {
 
 const pathFuncSelect = d3.select("#mapPathFuncSelect")
 
-setTimeout(() => d3.select("#addRowButton").on("click", () => addMapRow(1)), 500)
+setTimeout(() => d3.select("#addRowButton").on("click", () => addMapRow(1, mapMatrix)), 500)
 /*
 
 displayDataToAllMaps(maps, allData.rawData, pathFuncSelect.property("value"))
