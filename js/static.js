@@ -1,7 +1,7 @@
 const categories = ["abc1", "c2", "c3", "d"]
 
 const colorMap = {
-    "1": "brown",
+    "1": "yellow",
     "2": "red",
     "3": "green",
     "4": "blue",

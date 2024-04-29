@@ -10,13 +10,13 @@ const MAPS_PER_ROW = 5
 function addMapRow(insertionIndex, mapMatrix) {
     const container = d3.select("#rowsContainer")
     const mapRows = container.selectAll(".mapRow")
-    const referenceElement = mapRows.filter((d, i) => i === insertionIndex)
+    const referenceRowDiv = mapRows.filter((d, i) => i === insertionIndex)
 
     const newRowClasses = ["mapRow", "mb-4", "row", "align-items-center", "justify-content-center"]
     const newRowDiv = document.createElement("div")
     newRowDiv.classList.add(...newRowClasses)
 
-    container.node().insertBefore(newRowDiv, referenceElement.node())
+    container.node().insertBefore(newRowDiv, referenceRowDiv.node())
 
     const mapRow = []
 
@@ -106,5 +106,17 @@ function getDataByGroup(data) {
     return dataByGroup
 }
 
+function removeMapRow(removalIndex, mapMatrix) {
+    const container = d3.select("#rowsContainer")
+    const mapRows = container.selectAll(".mapRow")
+    const referenceRowDiv = mapRows.filter((d, i) => i === removalIndex)
 
-export { addMapRow, displayDataOnRow }
+    for (const map of mapMatrix[removalIndex]) {
+        map.remove()
+    }
+
+    referenceRowDiv.node().remove()
+    mapMatrix.splice(removalIndex, 1)
+}
+
+export { addMapRow, displayDataOnRow, removeMapRow }
