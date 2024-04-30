@@ -40,8 +40,14 @@ for (let i = 0; i < 4; i++) {
 
 function handleBoundariesInput(string) {
 
-    const numbers = string.split(" ").map(x => Number(x))
+    let numbers = string.split(" ").map(x => Number(x))
+    if (string === "") {
+        numbers = []
+    }
+
     const indexes = []
+    const slices = []
+    let prevIndex = 0
 
     for (const number of numbers) {
         if (isNaN(number) || (number <= minDist) || (number >= maxDist)) {
@@ -65,15 +71,27 @@ function handleBoundariesInput(string) {
         indexes.push(l)
     }
 
-    const slices = []
-    let prevIndex = 0
-    for (const index of indexes) {
 
+    for (const index of indexes) {
+        slices.push(data.slice(prevIndex, index))
+        prevIndex = index
+    }
+    slices.push(data.slice(prevIndex))
+
+    const rowCount = slices.length
+
+    while (mapMatrix.length < rowCount) {
+        addMapRow(mapMatrix.length, mapMatrix)
     }
 
-    removeMapRow(mapMatrix.length - 1, mapMatrix)
+    while (mapMatrix.length > rowCount) {
+        removeMapRow(mapMatrix.length - 1, mapMatrix)
+    }
 
-    console.log(mapMatrix)
+    for (let i = 0; i < rowCount; i++) {
+        displayDataOnRow(slices[i], mapMatrix[i])
+    }
+
 
 }
 

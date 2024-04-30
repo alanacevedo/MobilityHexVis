@@ -85,7 +85,7 @@ function displayDataOnRow(data, mapRow) {
 
     for (let i = 0; i < mapRow.length - 1; i++) {
         const map = mapRow[i]
-        const pathData = dataByGroup[i + 1]
+        const pathData = dataByGroup[i + 1] ?? []
         setDataSettingsOnMap(pathData, map)
         updateSvgPaths(map, "line")
     }
