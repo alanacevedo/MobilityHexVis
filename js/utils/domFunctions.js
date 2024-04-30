@@ -2,6 +2,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { accessToken } from "../token.js";
 import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../static.js";
+import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
+import { displayRows } from "../mapFunctions.js";
 
 
 function addTooltipDiv() {
@@ -14,34 +16,40 @@ function addTooltipDiv() {
         .attr('id', 'tooltip')
 }
 
-function addLeafletMaps() {
-    const maps = {}
+// Define cómo actuan ciertos elementos del dom ante eventos.
+function setListenersUp(mapMatrix, data) {
+    const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
 
-    categories.concat(["largeSingle"]).forEach((cat) => {
-        maps[cat] = addLeafletMap(cat)
+    d3.select("#addRowButton").on("click", () => addMapRow(1, mapMatrix))
+
+    const node = d3.select("#boundariesInput").node()
+    node.setAttribute("placeholder", `Min: ${Number(minDist).toFixed(2)} Max: ${Number(maxDist).toFixed(2)}`)
+    node.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+            handleBoundariesInput(e.target.value, mapMatrix, data)
+        }
     })
-
-    return maps
 }
 
-// TODO: Credit Leaflet in About section
-function addLeafletMap(cat) {
-    const capitalizedCat = cat.charAt(0).toUpperCase() + cat.slice(1)
-    console.log(capitalizedCat)
-    const map = L.map('map' + capitalizedCat, { attributionControl: false, zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM)
-    L.tileLayer(
-        `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
-        { maxZoom: MAX_ZOOM }
-    ).addTo(map)
+function handleBoundariesInput(string, mapMatrix, data) {
 
-    L.svg({ clickable: true }).addTo(map)
+    let distances = string.split(" ").map(x => Number(x))
+    if (string === "") {
+        distances = []
+    }
 
-    const overlay = d3.select(map.getPanes().overlayPane)
-    const svg = overlay.select('svg').attr("pointer-events", "auto")
+    const rows = []
+    let prevIndex = 0
 
-    // create a group that is hidden during zooming, because svg lines are updated after the zoom finishes
-    svg.append('g').attr('class', 'leaflet-zoom-hide')
-    return map
+    const indexes = getBoundaryIndexesFromDistances(data, distances)
+
+    for (const index of indexes) {
+        rows.push(data.slice(prevIndex, index))
+        prevIndex = index
+    }
+    rows.push(data.slice(prevIndex))
+
+    displayRows(mapMatrix, rows)
 }
 
-export { addTooltipDiv, addLeafletMaps }
+export { addTooltipDiv, setListenersUp, handleBoundariesInput }

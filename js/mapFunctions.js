@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../js/static.js";
-import { accessToken } from "../js/token.js";
+import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js";
+import { accessToken } from "./token.js";
 import { setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
 
 
@@ -119,4 +119,20 @@ function removeMapRow(removalIndex, mapMatrix) {
     mapMatrix.splice(removalIndex, 1)
 }
 
-export { addMapRow, displayDataOnRow, removeMapRow }
+function displayRows(mapMatrix, rows) {
+    const rowCount = rows.length
+
+    while (mapMatrix.length < rowCount) {
+        addMapRow(mapMatrix.length, mapMatrix)
+    }
+
+    while (mapMatrix.length > rowCount) {
+        removeMapRow(mapMatrix.length - 1, mapMatrix)
+    }
+
+    for (let i = 0; i < rowCount; i++) {
+        displayDataOnRow(rows[i], mapMatrix[i])
+    }
+}
+
+export { addMapRow, displayDataOnRow, removeMapRow, displayRows }
