@@ -18,6 +18,4 @@ handleBoundariesInput("", mapMatrix, data)
 // timeout para que se pueda cargar recursivamente todo el HTML
 setTimeout(() => {
     setListenersUp(mapMatrix, data)
-    getClusterFlows(data)
-
 }, 500)

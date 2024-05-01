@@ -23,8 +23,8 @@ const drawPathFunctionMap = {
     protoCurve: drawCurvedPath
 }
 
+const line = d3.line().x(d => d.x).y(d => d.y)
 function drawLinePath(start, end) {
-    const line = d3.line().x(d => d.x).y(d => d.y)
     return line([start, end])
 }
 

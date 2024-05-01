@@ -38,18 +38,18 @@ function handleBoundariesInput(string, mapMatrix, data) {
         distances = []
     }
 
-    const rows = []
+    const rowDataSlices = []
     let prevIndex = 0
 
     const indexes = getBoundaryIndexesFromDistances(data, distances)
 
     for (const index of indexes) {
-        rows.push(data.slice(prevIndex, index))
+        rowDataSlices.push(data.slice(prevIndex, index))
         prevIndex = index
     }
-    rows.push(data.slice(prevIndex))
+    rowDataSlices.push(data.slice(prevIndex))
 
-    displayRows(mapMatrix, rows)
+    displayRows(mapMatrix, rowDataSlices)
 }
 
 export { addTooltipDiv, setListenersUp, handleBoundariesInput }

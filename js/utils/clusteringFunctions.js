@@ -2,8 +2,8 @@
 import { TupleMap } from "./TupleMap.js";
 import { point, featureCollection, clustersDbscan } from "@turf/turf";
 
-const MAX_DISTANCE_KM = 0.3
-const MIN_POINTS = 2
+const MAX_DISTANCE_KM = 0.4
+const MIN_POINTS = 1
 
 function getClusterFlows(data) {
     const uniqueOrigins = new TupleMap()
@@ -37,7 +37,6 @@ function getClusterFlows(data) {
 
     })
 
-    console.log(clusterIdFlows.data)
 
     const clusterFlows = []
     clusterIdFlows.data.forEach((destinationClusterMap, originCluster) => {
@@ -47,14 +46,15 @@ function getClusterFlows(data) {
             const destinationCentroidCoords = destinationCentroidMap.get(destinationCluster)
 
             clusterFlows.push({
-                origin: originCentroidCoords.coords,
-                destination: destinationCentroidCoords.coords,
+                lat_O: originCentroidCoords.coords[0],
+                lon_O: originCentroidCoords.coords[1],
+                lat_D: destinationCentroidCoords.coords[0],
+                lon_D: destinationCentroidCoords.coords[1],
                 counts: flowObj
             })
         })
     })
 
-    console.log(clusterFlows)
     return clusterFlows
 }
 

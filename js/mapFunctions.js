@@ -2,7 +2,9 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js";
 import { accessToken } from "./token.js";
-import { setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
+import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
+import { getClusterFlows } from "./utils/clusteringFunctions.js";
+import { addSimpsonIndexToFlow } from "./utils/segregationIndexes.js";
 
 
 const MAPS_PER_ROW = 5
@@ -80,8 +82,14 @@ function addMap(mapDiv, mapMatrix) {
     return map
 }
 
-function displayDataOnRow(data, mapRow) {
-    const dataByGroup = getDataByGroup(data)
+function displayDataOnRow(rowDataSlice, mapRow) {
+    const dataByGroup = getDataByGroup(rowDataSlice)
+    const clusteredFlows = getClusterFlows(rowDataSlice)
+
+
+    clusteredFlows.forEach(flow => {
+        addSimpsonIndexToFlow(flow)
+    })
 
     for (let i = 0; i < mapRow.length - 1; i++) {
         const map = mapRow[i]
@@ -89,6 +97,10 @@ function displayDataOnRow(data, mapRow) {
         setDataSettingsOnMap(pathData, map)
         updateSvgPaths(map, "line")
     }
+
+    const lastMap = mapRow[mapRow.length - 1]
+    setDataSettingsOnClusteredFlowMap(clusteredFlows, lastMap)
+    updateSvgPaths(lastMap, "line")
 }
 
 function getDataByGroup(data) {
@@ -119,8 +131,8 @@ function removeMapRow(removalIndex, mapMatrix) {
     mapMatrix.splice(removalIndex, 1)
 }
 
-function displayRows(mapMatrix, rows) {
-    const rowCount = rows.length
+function displayRows(mapMatrix, rowDataSlices) {
+    const rowCount = rowDataSlices.length
 
     while (mapMatrix.length < rowCount) {
         addMapRow(mapMatrix.length, mapMatrix)
@@ -131,7 +143,7 @@ function displayRows(mapMatrix, rows) {
     }
 
     for (let i = 0; i < rowCount; i++) {
-        displayDataOnRow(rows[i], mapMatrix[i])
+        displayDataOnRow(rowDataSlices[i], mapMatrix[i])
     }
 }
 
