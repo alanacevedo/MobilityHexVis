@@ -10,5 +10,10 @@
   },
   "devDependencies": {
     "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "@turf/clusters-dbscan": "^6.5.0",
+    "@turf/turf": "^6.5.0",
+    "d3": "^7.9.0"
   }
 }

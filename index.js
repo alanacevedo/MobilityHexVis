@@ -1,6 +1,6 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import { injectAllHTML } from "./js/injectHTML.js";
 import { loadRawODData } from "./js/loadData.js";
+import { getClusterFlows } from "./js/utils/clusteringFunctions.js";
 import { addTooltipDiv, handleBoundariesInput } from "./js/utils/domFunctions.js";
 import { setListenersUp } from "./js/utils/domFunctions.js";
 
@@ -16,4 +16,8 @@ const mapMatrix = []
 
 handleBoundariesInput("", mapMatrix, data)
 // timeout para que se pueda cargar recursivamente todo el HTML
-setTimeout(() => setListenersUp(mapMatrix, data), 500)
+setTimeout(() => {
+    setListenersUp(mapMatrix, data)
+    getClusterFlows(data)
+
+}, 500)

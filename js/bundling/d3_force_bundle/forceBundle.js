@@ -1,4 +1,4 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import { projectPoint } from "../../utils/projectPoint.js";
 
 const SEGMENT_RANGE = [1, 10]

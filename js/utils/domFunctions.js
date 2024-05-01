@@ -1,4 +1,4 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { accessToken } from "../token.js";
 import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../static.js";
