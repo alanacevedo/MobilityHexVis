@@ -11,8 +11,9 @@ function updateSvgPaths(map, displayTypeString) {
 
 function getScales() {
     const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, 0.3]).range([0.2, 1]),
-        "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7])
+        "stroke-opacity": d3.scaleLinear().domain([0, 0.02]).range([0.5, 1]),
+        "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
+        "stroke": d3.scaleSequential(d3.interpolateWarm) // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
     }
 
     return scales
@@ -29,15 +30,15 @@ function setDataSettingsOnMap(pathData, map) {
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorMap[d.group])
-        .style("stroke-opacity", d => 1)
-        .style("stroke-width", d => 4)
+        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalized_count))
+        .style("stroke-width", d => 3)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text(`distance: ${Number(d.distance).toFixed(2)}`)
+                .text(`distance: ${Number(d.distance).toFixed(2)} \n norm: ${Number(d.normalized_count).toFixed(3)}`)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 
@@ -51,7 +52,8 @@ function setDataSettingsOnMap(pathData, map) {
 }
 
 function setDataSettingsOnClusteredFlowMap(pathData, map) {
-    const colorScale = d3.scaleSequential(d3.interpolateWarm) // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
+    const scales = getScales()
+    const colorScale = scales["stroke"]
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const tooltip = d3.select(".tooltip")
 
@@ -61,15 +63,15 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorScale(d.index))
-        .style("stroke-opacity", d => 1)
-        .style("stroke-width", d => 4)
+        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalized_total))
+        .style("stroke-width", d => 3)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text(`index: ${d.index}`)
+                .text(`index: ${Number(d.index).toFixed(2)}`)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 

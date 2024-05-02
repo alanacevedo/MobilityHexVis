@@ -85,6 +85,7 @@ function addMap(mapDiv, mapMatrix) {
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
     const clusteredFlows = getClusterFlows(rowDataSlice)
+    console.log(clusteredFlows)
 
 
     clusteredFlows.forEach(flow => {
@@ -105,14 +106,20 @@ function displayDataOnRow(rowDataSlice, mapRow) {
 
 function getDataByGroup(data) {
     const dataByGroup = {}
+    const totalByGroup = {}
 
     for (const entry of data) {
         const group = entry.group
-        if (group in dataByGroup) {
-            dataByGroup[group].push(entry)
-        } else {
-            dataByGroup[group] = [entry]
+        if (!(group in dataByGroup)) {
+            dataByGroup[group] = []
+            totalByGroup[group] = 0
         }
+        dataByGroup[group].push(entry)
+        totalByGroup[group] += entry.count
+    }
+
+    for (const entry of data) {
+        entry.normalized_count = entry.count / totalByGroup[entry.group]
     }
 
     return dataByGroup

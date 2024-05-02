@@ -18,6 +18,7 @@ function getClusterFlows(data) {
     const [destinationCoordsToCluster, destinationCentroidMap] = getClustersFromUniqueCoords(uniqueDestinations)
 
     const clusterIdFlows = new TupleMap()
+    let total = 0
 
     data.forEach(entry => {
         const originCluster = getCoordsCluster(entry.lat_O, entry.lon_O, originCoordsToCluster)
@@ -25,16 +26,17 @@ function getClusterFlows(data) {
         if (!originCluster || !destinationCluster) return
 
         if (!clusterIdFlows.has([originCluster, destinationCluster])) {
-            clusterIdFlows.add([originCluster, destinationCluster, {}])
+            clusterIdFlows.add([originCluster, destinationCluster, { flow_total: 0, counts: {} }])
         }
 
         const flowObj = clusterIdFlows.data.get(originCluster).get(destinationCluster)
 
-        if (!(entry.group in flowObj)) {
-            flowObj[entry.group] = 0
+        if (!(entry.group in flowObj.counts)) {
+            flowObj.counts[entry.group] = 0
         }
-        flowObj[entry.group] += entry.count
-
+        flowObj.counts[entry.group] += entry.count
+        flowObj.flow_total += entry.count
+        total += entry.count
     })
 
 
@@ -50,7 +52,9 @@ function getClusterFlows(data) {
                 lon_O: originCentroidCoords.coords[1],
                 lat_D: destinationCentroidCoords.coords[0],
                 lon_D: destinationCentroidCoords.coords[1],
-                counts: flowObj
+                counts: flowObj.counts,
+                normalized_total: total ? (flowObj.flow_total) / total : 0
+
             })
         })
     })
