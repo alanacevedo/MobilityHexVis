@@ -1,9 +1,7 @@
 import { injectAllHTML } from "./js/injectHTML.js";
-import { loadRawODData } from "./js/loadData.js";
-import { getClusterFlows } from "./js/utils/clusteringFunctions.js";
-import { addTooltipDiv, handleBoundariesInput } from "./js/utils/domFunctions.js";
+import { addTooltipDiv, generateMaps } from "./js/utils/domFunctions.js";
 import { setListenersUp } from "./js/utils/domFunctions.js";
-
+import { initializeState } from "./js/appState.js";
 
 // Injects contents from .html files into index.html
 injectAllHTML()
@@ -11,11 +9,13 @@ injectAllHTML()
 // adds a div that shows data for paths
 addTooltipDiv()
 
-const data = await loadRawODData()
-const mapMatrix = []
+// initializes state default values
+await initializeState()
 
-handleBoundariesInput("", mapMatrix, data)
+// displays maps with default values
+generateMaps()
+
 // timeout para que se pueda cargar recursivamente todo el HTML
 setTimeout(() => {
-    setListenersUp(mapMatrix, data)
+    setListenersUp()
 }, 500)

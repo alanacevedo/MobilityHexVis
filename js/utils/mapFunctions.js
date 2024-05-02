@@ -1,10 +1,10 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "./static.js";
-import { accessToken } from "./token.js";
-import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./utils/drawFunctions.js";
-import { getClusterFlows } from "./utils/clusteringFunctions.js";
-import { addSimpsonIndexToFlow } from "./utils/segregationIndexes.js";
+import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../static.js";
+import { accessToken } from "../token.js";
+import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
+import { getClusterFlows } from "./clusteringFunctions.js";
+import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
 
 
 const MAPS_PER_ROW = 5

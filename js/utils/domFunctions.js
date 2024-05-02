@@ -3,7 +3,8 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { accessToken } from "../token.js";
 import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../static.js";
 import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
-import { displayRows } from "../mapFunctions.js";
+import { displayRows } from "./mapFunctions.js";
+import { AppState } from "../appState.js";
 
 
 function addTooltipDiv() {
@@ -17,24 +18,30 @@ function addTooltipDiv() {
 }
 
 // Define cómo actuan ciertos elementos del dom ante eventos.
-function setListenersUp(mapMatrix, data) {
+function setListenersUp() {
+    const state = new AppState()
+    const data = state.getState("data")
+
     const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
 
-    d3.select("#addRowButton").on("click", () => addMapRow(1, mapMatrix))
+    d3.select("#generateMapsButton").on("click", () => generateMaps())
 
     const node = d3.select("#boundariesInput").node()
     node.setAttribute("placeholder", `Min: ${Number(minDist).toFixed(2)} Max: ${Number(maxDist).toFixed(2)}`)
-    node.addEventListener("keyup", (e) => {
-        if (e.key === "Enter") {
-            handleBoundariesInput(e.target.value, mapMatrix, data)
-        }
+    node.addEventListener("input", (e) => {
+        state.setState("boundariesString", e.target.value)
     })
 }
 
-function handleBoundariesInput(string, mapMatrix, data) {
+function generateMaps() {
 
-    let distances = string.split(" ").map(x => Number(x))
-    if (string === "") {
+    const state = new AppState()
+    const boundariesString = state.getState("boundariesString")
+    const mapMatrix = state.getState("mapMatrix")
+    const data = state.getState("data")
+
+    let distances = boundariesString.split(" ").map(x => Number(x))
+    if (boundariesString === "") {
         distances = []
     }
 
@@ -52,4 +59,4 @@ function handleBoundariesInput(string, mapMatrix, data) {
     displayRows(mapMatrix, rowDataSlices)
 }
 
-export { addTooltipDiv, setListenersUp, handleBoundariesInput }
+export { addTooltipDiv, setListenersUp, generateMaps }
