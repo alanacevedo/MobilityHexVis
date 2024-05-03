@@ -1,4 +1,5 @@
 
+import { AppState } from "../appState.js";
 import { TupleMap } from "./TupleMap.js";
 import { point, featureCollection, clustersDbscan } from "@turf/turf";
 
@@ -68,6 +69,10 @@ function getCoordsCluster(lat, lon, coordsToCluster) {
 }
 
 function getClustersFromUniqueCoords(uniqueCoords) {
+    const state = new AppState()
+    const dbscanMinPoints = state.getState("dbscanMinPoints")
+    const dbscanMaxDistance = state.getState("dbscanMaxDistance")
+
     const points = []
 
     for (const [lat, lonMap] of uniqueCoords.data) {
@@ -76,7 +81,7 @@ function getClustersFromUniqueCoords(uniqueCoords) {
         }
     }
 
-    const clusteredFeatures = clustersDbscan(featureCollection(points), MAX_DISTANCE_KM, { minPoints: MIN_POINTS })
+    const clusteredFeatures = clustersDbscan(featureCollection(points), dbscanMaxDistance, { minPoints: dbscanMinPoints })
     const coordsToCluster = new TupleMap() // maps coordinates to its corresponding cluster
     const clusterCentroidMap = new Map()
 

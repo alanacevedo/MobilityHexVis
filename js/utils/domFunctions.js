@@ -1,7 +1,4 @@
 import * as d3 from "d3";
-import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { accessToken } from "../token.js";
-import { categories, INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, LINK_COUNT_THRESHOLD } from "../static.js";
 import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
 import { displayRows } from "./mapFunctions.js";
 import { AppState } from "../appState.js";
@@ -21,15 +18,29 @@ function addTooltipDiv() {
 function setListenersUp() {
     const state = new AppState()
     const data = state.getState("data")
+    const dbscanMinPoints = state.getState("dbscanMinPoints")
+    const dbscanMaxDistance = state.getState("dbscanMaxDistance")
 
     const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
 
     d3.select("#generateMapsButton").on("click", () => generateMaps())
 
-    const node = d3.select("#boundariesInput").node()
-    node.setAttribute("placeholder", `Min: ${Number(minDist).toFixed(2)} Max: ${Number(maxDist).toFixed(2)}`)
-    node.addEventListener("input", (e) => {
+    const boundariesInputNode = d3.select("#boundariesInput").node()
+    boundariesInputNode.setAttribute("placeholder", `Min: ${Number(minDist).toFixed(2)} Max: ${Number(maxDist).toFixed(2)}`)
+    boundariesInputNode.addEventListener("input", (e) => {
         state.setState("boundariesString", e.target.value)
+    })
+
+    const dbscanMinPointsInputNode = d3.select("#dbscanMinPointsInput").node()
+    dbscanMinPointsInputNode.value = dbscanMinPoints
+    dbscanMinPointsInputNode.addEventListener("input", (e) => {
+        state.setState("dbscanMinPoints", e.target.value)
+    })
+
+    const dbscanMaxDistanceInputNode = d3.select("#dbscanMaxDistanceInput").node()
+    dbscanMaxDistanceInputNode.value = dbscanMaxDistance
+    dbscanMaxDistanceInputNode.addEventListener("input", (e) => {
+        state.setState("dbscanMaxDistance", e.target.value)
     })
 }
 

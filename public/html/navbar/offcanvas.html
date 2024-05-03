@@ -16,66 +16,57 @@
         ></button>
     </div>
     <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <li class="nav-item">
-                <a class="nav-link active">Large Single SVG Path Function</a>
-                <select id="mapPathFuncSelect" class="form-select">
-                    <option value="line">Line</option>
-                    <option value="protoCurve">Prototype Curve</option>
-                    <option value="forceDirected">
-                        Force Directed Edge Bundling
-                    </option>
-                </select>
-            </li>
+        <div class="container">
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                    <a class="nav-link active">Generar Mapas</a>
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="generateMapsButton"
+                    >
+                        Generar Mapas
+                    </button>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link active">Agregar nueva fila de mapas</a>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    id="generateMapsButton"
-                >
-                    Generar Mapas
-                </button>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link active">Definir límites grupo</a>
+                    <div class="input-group mb-3">
+                        <input
+                            id="boundariesInput"
+                            type="text"
+                            class="form-control"
+                            placeholder="Limites separado por espacio"
+                        />
+                    </div>
+                </li>
 
-            <li class="nav-item">
-                <a class="nav-link active">Definir límites grupo</a>
-                <div class="input-group mb-3">
-                    <input
-                        id="boundariesInput"
-                        type="text"
-                        class="form-control"
-                        placeholder="Limites separado por espacio"
-                    />
-                </div>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link active">Parámetros DBSCAN</a>
 
-            <li class="nav-item dropdown">
-                <a
-                    class="nav-link dropdown-toggle"
-                    href="#"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                >
-                    Dropdown
-                </a>
-                <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
-                    <li>
-                        <a class="dropdown-item" href="#">Another action</a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider" />
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#"
-                            >Something else here</a
+                    <div class="form-floating mb-3">
+                        <input
+                            id="dbscanMinPointsInput"
+                            type="number"
+                            class="form-control"
+                            placeholder="Puntos mínimos"
+                        />
+                        <label for="dbscanMinPointsInput">Puntos mínimos</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input
+                            id="dbscanMaxDistanceInput"
+                            type="number"
+                            class="form-control"
+                            placeholder="Máxima distancia (km)"
+                        />
+                        <label for="dbscanMaxDistanceInput"
+                            >Máxima distancia (km)</label
                         >
-                    </li>
-                </ul>
-            </li>
-        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>

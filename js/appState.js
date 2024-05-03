@@ -27,6 +27,8 @@ async function initializeState() {
     state.setState("data", data)
     state.setState("boundariesString", "")
     state.setState("mapMatrix", [])
+    state.setState("dbscanMinPoints", 1)
+    state.setState("dbscanMaxDistance", 0.4)
 
 }
 
