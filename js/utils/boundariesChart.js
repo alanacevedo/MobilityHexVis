@@ -69,7 +69,6 @@ const clickableLines = {
 
 function drawBoundariesChart(ctxNode, chartData) {
     const gridLineColor = "rgba(255,255,255,0.2)"
-    console.log(chartData)
 
     new Chart(ctxNode, {
         type: 'line',

@@ -19,26 +19,8 @@
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item">
-                    <a class="nav-link active">Generar Mapas</a>
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="generateMapsButton"
-                    >
-                        Generar Mapas
-                    </button>
-                </li>
-
-                <li class="nav-item">
                     <a class="nav-link active">Definir límites grupo</a>
-                    <div class="input-group mb-3">
-                        <input
-                            id="boundariesInput"
-                            type="text"
-                            class="form-control"
-                            placeholder="Limites separado por espacio"
-                        />
-                    </div>
+                    <canvas id="myChart"></canvas>
                 </li>
 
                 <li class="nav-item">
@@ -66,9 +48,16 @@
                         >
                     </div>
                 </li>
+                <li class="nav-item">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="generateMapsButton"
+                    >
+                        Generar Mapas
+                    </button>
+                </li>
             </ul>
-
-            <canvas id="myChart"></canvas>
         </div>
     </div>
 </div>

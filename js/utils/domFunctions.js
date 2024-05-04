@@ -25,15 +25,7 @@ function setupSideMenu() {
     const dbscanMaxDistance = state.getState("dbscanMaxDistance")
     const chartData = getChartData(data)
 
-    const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
-
     d3.select("#generateMapsButton").on("click", () => generateMaps())
-
-    const boundariesInputNode = d3.select("#boundariesInput").node()
-    boundariesInputNode.setAttribute("placeholder", `Min: ${Number(minDist).toFixed(2)} Max: ${Number(maxDist).toFixed(2)}`)
-    boundariesInputNode.addEventListener("input", (e) => {
-        state.setState("boundariesString", e.target.value)
-    })
 
     const dbscanMinPointsInputNode = d3.select("#dbscanMinPointsInput").node()
     dbscanMinPointsInputNode.value = dbscanMinPoints
@@ -60,7 +52,7 @@ function generateMaps() {
     const state = new AppState()
     const mapMatrix = state.getState("mapMatrix")
     const data = state.getState("data")
-    const boundaries = state.getState("boundaries").map(x => x.value)
+    const boundaries = state.getState("boundaries").map(x => x.value).toSorted((x, y) => (x - y))
 
     const rowDataSlices = []
     let prevIndex = 0
