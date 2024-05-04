@@ -1,6 +1,6 @@
 import { injectAllHTML } from "./js/injectHTML.js";
 import { addTooltipDiv, generateMaps } from "./js/utils/domFunctions.js";
-import { setListenersUp } from "./js/utils/domFunctions.js";
+import { setupSideMenu } from "./js/utils/domFunctions.js";
 import { initializeState } from "./js/appState.js";
 
 // Injects contents from .html files into index.html
@@ -17,5 +17,5 @@ generateMaps()
 
 // timeout para que se pueda cargar recursivamente todo el HTML
 setTimeout(() => {
-    setListenersUp()
+    setupSideMenu()
 }, 500)

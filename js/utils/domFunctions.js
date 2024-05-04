@@ -2,6 +2,9 @@ import * as d3 from "d3";
 import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
 import { displayRows } from "./mapFunctions.js";
 import { AppState } from "../appState.js";
+import { drawBoundariesChart } from "./boundariesChart.js";
+import { getChartData } from "./boundariesChart.js";
+
 
 
 function addTooltipDiv() {
@@ -15,11 +18,12 @@ function addTooltipDiv() {
 }
 
 // Define cómo actuan ciertos elementos del dom ante eventos.
-function setListenersUp() {
+function setupSideMenu() {
     const state = new AppState()
     const data = state.getState("data")
     const dbscanMinPoints = state.getState("dbscanMinPoints")
     const dbscanMaxDistance = state.getState("dbscanMaxDistance")
+    const chartData = getChartData(data)
 
     const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
 
@@ -42,24 +46,26 @@ function setListenersUp() {
     dbscanMaxDistanceInputNode.addEventListener("input", (e) => {
         state.setState("dbscanMaxDistance", e.target.value)
     })
+
+
+
+    const boundariesChartCtxNode = document.getElementById('myChart');
+    drawBoundariesChart(boundariesChartCtxNode, chartData)
+
+
 }
 
 function generateMaps() {
 
     const state = new AppState()
-    const boundariesString = state.getState("boundariesString")
     const mapMatrix = state.getState("mapMatrix")
     const data = state.getState("data")
-
-    let distances = boundariesString.split(" ").map(x => Number(x))
-    if (boundariesString === "") {
-        distances = []
-    }
+    const boundaries = state.getState("boundaries").map(x => x.value)
 
     const rowDataSlices = []
     let prevIndex = 0
 
-    const indexes = getBoundaryIndexesFromDistances(data, distances)
+    const indexes = getBoundaryIndexesFromDistances(data, boundaries)
 
     for (const index of indexes) {
         rowDataSlices.push(data.slice(prevIndex, index))
@@ -70,4 +76,4 @@ function generateMaps() {
     displayRows(mapMatrix, rowDataSlices)
 }
 
-export { addTooltipDiv, setListenersUp, generateMaps }
+export { addTooltipDiv, setupSideMenu, generateMaps }

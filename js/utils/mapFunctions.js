@@ -85,8 +85,6 @@ function addMap(mapDiv, mapMatrix) {
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
     const clusteredFlows = getClusterFlows(rowDataSlice)
-    console.log(clusteredFlows)
-
 
     clusteredFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)

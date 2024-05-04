@@ -1,4 +1,5 @@
 import { loadRawODData } from "./loadData"
+import { getChartData } from "./utils/boundariesChart"
 
 let instance
 
@@ -24,7 +25,9 @@ class AppState {
 async function initializeState() {
     const state = new AppState()
     const data = await loadRawODData()
+
     state.setState("data", data)
+    state.setState("boundaries", [])
     state.setState("boundariesString", "")
     state.setState("mapMatrix", [])
     state.setState("dbscanMinPoints", 1)

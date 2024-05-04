@@ -24,6 +24,7 @@ function getMaxCount(linksData) {
 function getBoundaryIndexesFromDistances(data, distances) {
     const [minDist, maxDist] = [data[0].distance, data.slice(-1)[0].distance]
     const indexes = []
+    console.log(distances)
 
     for (const distance of distances) {
         if (isNaN(distance) || (distance <= minDist) || (distance >= maxDist)) {
