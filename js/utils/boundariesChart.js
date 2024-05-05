@@ -1,5 +1,6 @@
 import Chart from 'chart.js/auto';
 import { AppState } from '../appState';
+import { generateMaps } from './domFunctions';
 
 const clickableLines = {
     id: "clickableLines",
@@ -18,19 +19,17 @@ const clickableLines = {
         const boundaries = state.getState("boundaries")
 
         boundaries.forEach((boundary, i) => {
-            const x = boundary.chartX
-            if (clickX - delta <= x && x <= clickX + delta) {
+            const xPixel = chart.scales.x.getPixelForValue(boundary)
+            if (clickX - delta <= xPixel && xPixel <= clickX + delta && !removed) {
                 boundaries.splice(i, 1)
+                generateMaps()
                 removed = true
             }
         })
 
         if (!removed) {
-            const boundaryValue = chart.scales.x.getValueForPixel(clickX)
-            boundaries.push({
-                value: boundaryValue,
-                chartX: clickX
-            })
+            boundaries.push(chart.scales.x.getValueForPixel(clickX))
+            generateMaps()
         }
 
         chart.update()
@@ -59,7 +58,7 @@ const clickableLines = {
         const state = new AppState()
         const boundaries = state.getState("boundaries")
         boundaries.forEach(boundary => {
-            let drawLine = new Line(boundary.chartX)
+            let drawLine = new Line(chart.scales.x.getPixelForValue(boundary))
             drawLine.draw(ctx)
         })
 
@@ -68,10 +67,11 @@ const clickableLines = {
 }
 
 function drawBoundariesChart(ctxNode, chartData) {
+
     const gridLineColor = "rgba(255,255,255,0.2)"
 
-    new Chart(ctxNode, {
-        type: 'line',
+    const chart = new Chart(ctxNode, {
+        type: 'scatter',
         data: {
             datasets: [{
 
@@ -80,6 +80,12 @@ function drawBoundariesChart(ctxNode, chartData) {
             }]
         },
         options: {
+            elements: {
+                point: {
+                    radius: 1
+                }
+            },
+            animation: false,
             scales: {
                 y: {
                     title: {

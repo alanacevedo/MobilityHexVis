@@ -19,7 +19,42 @@
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item">
-                    <a class="nav-link active">Definir límites grupo</a>
+                    <a class="nav-link active">Rango Horario</a>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-floating mb-3">
+                                <input
+                                    id="startHourInput"
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Hora inicio"
+                                />
+                                <label for="dbscanMinPointsInput"
+                                    >Hora inicio</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-floating mb-3">
+                                <input
+                                    id="endHourInput"
+                                    type="number"
+                                    class="form-control"
+                                    placeholder="Hora fin"
+                                />
+                                <label for="dbscanMinPointsInput"
+                                    >Hora fin</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active"
+                        >Límites de distancia para agrupación</a
+                    >
                     <canvas id="myChart"></canvas>
                 </li>
 
