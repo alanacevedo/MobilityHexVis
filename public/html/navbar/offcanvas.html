@@ -19,35 +19,18 @@
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item">
-                    <a class="nav-link active">Rango Horario</a>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-3">
-                                <input
-                                    id="startHourInput"
-                                    type="number"
-                                    class="form-control"
-                                    placeholder="Hora inicio"
-                                />
-                                <label for="dbscanMinPointsInput"
-                                    >Hora inicio</label
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col">
-                            <div class="form-floating mb-3">
-                                <input
-                                    id="endHourInput"
-                                    type="number"
-                                    class="form-control"
-                                    placeholder="Hora fin"
-                                />
-                                <label for="dbscanMinPointsInput"
-                                    >Hora fin</label
-                                >
-                            </div>
-                        </div>
+                    <a class="nav-link active mb-5">Rango Horario</a>
+                    <div class="mb-5 mt-5 pt-3">
+                        <tc-range-slider
+                            id="hourRangeInput"
+                            min="0"
+                            max="23"
+                            round="0"
+                            step="1"
+                            generate-labels="true"
+                            slider-width="100%"
+                            moving-tooltip="true"
+                        ></tc-range-slider>
                     </div>
                 </li>
 

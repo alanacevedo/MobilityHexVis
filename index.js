@@ -2,6 +2,8 @@ import { injectAllHTML } from "./js/injectHTML.js";
 import { addTooltipDiv, generateMaps } from "./js/utils/domFunctions.js";
 import { setupSideMenu } from "./js/utils/domFunctions.js";
 import { initializeState } from "./js/appState.js";
+import "./js/plugins/tcrs-moving-tooltip.min.js"
+import 'toolcool-range-slider';
 
 // Injects contents from .html files into index.html
 injectAllHTML()

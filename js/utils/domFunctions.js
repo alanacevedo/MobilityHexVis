@@ -27,20 +27,17 @@ function setupSideMenu() {
     const dbscanMinPoints = state.getState("dbscanMinPoints")
     const dbscanMaxDistance = state.getState("dbscanMaxDistance")
 
+    const hourRangeInputNode = d3.select("#hourRangeInput").node()
+    hourRangeInputNode.value1 = startHour
+    hourRangeInputNode.value2 = endHour
 
-    const startHourInputNode = d3.select("#startHourInput").node()
-    startHourInputNode.value = startHour
-    startHourInputNode.addEventListener("input", async (e) => { // no hay que hacerle await? Si ocurre un bug de sincronización revisar esto
-        state.setState("startHour", e.target.value)
-        await updateData()
-        updateChart(state.getState("data"))
-        generateMaps()
+    hourRangeInputNode.addEventListener("change", e => {
+        const [lower, higher] = [e.detail.value1, e.detail.value2].toSorted((a, b) => a - b)
+        state.setState("startHour", lower)
+        state.setState("endHour", higher)
     })
 
-    const endHourInputNode = d3.select("#endHourInput").node()
-    endHourInputNode.value = endHour
-    endHourInputNode.addEventListener("input", async (e) => {
-        state.setState("endHour", e.target.value)
+    hourRangeInputNode.addEventListener("onMouseUp", async (e) => {
         await updateData()
         updateChart(state.getState("data"))
         generateMaps()
