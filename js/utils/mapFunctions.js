@@ -5,6 +5,7 @@ import { accessToken } from "../token.js";
 import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
 import { getClusterFlows } from "./clusteringFunctions.js";
 import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
+import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 
 
 const MAPS_PER_ROW = 5
@@ -22,6 +23,17 @@ function addMapRow(insertionIndex, mapMatrix) {
 
     const mapRow = []
 
+    // Agregar descripción de la fila a la izquierda
+    const rangeTextColDiv = document.createElement("div")
+    rangeTextColDiv.classList.add("col-1")
+    const rangeTextDiv = document.createElement("div")
+    rangeTextDiv.classList.add("rangeText")
+    rangeTextDiv.innerHTML = "WENA"
+    rangeTextColDiv.appendChild(rangeTextDiv)
+    newRowDiv.appendChild(rangeTextColDiv)
+
+    // agregar los mapas leaflet, cada uno dentro de una div "col".
+    // esto según el sistema de layout de bootstrap.
     for (let i = 0; i < MAPS_PER_ROW; i++) {
         const colDiv = document.createElement("div")
         colDiv.classList.add("col-2")
@@ -38,7 +50,6 @@ function addMapRow(insertionIndex, mapMatrix) {
         mapRow.push(map)
     }
 
-    // insert at a certain index?
     mapMatrix.splice(insertionIndex, 0, mapRow)
     return
 }
@@ -52,6 +63,7 @@ function setViewToAllMaps(mapMatrix, center, zoom) {
     }
 }
 
+// agregar un mapa leaflet en la división con id mapDiv. Esto no agrega los datos aún.
 function addMap(mapDiv, mapMatrix) {
     const map = L.map(mapDiv, { attributionControl: false, zoomControl: false })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
@@ -82,6 +94,7 @@ function addMap(mapDiv, mapMatrix) {
     return map
 }
 
+// Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
     const clusteredFlows = getClusterFlows(rowDataSlice)
@@ -136,7 +149,7 @@ function removeMapRow(removalIndex, mapMatrix) {
     mapMatrix.splice(removalIndex, 1)
 }
 
-function displayRows(mapMatrix, rowDataSlices) {
+function displayRows(mapMatrix, rowDataSlices, boundaries) {
     const rowCount = rowDataSlices.length
 
     while (mapMatrix.length < rowCount) {
@@ -150,6 +163,14 @@ function displayRows(mapMatrix, rowDataSlices) {
     for (let i = 0; i < rowCount; i++) {
         displayDataOnRow(rowDataSlices[i], mapMatrix[i])
     }
+
+    const rangeStrings = getRangeStringsFromBoundaries(boundaries)
+    const rangeTextDivs = document.querySelectorAll(".rangeText")
+
+    for (let i = 0; i < rowCount; i++) {
+        rangeTextDivs[i].innerHTML = rangeStrings[i]
+    }
+
 }
 
 export { addMapRow, displayDataOnRow, removeMapRow, displayRows }

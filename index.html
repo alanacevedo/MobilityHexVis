@@ -22,12 +22,28 @@
     <body class="bg-light vh-100">
         <div include="navbar/navbar.html"></div>
         <div class="container h-100" id="mapMatrixContainer">
-            <div class="row m-4 align-items-center">
-                <!-- nombres columnas -->
-            </div>
             <div class="row h-100 align-items-center">
                 <div class="col-md-12" id="rowsContainer">
+                    <!-- nombres columnas -->
+                    <div
+                        class="mb-4 mt-4 row align-items-center justify-content-center"
+                    >
+                        <div class="col-1 text-center" style="opacity: 0">
+                            WENA
+                        </div>
+                        <div class="col-2 text-center">Q1</div>
+                        <div class="col-2 text-center">Q2</div>
+                        <div class="col-2 text-center">Q3</div>
+                        <div class="col-2 text-center">Q4</div>
+                        <div
+                            class="col-2 ms-4 text-center"
+                            id="aggregatedColTitle"
+                        >
+                            Índice de diversidad de Simpson
+                        </div>
+                    </div>
                     <!-- filas de mapas -->
+                    <!-- Inyectado por javascript -->
                 </div>
             </div>
         </div>

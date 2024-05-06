@@ -50,4 +50,20 @@ function getBoundaryIndexesFromDistances(data, distances) {
     return indexes
 }
 
-export { getMaxCount, getBoundaryIndexesFromDistances }
+function getRangeStringsFromBoundaries(boundaries) {
+    const rangeStrings = []
+    let prev = 0
+
+    for (const curr of boundaries) {
+
+        rangeStrings.push(`[${Number(prev).toFixed(1)} - ${Number(curr.toFixed(1))})`)
+        prev = curr
+    }
+
+    rangeStrings.push(`[${Number(prev).toFixed(1)} - \u221e )`)
+
+
+    return rangeStrings
+}
+
+export { getMaxCount, getBoundaryIndexesFromDistances, getRangeStringsFromBoundaries }

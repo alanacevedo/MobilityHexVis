@@ -92,7 +92,7 @@ function generateMaps() {
     }
     rowDataSlices.push(data.slice(prevIndex))
 
-    displayRows(mapMatrix, rowDataSlices)
+    displayRows(mapMatrix, rowDataSlices, boundaries)
 }
 
 export { addTooltipDiv, setupSideMenu, generateMaps }
