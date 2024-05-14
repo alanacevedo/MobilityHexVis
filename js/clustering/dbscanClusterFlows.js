@@ -1,14 +1,14 @@
 
 import { AppState } from "../appState.js";
-import { TupleMap } from "./TupleMap.js";
+import { DupletMap } from "./DupletMap.js";
 import { point, featureCollection, clustersDbscan } from "@turf/turf";
 
 const MAX_DISTANCE_KM = 0.4
 const MIN_POINTS = 1
 
-function getClusterFlows(data) {
-    const uniqueOrigins = new TupleMap()
-    const uniqueDestinations = new TupleMap()
+function getDbscanClusterFlows(data) {
+    const uniqueOrigins = new DupletMap()
+    const uniqueDestinations = new DupletMap()
 
     for (const entry of data) {
         uniqueOrigins.add([entry.lat_O, entry.lon_O])
@@ -18,7 +18,7 @@ function getClusterFlows(data) {
     const [originCoordsToCluster, originCentroidMap] = getClustersFromUniqueCoords(uniqueOrigins)
     const [destinationCoordsToCluster, destinationCentroidMap] = getClustersFromUniqueCoords(uniqueDestinations)
 
-    const clusterIdFlows = new TupleMap()
+    const clusterIdFlows = new DupletMap()
     let total = 0
 
     data.forEach(entry => {
@@ -82,7 +82,7 @@ function getClustersFromUniqueCoords(uniqueCoords) {
     }
 
     const clusteredFeatures = clustersDbscan(featureCollection(points), dbscanMaxDistance, { minPoints: dbscanMinPoints })
-    const coordsToCluster = new TupleMap() // maps coordinates to its corresponding cluster
+    const coordsToCluster = new DupletMap() // maps coordinates to its corresponding cluster
     const clusterCentroidMap = new Map()
 
     clusteredFeatures.features.forEach(feature => {
@@ -114,4 +114,6 @@ function getClustersFromUniqueCoords(uniqueCoords) {
     return [coordsToCluster, clusterCentroidMap]
 }
 
-export { getClusterFlows }
+
+
+export { getDbscanClusterFlows }

@@ -3,9 +3,10 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
-import { getClusterFlows } from "./clusteringFunctions.js";
+import { getDbscanClusterFlows } from "../clustering/dbscanClusterFlows.js";
 import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
+import { getContiguousFlowClusters } from "../clustering/contiguousFlowClustering.js";
 
 
 const MAPS_PER_ROW = 5
@@ -97,9 +98,10 @@ function addMap(mapDiv, mapMatrix) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
-    const clusteredFlows = getClusterFlows(rowDataSlice)
+    const dbscanClusterFlows = getDbscanClusterFlows(rowDataSlice)
+    const contiguousFlowClusters = getContiguousFlowClusters(rowDataSlice, 5)
 
-    clusteredFlows.forEach(flow => {
+    dbscanClusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)
     })
 
@@ -111,7 +113,7 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     }
 
     const lastMap = mapRow[mapRow.length - 1]
-    setDataSettingsOnClusteredFlowMap(clusteredFlows, lastMap)
+    setDataSettingsOnClusteredFlowMap(dbscanClusterFlows, lastMap)
     updateSvgPaths(lastMap, "line")
 }
 
