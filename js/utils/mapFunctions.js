@@ -98,8 +98,8 @@ function addMap(mapDiv, mapMatrix) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
-    const dbscanClusterFlows = getDbscanClusterFlows(rowDataSlice)
-    const contiguousFlowClusters = getContiguousFlowClusters(rowDataSlice, 5)
+    //const dbscanClusterFlows = getDbscanClusterFlows(rowDataSlice)
+    const dbscanClusterFlows = getContiguousFlowClusters(rowDataSlice, 3)
 
     dbscanClusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)

@@ -1,8 +1,7 @@
-import KDBush from 'kdbush'
-import * as geokdbush from 'geokdbush-tk'
 import { DupletMap } from "./DupletMap.js";
 import { FlowMap } from './FlowMap.js';
-
+import { KdIndex } from "./KdIndex.js";
+import { FlowClusterManager } from "./FlowClusterManager.js";
 
 function getContiguousFlowClusters(flows, k) {
 
@@ -27,8 +26,8 @@ function getContiguousFlowClusters(flows, k) {
     }
 
     // Índices K-D Tree para hacer consultas KNN.
-    const originKdIndex = new kdIndex(originToFlowIds)
-    const destinationKdIndex = new kdIndex(destinationToFlowIds)
+    const originKdIndex = new KdIndex(originToFlowIds)
+    const destinationKdIndex = new KdIndex(destinationToFlowIds)
 
     // Para cada flujo y su vecindad de flujos, se calculan los flujos contiguos.
     // Para un flujo (O, D), la vecindad de flujos corresponden a todos aquellos flujos donde su origen se encuentra en KNN(O) y su destino en KNN(D).
@@ -48,11 +47,12 @@ function getContiguousFlowClusters(flows, k) {
         })
     }
 
+
     // Calcular, para cada pareja de flujos contiguos, la distancia SNN, y luego ordenar ascendientemente.
 
     contiguousFlows.forEach((pair) => {
-        const [pFlow, qFlow] = pair
-        const snnDistance = getSNNDistance(pFlow, qFlow, flowMap, originKdIndex, destinationKdIndex, k)
+        const [pFlow, qFlow] = pair.map(id => flowMap.getFlowObjFromId(id))
+        const snnDistance = getFlowSnnDistance(pFlow, qFlow, originKdIndex, destinationKdIndex, k)
         pair.push(snnDistance)
     })
 
@@ -60,8 +60,32 @@ function getContiguousFlowClusters(flows, k) {
         return tupleA[2] - tupleB[2]
     })
 
-    console.log(contiguousFlows)
+    const clusterManager = new FlowClusterManager(flowMap.getFlowObjs())
 
+
+    contiguousFlows.forEach(([pFlowId, qFlowId, snnDistance]) => {
+        const pClusterId = clusterManager.getFlowClusterId(pFlowId)
+        const qClusterId = clusterManager.getFlowClusterId(qFlowId)
+
+        // ya están mergeados
+        if (pClusterId == qClusterId) {
+            return
+        }
+
+        const pCentroidFlow = clusterManager.getClusterCentroidFlow(pClusterId)
+        const qCentroidFlow = clusterManager.getClusterCentroidFlow(qClusterId)
+
+        const pMedianFlow = getMedianFlow(pCentroidFlow, originKdIndex, destinationKdIndex)
+        const qMedianFlow = getMedianFlow(qCentroidFlow, originKdIndex, destinationKdIndex)
+
+        if (!checkFlowSnnIntersection(pMedianFlow, qMedianFlow, originKdIndex, destinationKdIndex, k)) {
+            return
+        }
+
+        clusterManager.mergeClusters(pClusterId, qClusterId)
+    })
+
+    return clusterManager.getFlowClusters()
 
 }
 
@@ -73,36 +97,6 @@ function pushToDupletMap(dupletMap, keyPos, valuePos) {
     dupletMap.get(keyPos).push(valuePos)
 }
 
-class kdIndex {
-    // recibe un objeto DupletMap donde las 2 llaves representan latlon únicos.
-    // construye un índice basado en K-D Tree que permite hacer consultas KNN rápidamente.
-
-    constructor(positionDupletMap) {
-
-        // se genera un array con todos los latlons únicos de origen / destino
-        this.points = []
-        for (const [lat, lonMap] of positionDupletMap.data) {
-            for (const lon of lonMap.keys()) {
-                this.points.push([lat, lon])
-            }
-        }
-
-        // Agregar todos los latlon al índice
-        this.index = new KDBush(this.points.length)
-        for (const [lat, lon] of this.points) {
-            this.index.add(lon, lat)
-        }
-
-        // perform indexing
-        this.index.finish()
-    }
-
-    // retorna un arreglo [[lat, lon]] para los k vecinos más cercanos.
-    getKNN(lat, lon, k) {
-        const ids = geokdbush.around(this.index, lon, lat, k + 1) // + 1 porque incluye al latlon mismo, que después hay que quitar
-        return ids.map(id => this.points[id]).filter(latlon => latlon[0] != lat && latlon[1] != lon)
-    }
-}
 
 function getFlowIdSetFromKdIndex(kdIndex, posToFlowIds, lat, lon, k) {
     // obtiene los latlon de los k origenes/destinos más cercanos
@@ -118,18 +112,27 @@ function getFlowIdSetFromKdIndex(kdIndex, posToFlowIds, lat, lon, k) {
     return flowIdSet
 }
 
-function getSNNDistance(pFlowId, qFlowId, flowMap, originKdIndex, destinationKdIndex, k) {
-    const pFlow = flowMap.getFlowObjFromId(pFlowId)
-    const qFlow = flowMap.getFlowObjFromId(qFlowId)
+function getFlowSnnDistance(pFlow, qFlow, originKdIndex, destinationKdIndex, k) {
 
-    const originIntersectionCount = getIntersectionCount(pFlow.lat_O, pFlow.lon_O, qFlow.lat_O, qFlow.lon_O, originKdIndex, k)
-    const destinationIntersectionCount = getIntersectionCount(pFlow.lat_D, pFlow.lon_D, qFlow.lat_D, qFlow.lon_D, destinationKdIndex, k)
+    const originIntersectionCount = getKnnIntersectionCount(pFlow.lat_O, pFlow.lon_O, qFlow.lat_O, qFlow.lon_O, originKdIndex, k)
+    const destinationIntersectionCount = getKnnIntersectionCount(pFlow.lat_D, pFlow.lon_D, qFlow.lat_D, qFlow.lon_D, destinationKdIndex, k)
 
     return 1 - ((originIntersectionCount * destinationIntersectionCount) / (k * k))
 
 }
 
-function getIntersectionCount(pLat, pLon, qLat, qLon, kdIndex, k) {
+// retorna verdadero si existe intersección entre los KNN de origenes y los KNN de destinos
+// El propósito de esta función es evaluar si el SNN es menor que uno sin tener que realizar
+// operaciones matemáticas, para reducir cantidad de ciclos del reloj
+function checkFlowSnnIntersection(pFlow, qFlow, originKdIndex, destinationKdIndex, k) {
+
+    const hasOriginIntersection = checkKnnIntersection(pFlow.lat_O, pFlow.lon_O, qFlow.lat_O, qFlow.lon_O, originKdIndex, k)
+    const hasDestinationIntersection = checkKnnIntersection(pFlow.lat_D, pFlow.lon_D, qFlow.lat_D, qFlow.lon_D, destinationKdIndex, k)
+
+    return hasOriginIntersection && hasDestinationIntersection
+}
+
+function getKnnIntersectionCount(pLat, pLon, qLat, qLon, kdIndex, k) {
     const pKNN = kdIndex.getKNN(pLat, pLon, k)
     const qKNN = kdIndex.getKNN(qLat, qLon, k)
 
@@ -148,5 +151,34 @@ function getIntersectionCount(pLat, pLon, qLat, qLon, kdIndex, k) {
 
     return intersectionCount
 }
+
+function checkKnnIntersection(pLat, pLon, qLat, qLon, kdIndex, k) {
+    const pKNN = kdIndex.getKNN(pLat, pLon, k)
+    const qKNN = kdIndex.getKNN(qLat, qLon, k)
+
+    const pKNNSet = new DupletMap()
+
+    for (const pPoint of pKNN) {
+        pKNNSet.add(pPoint)
+    }
+
+    for (const qPoint of qKNN) {
+        if (pKNNSet.has(qPoint)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+
+// calcula el punto más cercano para el origen y el destino.
+function getMedianFlow(centroidFlowObj, originKdIndex, destinationKdIndex) {
+    const [lat_O, lon_O] = originKdIndex.getClosestPoint(centroidFlowObj.lat_O, centroidFlowObj.lon_O)
+    const [lat_D, lon_D] = destinationKdIndex.getClosestPoint(centroidFlowObj.lat_D, centroidFlowObj.lonD)
+
+    return { lat_O, lon_O, lat_D, lon_D }
+}
+
 
 export { getContiguousFlowClusters }

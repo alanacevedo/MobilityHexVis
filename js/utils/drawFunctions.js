@@ -63,7 +63,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorScale(d.index))
-        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalized_total))
+        .style("stroke-opacity", d => scales["stroke-opacity"](0.2))//(d.normalized_total))
         .style("stroke-width", d => 3)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
