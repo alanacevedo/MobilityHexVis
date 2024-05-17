@@ -83,7 +83,7 @@ class FlowClusterManager {
 
     // retorna un objeto que representa un flujo OD donde O y D son los centroides
     getClusterCentroidFlow(clusterId) {
-        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts } = this.flowClusters[clusterId]
+        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts, parentId } = this.flowClusters[clusterId]
 
         return {
             totalCount,
@@ -91,7 +91,8 @@ class FlowClusterManager {
             lat_O: agg_lat_O / totalCount,
             lon_O: agg_lon_O / totalCount,
             lat_D: agg_lat_D / totalCount,
-            lon_D: agg_lon_D / totalCount
+            lon_D: agg_lon_D / totalCount,
+            id: parentId
         }
     }
 

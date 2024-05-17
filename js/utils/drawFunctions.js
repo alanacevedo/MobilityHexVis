@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { getPathFromLinkData } from "./projectPoint.js";
 import { colorMap } from "../static.js";
+import { arrow1 } from "d3-arrow";
 
 
 function updateSvgPaths(map, displayTypeString) {
@@ -57,16 +58,32 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const tooltip = d3.select(".tooltip")
 
+    d3.select(map.getPanes().overlayPane).select("svg")
+        .append("svg:defs").append("svg:marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 0 12 12")
+        .attr("refX", 9)
+        .attr("refY", 6)
+        .attr("markerWidth", 7)
+        .attr("markerHeight", 7)
+        .attr("fill", "steelblue")
+        .attr("orient", "auto")
+        .append("svg:path")
+        .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
+        .attr("opacity", 1)
+
     g.selectAll("path") // ("path.cat" + cat)
         .data(pathData)
         .join("path")
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
+        .attr("marker-end", "url(#arrow)")
         .style("stroke", d => colorScale(d.index))
         .style("stroke-opacity", d => scales["stroke-opacity"](d.normalizedCount))//(d.normalized_total))
         .style("stroke-width", d => 3)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
+            console.log(event, d)
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
