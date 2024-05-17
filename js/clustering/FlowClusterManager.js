@@ -4,20 +4,23 @@ class FlowClusterManager {
         // un cluster es válido si parent es su mismo id.
 
         this.flowClusters = []
+        this.allClustersCount = 0
+
         flows.forEach((flowObj) => {
 
-            const { id, counts, lat_O, lon_O, lat_D, lon_D } = flowObj
+            const { id, counts, lat_O, lon_O, lat_D, lon_D, totalCount } = flowObj
 
             const clusterObj = {
                 parentId: id,
                 agg_counts: counts,
                 flowCount: 1,
-                agg_lat_O: lat_O,
-                agg_lon_O: lon_O,
-                agg_lat_D: lat_D,
-                agg_lon_D: lon_D
+                agg_lat_O: lat_O * totalCount, // weighted
+                agg_lon_O: lon_O * totalCount,
+                agg_lat_D: lat_D * totalCount,
+                agg_lon_D: lon_D * totalCount,
+                totalCount
             }
-
+            this.allClustersCount += totalCount
             this.flowClusters.push(clusterObj)
 
         })
@@ -56,11 +59,9 @@ class FlowClusterManager {
             parentCluster.agg_counts[group] += count
         }
 
-        parentCluster.flowCount += childCluster.flowCount
-        parentCluster.agg_lat_O += childCluster.agg_lat_O
-        parentCluster.agg_lon_O += childCluster.agg_lon_O
-        parentCluster.agg_lat_D += childCluster.agg_lat_D
-        parentCluster.agg_lon_D += childCluster.agg_lon_D
+        ["flowCount", "totalCount", "agg_lat_O", "agg_lon_O", "agg_lat_D", "agg_lon_D"].forEach(attr => {
+            parentCluster[attr] += childCluster[attr]
+        })
 
         childCluster.parentId = parentClusterId
 
@@ -82,21 +83,30 @@ class FlowClusterManager {
 
     // retorna un objeto que representa un flujo OD donde O y D son los centroides
     getClusterCentroidFlow(clusterId) {
-        const { flowCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts } = this.flowClusters[clusterId]
+        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts } = this.flowClusters[clusterId]
 
         return {
+            totalCount,
             counts: agg_counts,
-            lat_O: agg_lat_O / flowCount,
-            lon_O: agg_lon_O / flowCount,
-            lat_D: agg_lat_D / flowCount,
-            lon_D: agg_lon_D / flowCount
+            lat_O: agg_lat_O / totalCount,
+            lon_O: agg_lon_O / totalCount,
+            lat_D: agg_lat_D / totalCount,
+            lon_D: agg_lon_D / totalCount
         }
     }
 
     getFlowClusters() {
-        return this.flowClusters
+
+        const flowClusters = this.flowClusters
             .filter((clusterObj, index) => clusterObj.parentId == index)
             .map(clusterObj => this.getClusterCentroidFlow(clusterObj.parentId))
+
+
+        flowClusters.forEach(flowCluster => {
+            flowCluster.normalizedCount = flowCluster.totalCount / this.allClustersCount
+        })
+
+        return flowClusters
     }
 
 

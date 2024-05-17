@@ -11,7 +11,7 @@ function updateSvgPaths(map, displayTypeString) {
 
 function getScales() {
     const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, 0.02]).range([0.5, 1]),
+        "stroke-opacity": d3.scaleLinear().domain([0, 0.02]).range([0.3, 1]),
         "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
         "stroke": d3.scaleSequential(d3.interpolateWarm) // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
     }
@@ -63,7 +63,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => colorScale(d.index))
-        .style("stroke-opacity", d => scales["stroke-opacity"](0.2))//(d.normalized_total))
+        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalizedCount))//(d.normalized_total))
         .style("stroke-width", d => 3)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos

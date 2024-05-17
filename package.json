@@ -16,6 +16,7 @@
     "@turf/turf": "^6.5.0",
     "chart.js": "^4.4.2",
     "d3": "^7.9.0",
+    "d3-arrow": "^0.0.25",
     "geokdbush-tk": "^2.0.4",
     "kdbush": "^4.0.2",
     "toolcool-range-slider": "^4.0.28"

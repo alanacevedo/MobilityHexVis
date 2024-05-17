@@ -26,16 +26,20 @@ class FlowMap {
                 lat_D,
                 lon_D,
                 id: this.idToFlowObj.length,
-                counts: {}
+                counts: {},
+                totalCount: 0
             }
 
             this.idToFlowObj.push(aggFlowObj)
             curr.set(lon_D, aggFlowObj)
         }
 
-        curr.get(lon_D)["counts"][group] = count
+        const obj = curr.get(lon_D)
 
-        const id = curr.get(lon_D)["id"]
+        obj["counts"][group] = count
+        obj["totalCount"] += count
+
+        const id = obj["id"]
         this.flowObjToId.set(curr.get(lon_D), id)
 
         return id
