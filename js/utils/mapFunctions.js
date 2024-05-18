@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM } from "../static.js";
+import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
 import { getDbscanClusterFlows } from "../clustering/dbscanClusterFlows.js";
@@ -71,7 +71,7 @@ function addMap(mapDiv, mapMatrix) {
 
     L.tileLayer(
         `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${accessToken}`,
-        { maxZoom: MAX_ZOOM }
+        { maxZoom: MAX_ZOOM, minZoom: MIN_ZOOM }
     ).addTo(map)
 
     L.svg({ clickable: true }).addTo(map)
@@ -83,7 +83,7 @@ function addMap(mapDiv, mapMatrix) {
     svg.append('g').attr('class', 'leaflet-zoom-hide')
 
 
-    map.on('zoomend', () => {
+    map.on('zoomend', (e) => {
         setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
         updateSvgPaths(map, "line")
     })

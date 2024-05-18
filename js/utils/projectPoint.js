@@ -8,11 +8,16 @@ function projectPoint(latlon, LMap) {
     return LMap.latLngToLayerPoint(new L.LatLng(latlon[0], latlon[1]))
 }
 
-function getPathFromLinkData(linkData, pathType, LMap) {
-    const latlon_start = [linkData.lat_O, linkData.lon_O]
-    const latlon_end = [linkData.lat_D, linkData.lon_D]
+function projectFlow(flowObj, LMap) {
+    const latlon_start = [flowObj.lat_O, flowObj.lon_O]
+    const latlon_end = [flowObj.lat_D, flowObj.lon_D]
     const start = projectPoint(latlon_start, LMap)
     const end = projectPoint(latlon_end, LMap)
+    return { start, end }
+}
+
+function getPathFromLinkData(linkData, pathType, LMap) {
+    const { start, end } = projectFlow(linkData, LMap)
     const drawPathFunction = drawPathFunctionMap[pathType]
     return drawPathFunction(start, end)
 
@@ -85,4 +90,4 @@ function drawCurvedPath(start, end) {
     return pathString + arrowheadPath;
 }
 
-export { getPathFromLinkData, projectPoint }
+export { getPathFromLinkData, projectPoint, projectFlow }
