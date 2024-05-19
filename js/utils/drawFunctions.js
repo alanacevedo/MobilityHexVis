@@ -1,8 +1,6 @@
 import * as d3 from "d3";
 import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
-import { arrow1 } from "d3-arrow";
-
 
 function updateSvgPaths(map, displayTypeString) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
@@ -30,15 +28,43 @@ function getScales() {
 
 function setDataSettingsOnMap(pathData, map) {
     const scales = getScales()
-    const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
+    const svg = d3.select(map.getPanes().overlayPane).select("svg");
+    const g = svg.select("g");
     const tooltip = d3.select(".tooltip")
+
+
+    const mapWidth = map.getSize().x
+    const mapHeight = map.getSize().y
+
+    const defs = d3.select(map.getPanes().overlayPane).select("svg").append("svg:defs")
+
+    pathData.forEach(flowObj => {
+        const angle = getFlowAngle(flowObj, map)
+        const angleCoords = getAngleCoords(angle)
+
+        const gradient = defs.append("linearGradient")
+            .attr("id", "gradient" + flowObj.id)
+            .attr("x1", angleCoords.x1)
+            .attr("y1", angleCoords.y1)
+            .attr("x2", angleCoords.x2)
+            .attr("y2", angleCoords.y2)
+
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#008080"); // destination color
+
+        gradient.append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#FFA500"); // origin color
+    })
+
 
     g.selectAll("path") // ("path.cat" + cat)
         .data(pathData)
         .join("path")
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
-        .style("stroke", d => colorMap[d.group])
+        .style("stroke", d => `url(#gradient${d.id})`)
         .style("stroke-opacity", d => scales["stroke-opacity"](d.normalized_count))
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
@@ -50,12 +76,12 @@ function setDataSettingsOnMap(pathData, map) {
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 
-            d3.select(this).style('stroke', '#00688B')
+            //d3.select(this).style('stroke', '#00688B')
         })
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
 
-            d3.select(this).style('stroke', d => colorMap[d.group]);
+            //d3.select(this).style('stroke', d => colorMap[d.group]);
         })
 }
 
@@ -66,6 +92,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
     const tooltip = d3.select(".tooltip")
 
     const defs = d3.select(map.getPanes().overlayPane).select("svg").append("svg:defs")
+    // limpiar defs antiguas primero para considerar los redraw?
 
     pathData.forEach(flowObj => {
         defs.append("svg:marker")
@@ -91,6 +118,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .style("stroke", d => colorScale(d.index))
         .style("stroke-opacity", d => scales["stroke-opacity"](d.normalizedCount))//(d.normalized_total))
         .style("stroke-width", d => 3)
+        .style("fill", `url(line-gradient)`)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
@@ -123,6 +151,17 @@ function getFlowAngle(flowObj, map) {
     const angleInDegrees = angleInRadians * 180 / Math.PI
 
     return angleInDegrees;
+}
+
+function getAngleCoords(angle) {
+    var anglePI = (angle) * (Math.PI / 180);
+    var angleCoords = {
+        'x1': Math.round(50 + Math.sin(anglePI) * 50) + '%',
+        'y1': Math.round(50 + Math.cos(anglePI) * 50) + '%',
+        'x2': Math.round(50 + Math.sin(anglePI + Math.PI) * 50) + '%',
+        'y2': Math.round(50 + Math.cos(anglePI + Math.PI) * 50) + '%',
+    }
+    return angleCoords
 }
 
 export { updateSvgPaths, setDataSettingsOnMap, setDataSettingsOnClusteredFlowMap, getScales }

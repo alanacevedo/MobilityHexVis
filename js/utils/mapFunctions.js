@@ -99,9 +99,9 @@ function addMap(mapDiv, mapMatrix) {
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
     //const dbscanClusterFlows = getDbscanClusterFlows(rowDataSlice)
-    const dbscanClusterFlows = getContiguousFlowClusters(rowDataSlice, 3)
+    const clusterFlows = getContiguousFlowClusters(rowDataSlice, 6)
 
-    dbscanClusterFlows.forEach(flow => {
+    clusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)
     })
 
@@ -113,7 +113,7 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     }
 
     const lastMap = mapRow[mapRow.length - 1]
-    setDataSettingsOnClusteredFlowMap(dbscanClusterFlows, lastMap)
+    setDataSettingsOnClusteredFlowMap(clusterFlows, lastMap)
     updateSvgPaths(lastMap, "line")
 }
 
