@@ -8,7 +8,7 @@ class FlowClusterManager {
 
         flows.forEach((flowObj) => {
 
-            const { id, counts, lat_O, lon_O, lat_D, lon_D, totalCount } = flowObj
+            const { id, counts, lat_O, lon_O, lat_D, lon_D, totalCount, normTotal } = flowObj
 
             const clusterObj = {
                 parentId: id,
@@ -18,7 +18,8 @@ class FlowClusterManager {
                 agg_lon_O: lon_O * totalCount,
                 agg_lat_D: lat_D * totalCount,
                 agg_lon_D: lon_D * totalCount,
-                totalCount
+                totalCount,
+                normTotal
             }
             this.allClustersCount += totalCount
             this.flowClusters.push(clusterObj)
@@ -59,7 +60,7 @@ class FlowClusterManager {
             parentCluster.agg_counts[group] += count
         }
 
-        ["flowCount", "totalCount", "agg_lat_O", "agg_lon_O", "agg_lat_D", "agg_lon_D"].forEach(attr => {
+        ["flowCount", "totalCount", "agg_lat_O", "agg_lon_O", "agg_lat_D", "agg_lon_D", "normTotal"].forEach(attr => {
             parentCluster[attr] += childCluster[attr]
         })
 
@@ -83,9 +84,10 @@ class FlowClusterManager {
 
     // retorna un objeto que representa un flujo OD donde O y D son los centroides
     getClusterCentroidFlow(clusterId) {
-        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts, parentId } = this.flowClusters[clusterId]
+        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts, parentId, normTotal } = this.flowClusters[clusterId]
 
         return {
+            normTotal,
             totalCount,
             counts: agg_counts,
             lat_O: agg_lat_O / totalCount,
@@ -102,10 +104,6 @@ class FlowClusterManager {
             .filter((clusterObj, index) => clusterObj.parentId == index)
             .map(clusterObj => this.getClusterCentroidFlow(clusterObj.parentId))
 
-
-        flowClusters.forEach(flowCluster => {
-            flowCluster.normalizedCount = flowCluster.totalCount / this.allClustersCount
-        })
 
         return flowClusters
     }

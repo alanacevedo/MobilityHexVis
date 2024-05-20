@@ -18,7 +18,7 @@ function updateSvgPaths(map, displayTypeString) {
 
 function getScales() {
     const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, 0.02]).range([0.1, 1]),
+        "stroke-opacity": d3.scaleLinear().domain([0, 0.002]).range([0.1, 1]),
         "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
         "stroke": d3.scaleSequential(d3.interpolateWarm) // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
     }
@@ -31,10 +31,6 @@ function setDataSettingsOnMap(pathData, map) {
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
     const g = svg.select("g");
     const tooltip = d3.select(".tooltip")
-
-
-    const mapWidth = map.getSize().x
-    const mapHeight = map.getSize().y
 
     const defs = d3.select(map.getPanes().overlayPane).select("svg").append("svg:defs")
 
@@ -65,14 +61,14 @@ function setDataSettingsOnMap(pathData, map) {
         //.attr("class", "cat" + cat) esto
         .attr("style", "pointer-events: auto;")
         .style("stroke", d => `url(#gradient${d.id})`)
-        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalized_count))
+        .style("stroke-opacity", d => scales["stroke-opacity"](d.norm_total))
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text(`distance: ${Number(d.distance).toFixed(2)} \n norm: ${Number(d.normalized_count).toFixed(3)}`)
+                .text(`distance: ${Number(d.distance).toFixed(2)} \n norm: ${Number(d.norm_total).toFixed(3)}`)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 
@@ -106,7 +102,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
             .attr("orient", getFlowAngle(flowObj, map)) // auto hace que cambien de orientacion al cambiar el size
             .append("svg:path")
             .attr("d", "M2,2 L10,6 L2,10 L6,6 L2,2")
-            .attr("opacity", scales["stroke-opacity"](flowObj.normalizedCount))
+            .attr("opacity", scales["stroke-opacity"](flowObj.normTotal))
     })
 
     g.selectAll("path") // ("path.cat" + cat)
@@ -116,7 +112,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .attr("style", "pointer-events: auto;")
         .attr("marker-end", d => `url(#marker${d.id})`)
         .style("stroke", d => colorScale(d.index))
-        .style("stroke-opacity", d => scales["stroke-opacity"](d.normalizedCount))//(d.normalized_total))
+        .style("stroke-opacity", d => scales["stroke-opacity"](d.normTotal))//(d.normalized_total))
         .style("stroke-width", d => 3)
         .style("fill", `url(line-gradient)`)
         .on("mouseover", function (event, d) {

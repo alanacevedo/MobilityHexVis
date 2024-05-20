@@ -6,7 +6,7 @@ class FlowMap {
     }
 
     add(flowObj) {
-        const { lat_O, lon_O, lat_D, lon_D, group, count } = flowObj
+        const { lat_O, lon_O, lat_D, lon_D, group, count, norm_total } = flowObj
         const coords = [lat_O, lon_O, lat_D, lon_D]
 
         let curr = this.data
@@ -27,7 +27,8 @@ class FlowMap {
                 lon_D,
                 id: this.idToFlowObj.length,
                 counts: {},
-                totalCount: 0
+                totalCount: 0,
+                normTotal: 0
             }
 
             this.idToFlowObj.push(aggFlowObj)
@@ -38,6 +39,8 @@ class FlowMap {
 
         obj["counts"][group] = count
         obj["totalCount"] += count
+        obj["normTotal"] += norm_total
+
 
         const id = obj["id"]
         this.flowObjToId.set(curr.get(lon_D), id)

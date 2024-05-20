@@ -131,10 +131,6 @@ function getDataByGroup(data) {
         totalByGroup[group] += entry.count
     }
 
-    for (const entry of data) {
-        entry.normalized_count = entry.count / totalByGroup[entry.group]
-    }
-
     return dataByGroup
 }
 
