@@ -1,6 +1,9 @@
 import Chart from 'chart.js/auto';
+import * as d3 from "d3";
 import { AppState } from '../appState';
 import { generateMaps } from './domFunctions';
+
+const TOOLTIPID = 'chartjs-tooltip'
 
 const clickableLines = {
     id: "clickableLines",
@@ -62,8 +65,8 @@ const clickableLines = {
             drawLine.draw(ctx)
         })
 
-
     }
+
 }
 
 function drawBoundariesChart(ctxNode, chartData) {
@@ -110,11 +113,18 @@ function drawBoundariesChart(ctxNode, chartData) {
                 legend: {
                     display: false
                 }
-            }
+            },
+            onHover: handleOnHover
 
         },
         plugins: [clickableLines]
     });
+
+    d3.select("#" + ctxNode.id).node().addEventListener('mouseleave', () => {
+        d3.select("#" + TOOLTIPID).node().style.display = 'none'
+    })
+
+
 }
 
 function getChartData(data) {
@@ -143,6 +153,23 @@ function getChartData(data) {
     })
 
     return chartData
+}
+
+function handleOnHover(event, activeElements, chartElement) {
+    const tooltipNode = d3.select("#" + TOOLTIPID).node()
+
+    const xScale = chartElement.scales.x;
+    const xValue = xScale.getValueForPixel(event.x);
+
+    if (xValue < 0) {
+        return
+    }
+
+    // Position the tooltip
+    tooltipNode.innerHTML = `${xValue.toFixed(2)} km.`;
+    tooltipNode.style.left = event.native.clientX + 'px';
+    tooltipNode.style.top = event.native.clientY - 20 + 'px';
+    tooltipNode.style.display = 'block'; // Ensure the tooltip is visible
 }
 
 export { drawBoundariesChart, getChartData }
