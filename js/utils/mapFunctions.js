@@ -3,10 +3,10 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
-import { getDbscanClusterFlows } from "../clustering/dbscanClusterFlows.js";
 import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
-import { getContiguousFlowClusters } from "../clustering/contiguousFlowClustering.js";
+import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
+import { AppState } from "../appState.js";
 
 
 const MAPS_PER_ROW = 5
@@ -98,8 +98,9 @@ function addMap(mapDiv, mapMatrix) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
-    //const dbscanClusterFlows = getDbscanClusterFlows(rowDataSlice)
-    const clusterFlows = getContiguousFlowClusters(rowDataSlice, 6)
+    const appState = new AppState()
+    const snnK = new Number(appState.getState("snnK"))
+    const clusterFlows = getSnnFlowClusters(rowDataSlice, snnK)
 
     clusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)

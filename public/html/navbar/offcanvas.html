@@ -43,38 +43,17 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link active">Parámetros DBSCAN</a>
+                    <a class="nav-link active">Parámetros Clustering</a>
 
                     <div class="form-floating mb-3">
                         <input
-                            id="dbscanMinPointsInput"
+                            id="snnKInput"
                             type="number"
                             class="form-control"
-                            placeholder="Puntos mínimos"
+                            placeholder="K Vecinos"
                         />
-                        <label for="dbscanMinPointsInput">Puntos mínimos</label>
+                        <label for="snnKInput">K Vecinos</label>
                     </div>
-
-                    <div class="form-floating mb-3">
-                        <input
-                            id="dbscanMaxDistanceInput"
-                            type="number"
-                            class="form-control"
-                            placeholder="Máxima distancia (km)"
-                        />
-                        <label for="dbscanMaxDistanceInput"
-                            >Máxima distancia (km)</label
-                        >
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="generateMapsButton"
-                    >
-                        Generar Mapas
-                    </button>
                 </li>
             </ul>
         </div>

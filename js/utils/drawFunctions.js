@@ -67,10 +67,10 @@ function setDataSettingsOnMap(pathData, map) {
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 5) + "px")
-                .text(`distance: ${Number(d.distance).toFixed(2)} \n norm: ${Number(d.norm_total).toFixed(3)}`)
+                .style("top", (event.pageY - 20) + "px")
+                .html(`Distancia: ${Number(d.distance).toFixed(2)} km. <br> Ocurrencias: ${Number(d.count)}`)
 
-            tooltip.transition().duration(150).style("opacity", 0.9)
+            tooltip.transition().duration(150).style("opacity", 0.8)
 
             //d3.select(this).style('stroke', '#00688B')
         })
@@ -117,11 +117,18 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .style("fill", `url(line-gradient)`)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
+            console.log(d)
+
+            let tooltipHtml = `Índice: ${Number(d.index).toFixed(2)}`
+
+            for (const [group, count] of Object.entries(d.counts)) {
+                tooltipHtml += `<br> Cuartil ${group}: ${count}`
+            }
 
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 5) + "px")
-                .text(`index: ${Number(d.index).toFixed(2)}`)
+                .html(tooltipHtml)
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 

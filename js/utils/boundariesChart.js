@@ -92,14 +92,23 @@ function drawBoundariesChart(ctxNode, chartData) {
             scales: {
                 y: {
                     title: {
-                        display: false
+                        display: true,
+                        text: "Ocurrencias (miles)"
                     },
                     beginAtZero: true,
                     grid: {
                         color: gridLineColor,
                     },
+                    ticks: {
+                        callback: (label) => label / 1000
+
+                    }
                 },
                 x: {
+                    title: {
+                        display: true,
+                        text: "Distancia (km)"
+                    },
                     grid: {
                         color: gridLineColor
                     },

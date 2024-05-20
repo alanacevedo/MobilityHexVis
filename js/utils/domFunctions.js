@@ -12,10 +12,6 @@ import Chart from 'chart.js/auto';
 function addTooltipDiv() {
     d3.select("body").append('div')
         .attr('class', 'tooltip')
-        .style("position", "absolute")
-        .style("z-index", "1000")
-        .attr('width', 200)
-        .attr('height', 200)
         .attr('id', 'tooltip')
 }
 
@@ -24,8 +20,7 @@ function setupSideMenu() {
     const state = new AppState()
     const startHour = state.getState("startHour")
     const endHour = state.getState("endHour")
-    const dbscanMinPoints = state.getState("dbscanMinPoints")
-    const dbscanMaxDistance = state.getState("dbscanMaxDistance")
+    const snnK = state.getState("snnK")
 
     const hourRangeInputNode = d3.select("#hourRangeInput").node()
     hourRangeInputNode.value1 = startHour
@@ -45,21 +40,12 @@ function setupSideMenu() {
 
     updateChart(state.getState("data"))
 
-    const dbscanMinPointsInputNode = d3.select("#dbscanMinPointsInput").node()
-    dbscanMinPointsInputNode.value = dbscanMinPoints
-    dbscanMinPointsInputNode.addEventListener("input", (e) => {
-        state.setState("dbscanMinPoints", e.target.value)
+    const snnKInputNode = d3.select("#snnKInput").node()
+    snnKInputNode.value = snnK
+    snnKInputNode.addEventListener("input", (e) => {
+        state.setState("snnK", e.target.value)
         generateMaps()
     })
-
-    const dbscanMaxDistanceInputNode = d3.select("#dbscanMaxDistanceInput").node()
-    dbscanMaxDistanceInputNode.value = dbscanMaxDistance
-    dbscanMaxDistanceInputNode.addEventListener("input", (e) => {
-        state.setState("dbscanMaxDistance", e.target.value)
-        generateMaps()
-    })
-
-    d3.select("#generateMapsButton").on("click", () => generateMaps())
 }
 
 function updateChart(data) {

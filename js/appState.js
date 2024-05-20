@@ -30,8 +30,7 @@ async function initializeState() {
     state.setState("data", data)
     state.setState("boundaries", [])
     state.setState("mapMatrix", [])
-    state.setState("dbscanMinPoints", 2)
-    state.setState("dbscanMaxDistance", 0.8)
+    state.setState("snnK", 6)
 }
 
 async function updateData() {

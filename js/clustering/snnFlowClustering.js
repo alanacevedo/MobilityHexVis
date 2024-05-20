@@ -3,7 +3,7 @@ import { FlowMap } from './FlowMap.js';
 import { KdIndex } from "./KdIndex.js";
 import { FlowClusterManager } from "./FlowClusterManager.js";
 
-function getContiguousFlowClusters(flows, k) {
+function getSnnFlowClusters(flows, k) {
 
     // Puede que los flujos tengan mismas coordenadas de origen y destino, pero distinto grupo.
     // En este objecto flowMap se fusionan los que tengan mismas coordenadas y se les asigna un identificador.
@@ -181,4 +181,4 @@ function getMedianFlow(centroidFlowObj, originKdIndex, destinationKdIndex) {
 }
 
 
-export { getContiguousFlowClusters }
+export { getSnnFlowClusters }
