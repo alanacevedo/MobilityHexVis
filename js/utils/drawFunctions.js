@@ -117,7 +117,6 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .style("fill", `url(line-gradient)`)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
-            console.log(d)
 
             let tooltipHtml = `Índice: ${Number(d.index).toFixed(2)}`
 
@@ -132,12 +131,17 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
 
             tooltip.transition().duration(150).style("opacity", 0.9)
 
-            d3.select(this).style('stroke', '#00688B')
+            const color = '#00688B'
+
+            d3.select(this).style('stroke', color)
+
+            d3.select(`#marker${d.id}`).attr("fill", color)
         })
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
-
-            d3.select(this).style('stroke', d => colorScale(d.index));
+            const color = colorScale(d.index)
+            d3.select(this).style('stroke', color);
+            d3.select(`#marker${d.id}`).attr("fill", color)
         })
 }
 
