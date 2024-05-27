@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
 
-function updateSvgPaths(map, displayTypeString) {
+function updateSvgPaths(map, displayTypeString, isClusterMap) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
 
@@ -10,9 +10,14 @@ function updateSvgPaths(map, displayTypeString) {
         .attr("d", linkData => getPathFromLinkData(linkData, displayTypeString, map))
         .style("stroke-width", d => zoom - 6)
 
+    if (!isClusterMap) return;
+
     d3.selectAll("[id^='marker']")
         .attr("markerWidth", zoom - 5)
         .attr("markerHeight", zoom - 5)
+
+    g.selectAll("path.hull")
+        .attr("d", clusterData => getHullPath(clusterData, map))
 
 }
 
@@ -143,6 +148,17 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
             d3.select(this).style('stroke', color);
             d3.select(`#marker${d.id}`).attr("fill", color)
         })
+
+    g.selectAll("path.hull")
+        .data(pathData)
+        .join("path")
+        .attr("class", "hull")
+        .attr("id", d => "hull" + d.id)
+        .style("stroke", d => colorScale(d.index))
+        .style("stroke-opacity", 0)
+        .style("fill", d => colorScale(d.index))
+        .style("fill-opacity", 0.4)
+
 }
 
 function getFlowAngle(flowObj, map) {
@@ -169,6 +185,25 @@ function getAngleCoords(angle) {
         'y2': Math.round(50 + Math.cos(anglePI + Math.PI) * 50) + '%',
     }
     return angleCoords
+}
+
+// toma el un clusterObj y retorna el path del hull convexo que abarca todos los puntos (origenes y destinos) del cluster
+function getHullPath(clusterData, map) {
+    if (clusterData.flowSet.size < 2) return "";
+
+    const points = []
+
+    for (const flowObj of clusterData.flowSet) {
+        const { start, end } = projectFlow(flowObj, map)
+        points.push([start.x, start.y])
+        points.push([end.x, end.y])
+    }
+
+    const hull = d3.polygonHull(points)
+
+    const path = `M${hull.join("L")}Z`
+
+    return path
 }
 
 export { updateSvgPaths, setDataSettingsOnMap, setDataSettingsOnClusteredFlowMap, getScales }

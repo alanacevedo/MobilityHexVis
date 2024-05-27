@@ -14,6 +14,7 @@ class FlowClusterManager {
                 parentId: id,
                 agg_counts: counts,
                 flowCount: 1,
+                flowSet: new Set([flowObj]),
                 agg_lat_O: lat_O * totalCount, // weighted
                 agg_lon_O: lon_O * totalCount,
                 agg_lat_D: lat_D * totalCount,
@@ -64,6 +65,10 @@ class FlowClusterManager {
             parentCluster[attr] += childCluster[attr]
         })
 
+
+        // Set union
+        parentCluster.flowSet = new Set([...parentCluster.flowSet, ...childCluster.flowSet])
+
         childCluster.parentId = parentClusterId
 
         return
@@ -84,11 +89,13 @@ class FlowClusterManager {
 
     // retorna un objeto que representa un flujo OD donde O y D son los centroides
     getClusterCentroidFlow(clusterId) {
-        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts, parentId, normTotal } = this.flowClusters[clusterId]
+        const { totalCount, agg_lat_O, agg_lon_O, agg_lat_D, agg_lon_D, agg_counts, parentId, normTotal, flowSet, flowCount } = this.flowClusters[clusterId]
 
         return {
             normTotal,
             totalCount,
+            flowSet,
+            flowCount,
             counts: agg_counts,
             lat_O: agg_lat_O / totalCount,
             lon_O: agg_lon_O / totalCount,

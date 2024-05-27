@@ -47,7 +47,9 @@ function addMapRow(insertionIndex, mapMatrix) {
         mapDiv.classList.add("leafletMap")
         colDiv.appendChild(mapDiv)
 
-        const map = addMap(mapDiv, mapMatrix)
+        const isClusterMap = (i == MAPS_PER_ROW - 1)
+
+        const map = addMap(mapDiv, mapMatrix, isClusterMap)
         mapRow.push(map)
     }
 
@@ -65,7 +67,7 @@ function setViewToAllMaps(mapMatrix, center, zoom) {
 }
 
 // agregar un mapa leaflet en la división con id mapDiv. Esto no agrega los datos aún.
-function addMap(mapDiv, mapMatrix) {
+function addMap(mapDiv, mapMatrix, isClusterMap) {
     const map = L.map(mapDiv, { attributionControl: false, zoomControl: false })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
 
@@ -85,7 +87,7 @@ function addMap(mapDiv, mapMatrix) {
 
     map.on('zoomend', (e) => {
         setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
-        updateSvgPaths(map, "line")
+        updateSvgPaths(map, "line", isClusterMap)
     })
 
     map.on('mouseup', () => {
@@ -101,6 +103,7 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     const appState = new AppState()
     const snnK = new Number(appState.getState("snnK"))
     const clusterFlows = getSnnFlowClusters(rowDataSlice, snnK)
+    console.log(clusterFlows)
 
     clusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)
@@ -115,7 +118,7 @@ function displayDataOnRow(rowDataSlice, mapRow) {
 
     const lastMap = mapRow[mapRow.length - 1]
     setDataSettingsOnClusteredFlowMap(clusterFlows, lastMap)
-    updateSvgPaths(lastMap, "line")
+    updateSvgPaths(lastMap, "line", true)
 }
 
 function getDataByGroup(data) {
