@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
+import { polygonSmooth, polygon } from "@turf/turf";
 
 function updateSvgPaths(map, displayTypeString, isClusterMap) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
@@ -157,7 +158,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .style("stroke", d => colorScale(d.index))
         .style("stroke-opacity", 0)
         .style("fill", d => colorScale(d.index))
-        .style("fill-opacity", 0.4)
+        .style("fill-opacity", 0.3)
 
 }
 
@@ -200,8 +201,11 @@ function getHullPath(clusterData, map) {
     }
 
     const hull = d3.polygonHull(points)
-
-    const path = `M${hull.join("L")}Z`
+    hull.push([...hull[0]]) // close polygon
+    const hullPolygon = polygon([hull])
+    const smoothedPolygon = polygonSmooth(hullPolygon, { iterations: 3 })
+    const smoothedPolygonPoints = smoothedPolygon.features[0].geometry.coordinates
+    const path = `M${smoothedPolygonPoints.join("L")}Z`
 
     return path
 }

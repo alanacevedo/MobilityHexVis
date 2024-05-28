@@ -103,7 +103,6 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     const appState = new AppState()
     const snnK = new Number(appState.getState("snnK"))
     const clusterFlows = getSnnFlowClusters(rowDataSlice, snnK)
-    console.log(clusterFlows)
 
     clusterFlows.forEach(flow => {
         addSimpsonIndexToFlow(flow)
