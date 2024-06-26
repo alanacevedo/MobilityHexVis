@@ -1,4 +1,5 @@
 import { loadODData } from "./loadData"
+import { getGroupPercentages } from "./utils/charts/distribution/utils"
 let instance
 
 // Singleton
@@ -26,17 +27,19 @@ async function initializeState() {
 
     state.setState("startHour", 5)
     state.setState("endHour", 12)
-    const data = await loadODData(state.getState("startHour"), state.getState("endHour"))
-    state.setState("data", data)
     state.setState("boundaries", [])
     state.setState("mapMatrix", [])
     state.setState("snnK", 6)
+    await updateData()
 }
 
 async function updateData() {
     const state = new AppState()
     const data = await loadODData(state.getState("startHour"), state.getState("endHour"))
+    const baseGroupPercentages = getGroupPercentages(data)
+    console.log(baseGroupPercentages)
     state.setState("data", data)
+    state.setState("baseGroupPercentages", baseGroupPercentages)
 }
 
 export { AppState, initializeState, updateData }

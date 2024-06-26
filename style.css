@@ -37,3 +37,12 @@ div.tooltip {
     font-size: 12px;
     display: none;
 }
+
+div {
+    font-family: Roboto;
+}
+/*
+.distChartCanvas {
+    background-color: rgba(39, 38, 38, 255);
+}
+*/

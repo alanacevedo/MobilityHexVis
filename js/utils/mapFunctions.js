@@ -6,7 +6,10 @@ import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths
 import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
+import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
 import { AppState } from "../appState.js";
+import { Chart } from "chart.js";
+import { getGroupPercentages } from "./charts/distribution/utils.js";
 
 
 const MAPS_PER_ROW = 5
@@ -24,14 +27,9 @@ function addMapRow(insertionIndex, mapMatrix) {
 
     const mapRow = []
 
-    // Agregar descripción de la fila a la izquierda
-    const rangeTextColDiv = document.createElement("div")
-    rangeTextColDiv.classList.add("col-1")
-    const rangeTextDiv = document.createElement("div")
-    rangeTextDiv.classList.add("rangeText")
-    rangeTextDiv.innerHTML = "WENA"
-    rangeTextColDiv.appendChild(rangeTextDiv)
-    newRowDiv.appendChild(rangeTextColDiv)
+    const distributionColDiv = document.createElement("div")
+    distributionColDiv.classList.add("col-2", "distChartDiv")
+    newRowDiv.appendChild(distributionColDiv)
 
     // agregar los mapas leaflet, cada uno dentro de una div "col".
     // esto según el sistema de layout de bootstrap.
@@ -39,9 +37,6 @@ function addMapRow(insertionIndex, mapMatrix) {
         const colDiv = document.createElement("div")
         colDiv.classList.add("col-2")
         newRowDiv.appendChild(colDiv)
-        if (i === MAPS_PER_ROW - 1) {
-            colDiv.classList.add("ms-4") // left margin
-        }
 
         const mapDiv = document.createElement("div")
         mapDiv.classList.add("leafletMap")
@@ -166,12 +161,33 @@ function displayRows(mapMatrix, rowDataSlices, boundaries) {
     }
 
     const rangeStrings = getRangeStringsFromBoundaries(boundaries)
-    const rangeTextDivs = document.querySelectorAll(".rangeText")
+    const distChartDivs = document.querySelectorAll(".distChartDiv")
+    const appState = new AppState()
+    const baseGroupPercentages = appState.getState("baseGroupPercentages")
 
     for (let i = 0; i < rowCount; i++) {
-        rangeTextDivs[i].innerHTML = rangeStrings[i]
+        const distChartCtxNode = createChartCanvasChild(distChartDivs[i])
+        const rangeString = rangeStrings[i]
+        const rowGroupPercentages = getGroupPercentages(rowDataSlices[i])
+        drawDistributionChart(distChartCtxNode, rowGroupPercentages, baseGroupPercentages, rangeString)
     }
 
+}
+
+function createChartCanvasChild(distChartDiv) {
+    distChartDiv.innerHTML = ""
+    /*
+    memleak?
+    quizás debería encontrar el canvas chart node con Chart.getChart y luego chart.destroy()
+    */
+
+    const distChartCtxNode = document.createElement("canvas")
+    distChartCtxNode.classList.add("distChartCanvas")
+    distChartCtxNode.style.height = "100%"
+    distChartCtxNode.style.width = "100%"
+    distChartDiv.appendChild(distChartCtxNode)
+
+    return distChartCtxNode
 }
 
 export { addMapRow, displayDataOnRow, removeMapRow, displayRows }

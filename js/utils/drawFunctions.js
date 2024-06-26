@@ -111,10 +111,10 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
             .attr("opacity", scales["stroke-opacity"](flowObj.normTotal))
     })
 
-    g.selectAll("path") // ("path.cat" + cat)
+    g.selectAll("path.line") // ("path.cat" + cat)
         .data(pathData)
         .join("path")
-        //.attr("class", "cat" + cat) esto
+        .attr("class", "line")
         .attr("style", "pointer-events: auto;")
         .attr("marker-end", d => `url(#marker${d.id})`)
         .style("stroke", d => colorScale(d.index))

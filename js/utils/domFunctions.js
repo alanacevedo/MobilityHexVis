@@ -2,8 +2,7 @@ import * as d3 from "d3";
 import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
 import { displayRows } from "./mapFunctions.js";
 import { AppState, updateData } from "../appState.js";
-import { drawBoundariesChart } from "./boundariesChart.js";
-import { getChartData } from "./boundariesChart.js";
+import { drawBoundariesChart, getChartData } from "./charts/boundaries/boundariesChart.js";
 import Chart from 'chart.js/auto';
 
 
@@ -52,7 +51,7 @@ function updateChart(data) {
     const chartData = getChartData(data)
     const boundariesChartCtxNode = document.getElementById('myChart');
 
-    const chart = Chart.getChart("myChart")
+    const chart = Chart.getChart(boundariesChartCtxNode)
     if (chart) {
         chart.destroy()
     }
