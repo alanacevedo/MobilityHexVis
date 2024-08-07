@@ -1,4 +1,5 @@
-function getGroupPercentages(data) {
+function getGroupPercentages(data, globalTotal) {
+
     const groupCount = {}
     let total = 0
 
@@ -15,12 +16,29 @@ function getGroupPercentages(data) {
         total += count
     })
 
-    const groupPercentages = {}
+    const groupPercentages = {
+        group: {},
+        global: {},
+        rowPercentage: total / globalTotal * 100
+    }
+
     Object.entries(groupCount).forEach(([key, val]) => {
-        groupPercentages[key] = val / total * 100
+        groupPercentages.group[key] = val / total * 100
+        groupPercentages.global[key] = val / globalTotal * 100
+
     })
 
     return groupPercentages
 }
 
-export { getGroupPercentages }
+function getTotalEntries(data) {
+    let total = 0
+
+    data.forEach(flowObj => {
+        total += flowObj.count
+    })
+
+    return total
+}
+
+export { getGroupPercentages, getTotalEntries }

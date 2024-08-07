@@ -1,5 +1,5 @@
 import { loadODData } from "./loadData"
-import { getGroupPercentages } from "./utils/charts/distribution/utils"
+import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils"
 let instance
 
 // Singleton
@@ -36,10 +36,12 @@ async function initializeState() {
 async function updateData() {
     const state = new AppState()
     const data = await loadODData(state.getState("startHour"), state.getState("endHour"))
-    const baseGroupPercentages = getGroupPercentages(data)
-    console.log(baseGroupPercentages)
+    const totalEntries = getTotalEntries(data)
+    const baseGroupPercentages = getGroupPercentages(data, totalEntries)
+
     state.setState("data", data)
     state.setState("baseGroupPercentages", baseGroupPercentages)
+    state.setState("totalEntries", totalEntries)
 }
 
 export { AppState, initializeState, updateData }
