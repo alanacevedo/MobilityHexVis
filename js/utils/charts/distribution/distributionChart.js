@@ -1,14 +1,17 @@
 import Chart from 'chart.js/auto';
 import { AppState } from '../../../appState';
 
-function drawDistributionChart(ctxNode, chartData, baseGroupPercentages, rangeString) {
+function drawDistributionChart(ctxNode, chartData, rangeString) {
     const appState = new AppState()
-    const totalEntries = appState.getState("totalEntries")
-    console.log(totalEntries)
+    const baseGroupPercentages = appState.getState("baseGroupPercentages")
 
     if (ctxNode.chart) {
         ctxNode.chart.destroy();
     }
+
+    const referenceValues = Object.values(baseGroupPercentages['group'])
+    const globalValues = Object.values(chartData['global']);
+    const rowPercentage = globalValues.reduce((acc, val) => acc + val, 0);
 
     const data = {
         labels: ['Q1', 'Q2', 'Q3', 'Q4'],
@@ -20,7 +23,6 @@ function drawDistributionChart(ctxNode, chartData, baseGroupPercentages, rangeSt
         }]
     };
 
-    const referenceValues = Object.values(baseGroupPercentages['group'])
 
     const referenceLinesPlugin = {
         id: 'referenceLines',
@@ -62,14 +64,20 @@ function drawDistributionChart(ctxNode, chartData, baseGroupPercentages, rangeSt
                 },
                 title: {
                     display: true,
-                    text: "Tramo " + rangeString
+                    text: `      ${rangeString}    ${rowPercentage.toFixed(0)}%  datos`,
+                    align: 'center'
                 },
                 tooltip: {
                     callbacks: {
                         label: (context) => '',
                         footer: (context) => {
-                            console.log(context)
-                            return ["% c/r tramo: X", "% c/r total: Y"]
+                            const index = context[0].dataIndex;
+                            const groupPercentage = chartData['group'][index + 1];
+                            const globalPercentage = chartData['global'][index + 1];
+                            return [
+                                `${groupPercentage.toFixed(1)}% c/r tramo `,
+                                `${globalPercentage.toFixed(1)}% c/r total: `
+                            ];
                         }
                     }
                 }

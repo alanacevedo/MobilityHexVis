@@ -56,11 +56,11 @@ function getRangeStringsFromBoundaries(boundaries) {
 
     for (const curr of boundaries) {
 
-        rangeStrings.push(`[${Number(prev).toFixed(1)} - ${Number(curr.toFixed(1))})`)
+        rangeStrings.push(`[${Number(prev).toFixed(1)}km - ${Number(curr.toFixed(1))}km)`)
         prev = curr
     }
 
-    rangeStrings.push(`[${Number(prev).toFixed(1)} - \u221e )`)
+    rangeStrings.push(`[${Number(prev).toFixed(1)}km - \u221e )`)
 
 
     return rangeStrings

@@ -163,16 +163,12 @@ function displayRows(mapMatrix, rowDataSlices, boundaries) {
     const rangeStrings = getRangeStringsFromBoundaries(boundaries)
     const distChartDivs = document.querySelectorAll(".distChartDiv")
     const appState = new AppState()
-    const baseGroupPercentages = appState.getState("baseGroupPercentages")
     const totalEntries = appState.getState("totalEntries")
-    console.log("base", baseGroupPercentages)
     for (let i = 0; i < rowCount; i++) {
         const distChartCtxNode = createChartCanvasChild(distChartDivs[i])
         const rangeString = rangeStrings[i]
         const rowGroupPercentages = getGroupPercentages(rowDataSlices[i], totalEntries)
-        console.log("row")
-        console.log(rowGroupPercentages)
-        drawDistributionChart(distChartCtxNode, rowGroupPercentages, baseGroupPercentages, rangeString)
+        drawDistributionChart(distChartCtxNode, rowGroupPercentages, rangeString)
     }
 
 }
