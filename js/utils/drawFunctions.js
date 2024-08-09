@@ -26,7 +26,8 @@ function getScales() {
     const scales = {
         "stroke-opacity": d3.scaleLinear().domain([0, 0.002]).range([0.1, 1]),
         "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
-        "stroke": d3.scaleSequential(d3.interpolateWarm) // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
+        // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
+        "stroke": d3.scaleSequential(d3.interpolateWarm).domain([1, 0.3]), // Inversión de dominio para que mayor desigualdad sea oscuro  
     }
 
     return scales

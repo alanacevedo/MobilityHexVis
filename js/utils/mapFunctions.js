@@ -3,7 +3,7 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
-import { addSimpsonIndexToFlow } from "./segregationIndexes.js";
+import { addSimpsonIndexToFlow, addGiniIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
 import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
@@ -100,7 +100,7 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     const clusterFlows = getSnnFlowClusters(rowDataSlice, snnK)
 
     clusterFlows.forEach(flow => {
-        addSimpsonIndexToFlow(flow)
+        addGiniIndexToFlow(flow)
     })
 
     for (let i = 0; i < mapRow.length - 1; i++) {

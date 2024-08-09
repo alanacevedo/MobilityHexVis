@@ -17,7 +17,7 @@ function drawDistributionChart(ctxNode, chartData, rangeString) {
         labels: ['Q1', 'Q2', 'Q3', 'Q4'],
         datasets: [{
             data: Object.values(chartData['group']),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
         }]
@@ -51,13 +51,15 @@ function drawDistributionChart(ctxNode, chartData, rangeString) {
         type: 'bar',
         data: data,
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
             scales: {
                 y: {
                     beginAtZero: true,
                     max: 100
                 }
             },
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -75,16 +77,14 @@ function drawDistributionChart(ctxNode, chartData, rangeString) {
                             const groupPercentage = chartData['group'][index + 1];
                             const globalPercentage = chartData['global'][index + 1];
                             return [
-                                `${groupPercentage.toFixed(1)}% c/r tramo `,
-                                `${globalPercentage.toFixed(1)}% c/r total: `
+                                `${groupPercentage.toFixed(1)}%  c/r tramo `,
+                                `${globalPercentage.toFixed(1)}%  c/r total: `
                             ];
                         }
                     }
                 }
 
             },
-            maintainAspectRatio: true,
-            aspectRatio: 1
         },
         plugins: [referenceLinesPlugin]
     };

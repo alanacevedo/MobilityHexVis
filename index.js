@@ -1,5 +1,5 @@
 import { injectAllHTML } from "./js/injectHTML.js";
-import { addTooltipDiv, generateMaps } from "./js/utils/domFunctions.js";
+import { addTooltipDiv, generateMaps, addColorGradientSvg } from "./js/utils/domFunctions.js";
 import { setupSideMenu } from "./js/utils/domFunctions.js";
 import { initializeState } from "./js/appState.js";
 import "./js/plugins/tcrs-moving-tooltip.min.js"
@@ -10,6 +10,7 @@ injectAllHTML()
 
 // adds a div that shows data for paths
 addTooltipDiv()
+addColorGradientSvg()
 
 // initializes state default values
 await initializeState()
