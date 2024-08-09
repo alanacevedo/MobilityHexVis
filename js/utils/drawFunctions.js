@@ -125,7 +125,7 @@ function setDataSettingsOnClusteredFlowMap(pathData, map) {
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
 
-            let tooltipHtml = `Índice: ${Number(d.index).toFixed(2)}`
+            let tooltipHtml = `Gini: ${Number(d.index).toFixed(2)}`
 
             for (const [group, count] of Object.entries(d.counts)) {
                 tooltipHtml += `<br> Cuartil ${group}: ${count}`

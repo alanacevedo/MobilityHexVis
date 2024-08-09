@@ -107,10 +107,10 @@ function addColorGradientSvg() {
         .attr("y2", "0%");
 
     // Añadir los pasos de color al gradiente
-    for (let i = 20; i <= 100; i++) {
+    for (let i = 0; i <= 80; i++) {
         gradient.append("stop")
             .attr("offset", `${i}%`)
-            .attr("stop-color", colorScale(1 - (i / 100)));
+            .attr("stop-color", colorScale((i / 100)));
     }
 
     // Dibujar el rectángulo con el gradiente de color
