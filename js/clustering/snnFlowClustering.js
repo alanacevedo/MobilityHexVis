@@ -6,7 +6,7 @@ import { FlowClusterManager } from "./FlowClusterManager.js";
 function getSnnFlowClusters(flows, k) {
 
     // Puede que los flujos tengan mismas coordenadas de origen y destino, pero distinto grupo.
-    // En este objecto flowMap se fusionan los que tengan mismas coordenadas y se les asigna un identificador.
+    // En este objecto flowMap se agrupan los que tengan mismas coordenadas y se les asigna un identificador.
     const flowMap = new FlowMap()
 
     // Mapean posición al id de flujo que pertenecen
@@ -60,6 +60,7 @@ function getSnnFlowClusters(flows, k) {
         return tupleA[2] - tupleB[2]
     })
 
+    // Inicializar un conjunto de clusters de flujo, donde inicialmente cada flujo es un cluster.
     const clusterManager = new FlowClusterManager(flowMap.getFlowObjs())
 
 

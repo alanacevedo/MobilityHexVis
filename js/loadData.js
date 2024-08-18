@@ -1,6 +1,8 @@
 import * as d3 from "d3";
+import protobuf from 'protobufjs';
+import Long from 'long'
 
-
+// todo: change to firebase storage
 async function loadODData(startHour, endHour) {
     const attributesToBeParsed = ["lat_O", "lon_O", "lat_D", "lon_D", "count", "distance", "norm_total"]
     try {
@@ -16,4 +18,15 @@ async function loadODData(startHour, endHour) {
     }
 }
 
-export { loadODData }
+const deserializeBinary = async (buffer) => {
+    const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
+    const protoText = await response.text();
+    const root = protobuf.parse(protoText).root;
+    const DataEntries = root.lookupType("DataEntries")
+
+    const decoded_message = DataEntries.decode(new Uint8Array(buffer))
+    const decoded_object = DataEntries.toObject(decoded_message, { defaults: true })
+    console.log(decoded_object.entries.map(obj => ({ ...obj, origin: obj.origin.toString(16) })))
+}
+
+export { loadODData, deserializeBinary }

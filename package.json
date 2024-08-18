@@ -17,9 +17,12 @@
     "chart.js": "^4.4.2",
     "d3": "^7.9.0",
     "d3-arrow": "^0.0.25",
+    "firebase": "^10.13.0",
     "geokdbush-tk": "^2.0.4",
     "gradient-path": "^2.3.0",
     "kdbush": "^4.0.2",
+    "long": "^5.2.3",
+    "protobufjs": "^7.3.2",
     "toolcool-range-slider": "^4.0.28"
   }
 }

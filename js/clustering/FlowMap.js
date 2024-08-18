@@ -9,8 +9,9 @@ class FlowMap {
         const { lat_O, lon_O, lat_D, lon_D, group, count, norm_total } = flowObj
         const coords = [lat_O, lon_O, lat_D, lon_D]
 
-        let curr = this.data
 
+        // Esto básicamente hashea y almacena la tupla OD para tener rápido acceso
+        let curr = this.data
         for (let i = 0; i < coords.length - 1; i++) {
             if (!curr.has(coords[i])) {
                 curr.set(coords[i], new Map())
@@ -35,6 +36,7 @@ class FlowMap {
             curr.set(lon_D, aggFlowObj)
         }
 
+        // obj contiene la info correspondiente al OD entregado.
         const obj = curr.get(lon_D)
 
         obj["counts"][group] = count
