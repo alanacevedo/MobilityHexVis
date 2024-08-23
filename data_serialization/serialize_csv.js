@@ -1,9 +1,8 @@
 import fs from 'fs';
-import * as d3 from 'd3';
 import protobuf from 'protobufjs';
 import Long from 'long'
-import csv from 'csv-parser';
 import { parse } from 'csv-parse/sync';
+import JSZip from 'jszip';
 
 // this script should be run from OD_vis_chile root
 
@@ -52,6 +51,17 @@ const serializeCsvToProtobuf = async (start_hour, end_hour) => {
 
     const buffer = DataEntries.encode(dataEntriesMessage).finish();
 
+    const zip = new JSZip()
+    const fileName = `data_${start_hour}_${end_hour}.bin`;
+    zip.file(fileName, buffer);
+
+    const zipFilePath = `./data_serialization/data_${start_hour}_${end_hour}.bin.zip`;
+    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' })
+    fs.writeFileSync(zipFilePath, zipBuffer);
+
+    // compress here and write the zip file to filesystem instead of the .bin
+
+    /*
     const filePath = `./data_serialization/data_${start_hour}_${end_hour}.bin`;
     fs.writeFileSync(filePath, buffer);
 
@@ -64,7 +74,7 @@ const serializeCsvToProtobuf = async (start_hour, end_hour) => {
         h3_O: obj.h3_O.toString(16),
         h3_D: obj.h3_D.toString(16)
     })))
-    //console.log(decoded_object.origin.toString(16))
+    */
 
 }
 

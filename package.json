@@ -22,6 +22,7 @@
     "firebase": "^10.13.0",
     "geokdbush-tk": "^2.0.4",
     "gradient-path": "^2.3.0",
+    "jszip": "^3.10.1",
     "kdbush": "^4.0.2",
     "long": "^5.2.3",
     "protobufjs": "^7.3.2",

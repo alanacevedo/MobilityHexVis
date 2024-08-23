@@ -26,7 +26,11 @@ const deserializeBinary = async (buffer) => {
 
     const decoded_message = DataEntries.decode(new Uint8Array(buffer))
     const decoded_object = DataEntries.toObject(decoded_message, { defaults: true })
-    console.log(decoded_object.entries.map(obj => ({ ...obj, origin: obj.origin.toString(16) })))
+    console.log(decoded_object.entries.slice(0, 3).map(obj => ({
+        ...obj,
+        h3_O: obj.h3_O.toString(16),
+        h3_D: obj.h3_D.toString(16)
+    })))
 }
 
 export { loadODData, deserializeBinary }
