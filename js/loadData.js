@@ -25,11 +25,10 @@ const deserializeBinary = async (buffer) => {
     const DataEntries = root.lookupType("DataEntries")
 
     const decoded_message = DataEntries.decode(new Uint8Array(buffer))
-    const decoded_object = DataEntries.toObject(decoded_message, { defaults: true })
-    console.log(decoded_object.entries.slice(0, 3).map(obj => ({
+    const decoded_object = DataEntries.toObject(decoded_message, { defaults: true, longs: String })
+    console.log(decoded_object.entries[0].h3_O)
+    console.log(decoded_object.entries.slice(0, 1).map(obj => ({
         ...obj,
-        h3_O: obj.h3_O.toString(16),
-        h3_D: obj.h3_D.toString(16)
     })))
 }
 

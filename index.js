@@ -13,12 +13,10 @@ import JSZip from "jszip";
 // Injects contents from .html files into index.html
 injectAllHTML()
 
-console.log(import.meta.env.VITE_FIREBASE_API_KEY)
 const storage = getStorage();
-const testRef = ref(storage, "data_9_15.bin.zip")
+const testRef = ref(storage, "h3_7/od_9_15_7.zip")
 
 const url = await getDownloadURL(testRef)
-console.log("caca")
 console.log(url)
 
 const response = await fetch(url);
@@ -26,16 +24,12 @@ if (!response.ok) {
     throw new Error('Failed to fetch binary file');
 }
 const blob = await response.blob();
-console.log('Blob type:', blob.type); // Should be application/zip or similar
-console.log('Blob size:', blob.size); // Ensure size is as expected
 
 const zipContent = await JSZip.loadAsync(blob);
-console.log(zipContent)
 
 const fileName = Object.keys(zipContent.files)[0];
 const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
-
-//console.log(binaryArrayBuffer.byteLength)
+console.log(binaryArrayBuffer)
 deserializeBinary(binaryArrayBuffer)
 
 // adds a div that shows data for paths
