@@ -27,15 +27,16 @@ async function initializeState() {
 
     state.setState("startHour", 5)
     state.setState("endHour", 12)
+    state.setState("resolution", 7)
     state.setState("boundaries", [])
     state.setState("mapMatrix", [])
-    state.setState("snnK", 6)
     await updateData()
 }
 
 async function updateData() {
     const state = new AppState()
-    const data = await loadODData(state.getState("startHour"), state.getState("endHour"))
+    const data = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
+    console.log(data)
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 

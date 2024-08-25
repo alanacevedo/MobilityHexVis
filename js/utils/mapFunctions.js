@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
-import { setDataSettingsOnClusteredFlowMap, setDataSettingsOnMap, updateSvgPaths } from "./drawFunctions.js";
+import { setDataSettingsOnMap, updateSvgPaths, drawH3Hexagons } from "./drawFunctions.js";
 import { addSimpsonIndexToFlow, addGiniIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
@@ -10,7 +10,7 @@ import { drawDistributionChart } from "./charts/distribution/distributionChart.j
 import { AppState } from "../appState.js";
 import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
-
+import { cellToLatLng, cellToBoundary } from "h3-js"
 
 const MAPS_PER_ROW = 4
 
@@ -93,28 +93,33 @@ function addMap(mapDiv, mapMatrix) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
+    console.log("dataBYGroup", dataByGroup)
+
+    // TODO: get set of unique hexagons.
+    // Get count of distance 0 fluxes for each hexagon. Idea: mapa adicional en donde se muestre el gini de viajes internos.
 
     for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]
-        const pathData = dataByGroup[i + 1] ?? []
-        setDataSettingsOnMap(pathData, map)
-        updateSvgPaths(map, "line")
+        const groupData = dataByGroup[i + 1] ?? []
+        const groupUniqueH3 = [...(new Set(groupData.map(it => it.h3_O)))]
+        const hexagons = groupUniqueH3.map(h3Id => cellToBoundary(h3Id))
+        console.log(hexagons)
+        drawH3Hexagons(hexagons, map)
+        //setDataSettingsOnMap(pathData, map)
+        //updateSvgPaths(map, "line")
     }
 
 }
 
 function getDataByGroup(data) {
     const dataByGroup = {}
-    const totalByGroup = {}
 
     for (const entry of data) {
         const group = entry.group
         if (!(group in dataByGroup)) {
             dataByGroup[group] = []
-            totalByGroup[group] = 0
         }
         dataByGroup[group].push(entry)
-        totalByGroup[group] += entry.count
     }
 
     return dataByGroup

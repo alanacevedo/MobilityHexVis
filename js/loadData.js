@@ -1,18 +1,22 @@
-import * as d3 from "d3";
 import protobuf from 'protobufjs';
-import Long from 'long'
+import { app } from "../firebase.js";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import JSZip from "jszip";
 
 // todo: change to firebase storage
-async function loadODData(startHour, endHour) {
-    const attributesToBeParsed = ["lat_O", "lon_O", "lat_D", "lon_D", "count", "distance", "norm_total"]
+async function loadODData(startHour, endHour, resolution) {
     try {
-        const data = await d3.csv(`/data/od_${startHour}_${endHour}_cuartil.csv`)
-        data.forEach(obj => {
-            attributesToBeParsed.forEach(attr => {
-                obj[attr] = Number(obj[attr])
-            })
-        })
-        return data
+        const storage = getStorage(app);
+        const testRef = ref(storage, `h3_${resolution}/od_${startHour}_${endHour}_${resolution}.zip`)
+        const url = await getDownloadURL(testRef)
+
+        const response = await fetch(url);
+        const blob = await response.blob();
+
+        const zipContent = await JSZip.loadAsync(blob);
+        const fileName = Object.keys(zipContent.files)[0];
+        const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
+        return deserializeBinary(binaryArrayBuffer)
     } catch (error) {
         console.error(error)
     }
@@ -26,10 +30,7 @@ const deserializeBinary = async (buffer) => {
 
     const decoded_message = DataEntries.decode(new Uint8Array(buffer))
     const decoded_object = DataEntries.toObject(decoded_message, { defaults: true, longs: String })
-    console.log(decoded_object.entries[0].h3_O)
-    console.log(decoded_object.entries.slice(0, 1).map(obj => ({
-        ...obj,
-    })))
+    return decoded_object.entries
 }
 
 export { loadODData, deserializeBinary }
