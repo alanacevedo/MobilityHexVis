@@ -1,6 +1,5 @@
 import fs from 'fs';
 import protobuf from 'protobufjs';
-import Long from 'long'
 import { parse } from 'csv-parse/sync';
 import JSZip from 'jszip';
 

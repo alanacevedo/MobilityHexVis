@@ -13,7 +13,7 @@ import JSZip from "jszip";
 // Injects contents from .html files into index.html
 injectAllHTML()
 
-const storage = getStorage();
+const storage = getStorage(app);
 const testRef = ref(storage, "h3_7/od_9_15_7.zip")
 
 const url = await getDownloadURL(testRef)
@@ -34,7 +34,6 @@ deserializeBinary(binaryArrayBuffer)
 
 // adds a div that shows data for paths
 addTooltipDiv()
-addColorGradientSvg()
 
 // initializes state default values
 await initializeState()

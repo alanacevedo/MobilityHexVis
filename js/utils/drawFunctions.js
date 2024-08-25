@@ -3,7 +3,7 @@ import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
 import { polygonSmooth, polygon } from "@turf/turf";
 
-function updateSvgPaths(map, displayTypeString, isClusterMap) {
+function updateSvgPaths(map, displayTypeString) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
 
@@ -11,14 +11,6 @@ function updateSvgPaths(map, displayTypeString, isClusterMap) {
         .attr("d", linkData => getPathFromLinkData(linkData, displayTypeString, map))
         .style("stroke-width", d => zoom - 6)
 
-    if (!isClusterMap) return;
-
-    d3.selectAll("[id^='marker']")
-        .attr("markerWidth", zoom - 5)
-        .attr("markerHeight", zoom - 5)
-
-    g.selectAll("path.hull")
-        .attr("d", clusterData => getHullPath(clusterData, map))
 
 }
 

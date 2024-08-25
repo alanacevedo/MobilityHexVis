@@ -12,7 +12,7 @@ import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
 
 
-const MAPS_PER_ROW = 5
+const MAPS_PER_ROW = 4
 
 function addMapRow(insertionIndex, mapMatrix) {
     const container = d3.select("#rowsContainer")
@@ -42,9 +42,7 @@ function addMapRow(insertionIndex, mapMatrix) {
         mapDiv.classList.add("leafletMap")
         colDiv.appendChild(mapDiv)
 
-        const isClusterMap = (i == MAPS_PER_ROW - 1)
-
-        const map = addMap(mapDiv, mapMatrix, isClusterMap)
+        const map = addMap(mapDiv, mapMatrix)
         mapRow.push(map)
     }
 
@@ -62,7 +60,7 @@ function setViewToAllMaps(mapMatrix, center, zoom) {
 }
 
 // agregar un mapa leaflet en la división con id mapDiv. Esto no agrega los datos aún.
-function addMap(mapDiv, mapMatrix, isClusterMap) {
+function addMap(mapDiv, mapMatrix) {
     const map = L.map(mapDiv, { attributionControl: false, zoomControl: false })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
 
@@ -82,7 +80,7 @@ function addMap(mapDiv, mapMatrix, isClusterMap) {
 
     map.on('zoomend', (e) => {
         setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
-        updateSvgPaths(map, "line", isClusterMap)
+        updateSvgPaths(map, "line")
     })
 
     map.on('mouseup', () => {
@@ -95,24 +93,14 @@ function addMap(mapDiv, mapMatrix, isClusterMap) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
-    const appState = new AppState()
-    const snnK = new Number(appState.getState("snnK"))
-    const clusterFlows = getSnnFlowClusters(rowDataSlice, snnK)
 
-    clusterFlows.forEach(flow => {
-        addGiniIndexToFlow(flow)
-    })
-
-    for (let i = 0; i < mapRow.length - 1; i++) {
+    for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]
         const pathData = dataByGroup[i + 1] ?? []
         setDataSettingsOnMap(pathData, map)
         updateSvgPaths(map, "line")
     }
 
-    const lastMap = mapRow[mapRow.length - 1]
-    setDataSettingsOnClusteredFlowMap(clusterFlows, lastMap)
-    updateSvgPaths(lastMap, "line", true)
 }
 
 function getDataByGroup(data) {
