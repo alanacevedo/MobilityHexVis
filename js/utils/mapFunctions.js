@@ -10,7 +10,6 @@ import { drawDistributionChart } from "./charts/distribution/distributionChart.j
 import { AppState } from "../appState.js";
 import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
-import { cellToLatLng, cellToBoundary } from "h3-js"
 
 const MAPS_PER_ROW = 4
 
@@ -92,6 +91,7 @@ function addMap(mapDiv, mapMatrix) {
 
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
+    const appState = new AppState()
     const dataByGroup = getDataByGroup(rowDataSlice)
     console.log("dataBYGroup", dataByGroup)
 
@@ -101,10 +101,10 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]
         const groupData = dataByGroup[i + 1] ?? []
-        const groupUniqueH3 = [...(new Set(groupData.map(it => it.h3_O)))]
-        const hexagons = groupUniqueH3.map(h3Id => cellToBoundary(h3Id))
-        console.log(hexagons)
-        drawH3Hexagons(hexagons, map)
+        const dataByH3 = getDataByH3(groupData)
+        drawH3Hexagons(dataByH3, map)
+
+
         //setDataSettingsOnMap(pathData, map)
         //updateSvgPaths(map, "line")
     }
@@ -123,6 +123,48 @@ function getDataByGroup(data) {
     }
 
     return dataByGroup
+}
+
+function getDataByH3(data) {
+    const dataByHex = {}
+
+    for (const entry of data) {
+        const originHex = entry.h3_O
+        if (!(originHex in dataByHex))
+            dataByHex[originHex] = {}
+
+        if (!('origin' in dataByHex[originHex]))
+            dataByHex[originHex].origin = {
+                count: 0,
+                normGroup: 0,
+                normTotal: 0,
+            }
+
+        const originObj = dataByHex[originHex].origin
+        originObj.count += entry.count
+        originObj.normGroup += entry.normGroup
+        originObj.normTotal += entry.normTotal
+
+
+        // código duplicado jijiiji
+        const destinationHex = entry.h3_D
+        if (!(destinationHex in dataByHex))
+            dataByHex[destinationHex] = {}
+
+        if (!('destination' in dataByHex[destinationHex]))
+            dataByHex[destinationHex].destination = {
+                count: 0,
+                normGroup: 0,
+                normTotal: 0,
+            }
+
+        const destinationObj = dataByHex[destinationHex].destination
+        destinationObj.count += entry.count
+        destinationObj.normGroup += entry.normGroup
+        destinationObj.normTotal += entry.normTotal
+    }
+
+    return dataByHex
 }
 
 function removeMapRow(removalIndex, mapMatrix) {

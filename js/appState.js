@@ -30,6 +30,8 @@ async function initializeState() {
     state.setState("resolution", 7)
     state.setState("boundaries", [])
     state.setState("mapMatrix", [])
+    state.setState("showOriginHex", true)
+    state.setState("showDestinationHex", true)
     await updateData()
 }
 

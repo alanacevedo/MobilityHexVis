@@ -96,11 +96,17 @@ function setDataSettingsOnMap(pathData, map) {
         })
 }
 
-function drawH3Hexagons(hexagons, map) {
-    // Convert H3 indices to hexagon boundary coordinates
+function drawH3Hexagons(dataByH3, map) {
+    const hexagons = Object.keys(dataByH3).map(hex => cellToBoundary(hex))
+    console.log(hexagons)
+    // TODO: use values in origin and destination of each h3 to define the gradient to be used and the opacity.
 
     // Select the SVG layer from the Leaflet map
-    const g = d3.select(map.getPanes().overlayPane).select("svg").select("g");
+    const svg = d3.select(map.getPanes().overlayPane).select("svg");
+    const defs = svg.append("defs")
+    const g = svg.select("g");
+
+    generateGradient(defs)
 
     // Bind data and draw hexagons
     g.selectAll("path.hexagon")
@@ -114,9 +120,9 @@ function drawH3Hexagons(hexagons, map) {
                 .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
             return lineGenerator(d) + "Z"; // Close the path
         })
-        .style("fill", "blue")
-        .style("fill-opacity", 0.5)
-        .style("stroke", "blue")
+        .style("fill", "url(#hexagonGradient)") // Apply the gradient fill
+        .style("fill-opacity", 1)
+        .style("stroke", "#7e1e94")
         .style("stroke-width", 1)
         .style("stroke-opacity", 0.8);
 }
@@ -145,6 +151,30 @@ function getAngleCoords(angle) {
         'y2': Math.round(50 + Math.cos(anglePI + Math.PI) * 50) + '%',
     }
     return angleCoords
+}
+
+function generateGradient(defs) {
+
+    const gradient = defs
+        .append("linearGradient")
+        .attr("id", "hexagonGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+
+    gradient.append("stop")
+        .attr("offset", "30%")
+        .attr("stop-color", "pink");
+
+    gradient.append("stop")
+        .attr("offset", "30%")
+        .attr("stop-color", "green");
+
+    gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "green");
+
 }
 
 
