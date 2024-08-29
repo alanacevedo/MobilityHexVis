@@ -19,14 +19,14 @@ function updateSvgPaths(map, displayTypeString) {
     g.selectAll("path.hexagon")
         .attr("d", d => {
             // Recalculate the path string for hexagons using the current map zoom
-            const pathData = d.map(latLng => {
+            const pathData = d.hexBoundary.map(latLng => {
                 const point = map.latLngToLayerPoint(L.latLng(latLng));
                 return [point.x, point.y];
             });
             const lineGenerator = d3.line();
             return lineGenerator(pathData) + "Z"; // Close the path
         })
-        .style("stroke-width", 1); // You can adjust the stroke width based on zoom if needed
+        .style("stroke-width", 0.5); // You can adjust the stroke width based on zoom if needed
 
 }
 
@@ -97,34 +97,62 @@ function setDataSettingsOnMap(pathData, map) {
 }
 
 function drawH3Hexagons(dataByH3, map) {
-    const hexagons = Object.keys(dataByH3).map(hex => cellToBoundary(hex))
-    console.log(hexagons)
-    // TODO: use values in origin and destination of each h3 to define the gradient to be used and the opacity.
+    const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
+        hexBoundary: cellToBoundary(h3),
+        h3,
+        count: (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0)
+    }))
 
-    // Select the SVG layer from the Leaflet map
+    const mapId = map.options.uuid
+    const totalCount = hexData.reduce((acc, hexObj) => acc + hexObj.count, 0)
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
     const defs = svg.append("defs")
     const g = svg.select("g");
+    const tooltip = d3.select(".tooltip")
 
-    generateGradient(defs)
+    for (const [h3, hexObj] of Object.entries(dataByH3)) {
+        const originCount = hexObj.origin?.count ?? 0
+        const destinationCount = hexObj.destination?.count ?? 0
+        const originPercentage = 100 * originCount / (originCount + destinationCount)
+        addHexColorGradient(h3, originPercentage, defs, mapId)
+    }
 
     // Bind data and draw hexagons
     g.selectAll("path.hexagon")
-        .data(hexagons)
+        .data(hexData)
         .join("path")
+        .attr("style", "pointer-events: auto;")
         .attr("class", "hexagon")
         .attr("d", d => {
             // Generate a D3 path string from the hexagon coordinates
             const lineGenerator = d3.line()
                 .x(d => map.latLngToLayerPoint([d[0], d[1]]).x)
                 .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
-            return lineGenerator(d) + "Z"; // Close the path
+            return lineGenerator(d.hexBoundary) + "Z"; // Close the path
         })
-        .style("fill", "url(#hexagonGradient)") // Apply the gradient fill
-        .style("fill-opacity", 1)
-        .style("stroke", "#7e1e94")
-        .style("stroke-width", 1)
-        .style("stroke-opacity", 0.8);
+        .style("fill", d => `url(#colorGradient${d.h3}${mapId})`) // Apply the gradient fill
+        .style("fill-opacity", 0.5)
+        .style("stroke", "#CCCCCC")
+        .style("stroke-width", 0.5)
+        .style("stroke-opacity", 0.8)
+        .on("mouseover", function (event, d) {
+            // this contiene el elemento path, event es el evento, d contiene los datos
+            console.log("wena")
+            tooltip
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 20) + "px")
+                .html(`Distancia: ${Number(d.distance).toFixed(2)} km. <br> Ocurrencias: ${Number(d.count)}`)
+
+            tooltip.transition().duration(150).style("opacity", 0.8)
+
+            d3.select(this).style('fill-opacity', 1)
+        })
+        .on("mouseout", function (event, d) {
+            tooltip.transition().duration(150).style("opacity", 0)
+
+            d3.select(this).style('fill-opacity', 0.5)
+            //d3.select(this).style('stroke', d => colorMap[d.group]);
+        })
 }
 
 function getFlowAngle(flowObj, map) {
@@ -153,27 +181,28 @@ function getAngleCoords(angle) {
     return angleCoords
 }
 
-function generateGradient(defs) {
+function addHexColorGradient(h3, originPercentage, defs, mapId) {
+    const destinationPercentage = 100 - originPercentage
 
     const gradient = defs
         .append("linearGradient")
-        .attr("id", "hexagonGradient")
+        .attr("id", `colorGradient${h3}${mapId}`)
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "0%");
 
     gradient.append("stop")
-        .attr("offset", "30%")
-        .attr("stop-color", "pink");
+        .attr("offset", originPercentage + "%")
+        .attr("stop-color", "#00FFFF");
 
     gradient.append("stop")
-        .attr("offset", "30%")
-        .attr("stop-color", "green");
+        .attr("offset", originPercentage + "%")
+        .attr("stop-color", "#FF00FF");
 
     gradient.append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", "green");
+        .attr("offset", destinationPercentage + "%")
+        .attr("stop-color", "#FF00FF");
 
 }
 

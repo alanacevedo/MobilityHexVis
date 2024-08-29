@@ -10,6 +10,7 @@ import { drawDistributionChart } from "./charts/distribution/distributionChart.j
 import { AppState } from "../appState.js";
 import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
+import { v4 } from "uuid"
 
 const MAPS_PER_ROW = 4
 
@@ -60,7 +61,7 @@ function setViewToAllMaps(mapMatrix, center, zoom) {
 
 // agregar un mapa leaflet en la división con id mapDiv. Esto no agrega los datos aún.
 function addMap(mapDiv, mapMatrix) {
-    const map = L.map(mapDiv, { attributionControl: false, zoomControl: false })
+    const map = L.map(mapDiv, { attributionControl: false, zoomControl: false, uuid: v4() })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
 
     L.tileLayer(
