@@ -100,11 +100,16 @@ function drawH3Hexagons(dataByH3, map) {
     const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
         hexBoundary: cellToBoundary(h3),
         h3,
-        count: (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0)
+        count: (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0),
+        ...hexObj
     }))
+    const totalCount = hexData.reduce((acc, hexObj) => acc + hexObj.count, 0)
+    const maxCount = Math.max(...hexData.map(hexObj => hexObj.count))
+
+    // TODO: definir mejor la escala
+    const opacityScale = d3.scaleLinear().domain([0, maxCount * 0.1]).range([0.25, 0.7]).clamp(true);
 
     const mapId = map.options.uuid
-    const totalCount = hexData.reduce((acc, hexObj) => acc + hexObj.count, 0)
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
     const defs = svg.append("defs")
     const g = svg.select("g");
@@ -131,26 +136,29 @@ function drawH3Hexagons(dataByH3, map) {
             return lineGenerator(d.hexBoundary) + "Z"; // Close the path
         })
         .style("fill", d => `url(#colorGradient${d.h3}${mapId})`) // Apply the gradient fill
-        .style("fill-opacity", 0.5)
+        .style("fill-opacity", d => opacityScale(d.count))
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
         .style("stroke-opacity", 0.8)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
-            console.log("wena")
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 20) + "px")
-                .html(`Distancia: ${Number(d.distance).toFixed(2)} km. <br> Ocurrencias: ${Number(d.count)}`)
+                .html(`
+                    Orígenes: ${Number(d.origin.count)}.<br>
+                    Destinos: ${Number(d.destination.count)}.<br>
+                    % datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%`
+                )
 
             tooltip.transition().duration(150).style("opacity", 0.8)
 
-            d3.select(this).style('fill-opacity', 1)
+            d3.select(this).transition().duration(150).style('fill-opacity', 1)
         })
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
 
-            d3.select(this).style('fill-opacity', 0.5)
+            d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
             //d3.select(this).style('stroke', d => colorMap[d.group]);
         })
 }

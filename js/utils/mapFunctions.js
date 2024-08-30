@@ -92,7 +92,6 @@ function addMap(mapDiv, mapMatrix) {
 
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
-    const appState = new AppState()
     const dataByGroup = getDataByGroup(rowDataSlice)
     console.log("dataBYGroup", dataByGroup)
 
@@ -127,42 +126,49 @@ function getDataByGroup(data) {
 }
 
 function getDataByH3(data) {
+    const appState = new AppState()
     const dataByHex = {}
 
     for (const entry of data) {
-        const originHex = entry.h3_O
-        if (!(originHex in dataByHex))
-            dataByHex[originHex] = {}
+        if (appState.getState("showOriginHex")) {
+            const originHex = entry.h3_O
+            if (!(originHex in dataByHex))
+                dataByHex[originHex] = {}
 
-        if (!('origin' in dataByHex[originHex]))
-            dataByHex[originHex].origin = {
-                count: 0,
-                normGroup: 0,
-                normTotal: 0,
-            }
+            if (!('origin' in dataByHex[originHex]))
+                dataByHex[originHex].origin = {
+                    count: 0,
+                    normGroup: 0,
+                    normTotal: 0,
+                }
 
-        const originObj = dataByHex[originHex].origin
-        originObj.count += entry.count
-        originObj.normGroup += entry.normGroup
-        originObj.normTotal += entry.normTotal
+            const originObj = dataByHex[originHex].origin
+            originObj.count += entry.count
+            originObj.normGroup += entry.normGroup
+            originObj.normTotal += entry.normTotal
+        }
+
 
 
         // código duplicado jijiiji
-        const destinationHex = entry.h3_D
-        if (!(destinationHex in dataByHex))
-            dataByHex[destinationHex] = {}
+        if (appState.getState("showDestinationHex")) {
+            const destinationHex = entry.h3_D
+            if (!(destinationHex in dataByHex))
+                dataByHex[destinationHex] = {}
 
-        if (!('destination' in dataByHex[destinationHex]))
-            dataByHex[destinationHex].destination = {
-                count: 0,
-                normGroup: 0,
-                normTotal: 0,
-            }
+            if (!('destination' in dataByHex[destinationHex]))
+                dataByHex[destinationHex].destination = {
+                    count: 0,
+                    normGroup: 0,
+                    normTotal: 0,
+                }
 
-        const destinationObj = dataByHex[destinationHex].destination
-        destinationObj.count += entry.count
-        destinationObj.normGroup += entry.normGroup
-        destinationObj.normTotal += entry.normTotal
+            const destinationObj = dataByHex[destinationHex].destination
+            destinationObj.count += entry.count
+            destinationObj.normGroup += entry.normGroup
+            destinationObj.normTotal += entry.normTotal
+        }
+
     }
 
     return dataByHex
