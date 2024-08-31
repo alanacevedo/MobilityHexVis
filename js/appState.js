@@ -38,7 +38,6 @@ async function initializeState() {
 async function updateData() {
     const state = new AppState()
     const data = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
-    console.log(data)
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 

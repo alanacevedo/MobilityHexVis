@@ -4,10 +4,14 @@ import { colorMap } from "../static.js";
 import { polygonSmooth, polygon } from "@turf/turf";
 import { cellToLatLng, cellToBoundary } from "h3-js"
 
+const ORIGIN_COLOR = "#00FFFF"
+const DESTINATION_COLOR = "#FF00FF"
+
 
 function updateSvgPaths(map, displayTypeString) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
+    const mapId = map.options.uuid
 
     /*
     // esto para lineas
@@ -26,7 +30,8 @@ function updateSvgPaths(map, displayTypeString) {
             const lineGenerator = d3.line();
             return lineGenerator(pathData) + "Z"; // Close the path
         })
-        .style("stroke-width", 0.5); // You can adjust the stroke width based on zoom if needed
+        .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
+        .style("fill", d => getHexFill(d, mapId))
 
 }
 
@@ -135,7 +140,7 @@ function drawH3Hexagons(dataByH3, map) {
                 .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
             return lineGenerator(d.hexBoundary) + "Z"; // Close the path
         })
-        .style("fill", d => `url(#colorGradient${d.h3}${mapId})`) // Apply the gradient fill
+        .style("fill", d => getHexFill(d, mapId)) // Apply the gradient fill
         .style("fill-opacity", d => opacityScale(d.count))
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
@@ -146,9 +151,9 @@ function drawH3Hexagons(dataByH3, map) {
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 20) + "px")
                 .html(`
-                    Orígenes: ${Number(d.origin.count)}.<br>
-                    Destinos: ${Number(d.destination.count)}.<br>
-                    % datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%`
+                    ${d.origin ? `Orígenes: ${Number(d.origin.count)}.<br>` : ''}
+                    ${d.destination ? `Destinos: ${Number(d.destination.count)}.<br>` : ''}
+                    ${d.count ? `% datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%` : ''}`
                 )
 
             tooltip.transition().duration(150).style("opacity", 0.8)
@@ -159,8 +164,16 @@ function drawH3Hexagons(dataByH3, map) {
             tooltip.transition().duration(150).style("opacity", 0)
 
             d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
-            //d3.select(this).style('stroke', d => colorMap[d.group]);
         })
+}
+
+function getHexFill(hexObj, mapId) {
+    if (!("origin" in hexObj))
+        return DESTINATION_COLOR
+    if (!("destination" in hexObj))
+        return ORIGIN_COLOR
+
+    return `url(#colorGradient${hexObj.h3}${mapId})`
 }
 
 function getFlowAngle(flowObj, map) {
@@ -202,15 +215,15 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 
     gradient.append("stop")
         .attr("offset", originPercentage + "%")
-        .attr("stop-color", "#00FFFF");
+        .attr("stop-color", ORIGIN_COLOR);
 
     gradient.append("stop")
         .attr("offset", originPercentage + "%")
-        .attr("stop-color", "#FF00FF");
+        .attr("stop-color", DESTINATION_COLOR);
 
     gradient.append("stop")
         .attr("offset", destinationPercentage + "%")
-        .attr("stop-color", "#FF00FF");
+        .attr("stop-color", DESTINATION_COLOR);
 
 }
 

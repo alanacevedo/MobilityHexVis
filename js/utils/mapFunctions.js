@@ -93,10 +93,8 @@ function addMap(mapDiv, mapMatrix) {
 // Muestra los datos en la fila de mapas correspondiente.
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
-    console.log("dataBYGroup", dataByGroup)
 
-    // TODO: get set of unique hexagons.
-    // Get count of distance 0 fluxes for each hexagon. Idea: mapa adicional en donde se muestre el gini de viajes internos.
+    // TODO: Get count of distance 0 fluxes for each hexagon. Idea: mapa adicional en donde se muestre el gini de viajes internos.
 
     for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]

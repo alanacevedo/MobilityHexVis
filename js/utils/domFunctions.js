@@ -20,7 +20,6 @@ function setupSideMenu() {
     const state = new AppState()
     const startHour = state.getState("startHour")
     const endHour = state.getState("endHour")
-    const snnK = state.getState("snnK")
 
     const hourRangeInputNode = d3.select("#hourRangeInput").node()
     hourRangeInputNode.value1 = startHour
@@ -40,10 +39,17 @@ function setupSideMenu() {
 
     updateChart(state.getState("data"))
 
-    const snnKInputNode = d3.select("#snnKInput").node()
-    snnKInputNode.value = snnK
-    snnKInputNode.addEventListener("input", (e) => {
-        state.setState("snnK", e.target.value)
+    const showOriginCheckbox = d3.select("#showOriginHexCheckbox").node()
+    showOriginCheckbox.checked = state.getState("showOriginHex")
+    showOriginCheckbox.addEventListener("input", (e) => {
+        state.setState("showOriginHex", e.target.checked)
+        generateMaps()
+    })
+
+    const showDestinationCheckbox = d3.select("#showDestinationHexCheckbox").node()
+    showDestinationCheckbox.checked = state.getState("showDestinationHex")
+    showDestinationCheckbox.addEventListener("input", (e) => {
+        state.setState("showDestinationHex", e.target.checked)
         generateMaps()
     })
 }
