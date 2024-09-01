@@ -50,11 +50,12 @@ function addMapRow(insertionIndex, mapMatrix) {
     return
 }
 
-function setViewToAllMaps(mapMatrix, center, zoom) {
+function setViewToAllMaps(mapMatrix, center, zoom, originalMap) {
     for (const mapRow of mapMatrix) {
         if (!mapRow) continue;
         for (const map of mapRow) {
-            map.setView(center, zoom)
+            if (map != originalMap)
+                map.setView(center, zoom, { animate: false })
         }
     }
 }
@@ -83,8 +84,8 @@ function addMap(mapDiv, mapMatrix) {
         updateSvgPaths(map, "line")
     })
 
-    map.on('mouseup', () => {
-        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
+    map.on("move", (e, d) => {
+        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom(), map)
     })
 
     return map
