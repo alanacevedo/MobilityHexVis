@@ -58,7 +58,7 @@ const serializeCsvToProtobuf = async (resolution, start_hour, end_hour) => {
 }
 
 
-for (const resolution of [7, 8, 9]) {
+for (const resolution of [5, 6, 7, 8, 9]) {
     for (let start = 0; start < 23; start++) {
         for (let end = start; end <= 23; end++) {
             console.log(`serializing: ${resolution} ${start} ${end}`)
