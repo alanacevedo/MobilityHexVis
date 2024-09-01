@@ -4,8 +4,7 @@ import { displayRows } from "./mapFunctions.js";
 import { AppState, updateData } from "../appState.js";
 import { drawBoundariesChart, getChartData } from "./charts/boundaries/boundariesChart.js";
 import Chart from 'chart.js/auto';
-
-
+import { hideLoadingOverlay, showLoadingOverlay } from "./loadingOverlay.js";
 
 
 function addTooltipDiv() {
@@ -32,9 +31,11 @@ function setupSideMenu() {
     })
 
     hourRangeInputNode.addEventListener("onMouseUp", async (e) => {
+        showLoadingOverlay()
         await updateData()
         updateChart(state.getState("data"))
         generateMaps()
+        hideLoadingOverlay()
     })
 
     updateChart(state.getState("data"))

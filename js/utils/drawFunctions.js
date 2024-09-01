@@ -116,6 +116,7 @@ function drawH3Hexagons(dataByH3, map) {
 
     const mapId = map.options.uuid
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
+    svg.selectAll("defs").remove();
     const defs = svg.append("defs")
     const g = svg.select("g");
     const tooltip = d3.select(".tooltip")
@@ -140,13 +141,15 @@ function drawH3Hexagons(dataByH3, map) {
                 .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
             return lineGenerator(d.hexBoundary) + "Z"; // Close the path
         })
-        .style("fill", d => getHexFill(d, mapId)) // Apply the gradient fill
+        .style("fill", d => `url(#colorGradient${d.h3}${mapId})`) // Apply the gradient fill
         .style("fill-opacity", d => opacityScale(d.count))
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
         .style("stroke-opacity", 0.8)
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
+            console.log(d)
+            console.log(mapId)
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 20) + "px")
@@ -165,15 +168,6 @@ function drawH3Hexagons(dataByH3, map) {
 
             d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
         })
-}
-
-function getHexFill(hexObj, mapId) {
-    if (!("origin" in hexObj))
-        return DESTINATION_COLOR
-    if (!("destination" in hexObj))
-        return ORIGIN_COLOR
-
-    return `url(#colorGradient${hexObj.h3}${mapId})`
 }
 
 function getFlowAngle(flowObj, map) {
@@ -203,6 +197,9 @@ function getAngleCoords(angle) {
 }
 
 function addHexColorGradient(h3, originPercentage, defs, mapId) {
+    if (h3 === '87b2c5c5affffff') {
+        console.log(originPercentage)
+    }
     const destinationPercentage = 100 - originPercentage
 
     const gradient = defs

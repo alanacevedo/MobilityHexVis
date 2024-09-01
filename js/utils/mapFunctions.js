@@ -128,6 +128,10 @@ function getDataByH3(data) {
     const dataByHex = {}
 
     for (const entry of data) {
+        // TODO: do something with this once necessary
+        if (entry.distance === 0)
+            continue
+
         if (appState.getState("showOriginHex")) {
             const originHex = entry.h3_O
             if (!(originHex in dataByHex))
