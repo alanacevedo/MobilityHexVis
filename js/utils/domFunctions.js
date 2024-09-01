@@ -53,6 +53,18 @@ function setupSideMenu() {
         state.setState("showDestinationHex", e.target.checked)
         generateMaps()
     })
+
+    const resolutionInput = d3.select("#resolutionInput").node()
+    resolutionInput.value = state.getState("resolution")
+    resolutionInput.onchange = async (e) => {
+        showLoadingOverlay()
+        state.setState("resolution", Number(e.target.value))
+        await updateData()
+        generateMaps()
+        hideLoadingOverlay()
+    }
+
+
 }
 
 function updateChart(data) {
