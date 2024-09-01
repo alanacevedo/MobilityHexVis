@@ -70,16 +70,13 @@ const clickableLines = {
 }
 
 function drawBoundariesChart(ctxNode, chartData) {
-
-    const gridLineColor = "rgba(255,255,255,0.2)"
+    const gridLineColor = "rgba(255,255,255,0.2)";
 
     const chart = new Chart(ctxNode, {
-        type: 'scatter',
+        type: 'line',
         data: {
             datasets: [{
-
                 data: chartData,
-
             }]
         },
         options: {
@@ -93,15 +90,15 @@ function drawBoundariesChart(ctxNode, chartData) {
                 y: {
                     title: {
                         display: true,
-                        text: "Ocurrencias (miles)"
+                        text: "Porcentaje de ocurrencias (%)"
                     },
                     beginAtZero: true,
+                    max: 100, // El máximo ahora es 100% para reflejar el porcentaje total
                     grid: {
                         color: gridLineColor,
                     },
                     ticks: {
-                        callback: (label) => label / 1000
-
+                        callback: (label) => label.toFixed(0) + '%' // Mostrar en porcentaje
                     }
                 },
                 x: {
@@ -116,7 +113,6 @@ function drawBoundariesChart(ctxNode, chartData) {
                     max: chartData.slice(-1)[0].x
                 },
             },
-
             parsing: false,
             plugins: {
                 legend: {
@@ -124,45 +120,71 @@ function drawBoundariesChart(ctxNode, chartData) {
                 }
             },
             onHover: handleOnHover
-
         },
         plugins: [clickableLines]
     });
 
     d3.select("#" + ctxNode.id).node().addEventListener('mouseleave', () => {
-        d3.select("#" + TOOLTIPID).node().style.display = 'none'
-    })
-
-
+        d3.select("#" + TOOLTIPID).node().style.display = 'none';
+    });
 }
 
 function getChartData(data) {
-    const chartData = []
+    const chartData = [];
+    let currentSegment = 0;
+    let cumulativeCount = 0;
+    let lastAddedCount = 0;
 
-    let prevDist = data[0].distance
-    let count = 0
+    // Calcular el total de ocurrencias
+    const totalCount = data.reduce((sum, entry) => sum + entry.count, 0);
+
+    // Definir los umbrales y tamaños de segmentos correspondientes
+    const thresholds = [
+        { maxDistance: 10, segmentSize: 0.2 }, // Segmentos más pequeños para los primeros 10 km
+        { maxDistance: 30, segmentSize: 0.5 }, // Segmentos medianos para 10-30 km
+        { maxDistance: Infinity, segmentSize: 1 } // Segmentos más grandes para distancias mayores a 30 km
+    ];
+
+    let currentThresholdIndex = 0;
+    let segmentSize = thresholds[currentThresholdIndex].segmentSize;
 
     data.forEach(entry => {
-        if (entry.distance === prevDist) {
-            count += entry.count
-        } else {
-            chartData.push({
-                x: prevDist,
-                y: count
-            })
+        if (!entry.distance) return;
 
-            prevDist = entry.distance
-            count = entry.count
+        // Actualizar el conteo acumulado con el conteo de la entrada actual
+        cumulativeCount += entry.count;
+
+        while (entry.distance >= currentSegment + segmentSize) {
+            // Cambiar el tamaño del segmento según los umbrales
+            if (currentSegment + segmentSize > thresholds[currentThresholdIndex].maxDistance) {
+                currentThresholdIndex++;
+                segmentSize = thresholds[currentThresholdIndex].segmentSize;
+            }
+
+            // Calcular el porcentaje acumulado
+            const cumulativePercentage = (cumulativeCount / totalCount) * 100;
+
+            // Agregar a chartData solo si el porcentaje acumulado ha cambiado y no está en el punto de origen
+            if (cumulativePercentage !== lastAddedCount && cumulativePercentage > 0 && currentSegment > 0) {
+                chartData.push({ x: currentSegment, y: cumulativePercentage });
+                lastAddedCount = cumulativePercentage;
+            }
+            currentSegment += segmentSize;
         }
-    })
+    });
 
-    chartData.push({
-        x: prevDist,
-        y: count
-    })
+    // Añadir el último porcentaje acumulado después de procesar todas las entradas
+    const finalPercentage = (cumulativeCount / totalCount) * 100;
+    if (finalPercentage !== lastAddedCount && finalPercentage > 0 && currentSegment > 0) {
+        chartData.push({ x: currentSegment, y: finalPercentage });
+    }
 
-    return chartData
+    return chartData;
 }
+
+
+
+
 
 function handleOnHover(event, activeElements, chartElement) {
     const tooltipNode = d3.select("#" + TOOLTIPID).node()

@@ -33,12 +33,12 @@ function setupSideMenu() {
     hourRangeInputNode.addEventListener("onMouseUp", async (e) => {
         showLoadingOverlay()
         await updateData()
-        updateChart(state.getState("data"))
+        updateBoundariesChart(state.getState("data"))
         generateMaps()
         hideLoadingOverlay()
     })
 
-    updateChart(state.getState("data"))
+    updateBoundariesChart(state.getState("data"))
 
     const showOriginCheckbox = d3.select("#showOriginHexCheckbox").node()
     showOriginCheckbox.checked = state.getState("showOriginHex")
@@ -67,8 +67,9 @@ function setupSideMenu() {
 
 }
 
-function updateChart(data) {
+function updateBoundariesChart(data) {
     const chartData = getChartData(data)
+    console.log(chartData)
     const boundariesChartCtxNode = document.getElementById('myChart');
 
     const chart = Chart.getChart(boundariesChartCtxNode)
