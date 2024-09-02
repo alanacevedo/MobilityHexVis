@@ -59,6 +59,7 @@ function setupSideMenu() {
     resolutionInput.onchange = async (e) => {
         showLoadingOverlay()
         state.setState("resolution", Number(e.target.value))
+        state.setState("selectedH3s", new Set())
         await updateData()
         generateMaps()
         hideLoadingOverlay()
