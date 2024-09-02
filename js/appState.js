@@ -32,6 +32,7 @@ async function initializeState() {
     state.setState("mapMatrix", [])
     state.setState("showOriginHex", true)
     state.setState("showDestinationHex", true)
+    state.setState("selectedH3s", new Set())
     await updateData()
 }
 

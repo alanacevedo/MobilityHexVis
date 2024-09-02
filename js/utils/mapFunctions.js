@@ -100,8 +100,8 @@ function displayDataOnRow(rowDataSlice, mapRow) {
     for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]
         const groupData = dataByGroup[i + 1] ?? []
-        const dataByH3 = getDataByH3(groupData)
-        drawH3Hexagons(dataByH3, map)
+        const { dataByHex, hexSet } = getDataByH3(groupData)
+        drawH3Hexagons(dataByHex, hexSet, map)
 
 
         //setDataSettingsOnMap(pathData, map)
@@ -126,14 +126,24 @@ function getDataByGroup(data) {
 
 function getDataByH3(data) {
     const appState = new AppState()
+    const selectedH3s = appState.getState("selectedH3s")
     const dataByHex = {}
+    const hexSet = new Set()
 
     for (const entry of data) {
+        hexSet.add(entry.h3_O)
+        hexSet.add(entry.h3_D)
+
         // TODO: do something with this once necessary
         if (entry.distance === 0)
             continue
 
-        if (appState.getState("showOriginHex")) {
+        if (
+            appState.getState("showOriginHex") && (
+                selectedH3s.size === 0 ||
+                (!selectedH3s.has(entry.h3_O) && selectedH3s.has(entry.h3_D))
+            )) {
+
             const originHex = entry.h3_O
             if (!(originHex in dataByHex))
                 dataByHex[originHex] = {}
@@ -151,10 +161,10 @@ function getDataByH3(data) {
             originObj.normTotal += entry.normTotal
         }
 
-
-
-        // código duplicado jijiiji
-        if (appState.getState("showDestinationHex")) {
+        if (appState.getState("showDestinationHex") && (
+            selectedH3s.size === 0 ||
+            (selectedH3s.has(entry.h3_O) && !selectedH3s.has(entry.h3_D))
+        )) {
             const destinationHex = entry.h3_D
             if (!(destinationHex in dataByHex))
                 dataByHex[destinationHex] = {}
@@ -174,7 +184,7 @@ function getDataByH3(data) {
 
     }
 
-    return dataByHex
+    return { dataByHex, hexSet }
 }
 
 function removeMapRow(removalIndex, mapMatrix) {

@@ -3,15 +3,21 @@ import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
 import { polygonSmooth, polygon } from "@turf/turf";
 import { cellToLatLng, cellToBoundary } from "h3-js"
+import { AppState } from "../appState.js";
+import { generateMaps } from "./domFunctions.js";
+
 
 const ORIGIN_COLOR = "#00FFFF"
 const DESTINATION_COLOR = "#FF00FF"
+const HIGHLIGHT_COLOR = "#FFFF00"
 
 
 function updateSvgPaths(map, displayTypeString) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
     const mapId = map.options.uuid
+    const appState = new AppState()
+    const selectedH3s = appState.getState("selectedH3s")
 
     /*
     // esto para lineas
@@ -32,6 +38,21 @@ function updateSvgPaths(map, displayTypeString) {
         })
         .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
         .style("fill", d => getHexFill(d, mapId))
+
+    g.selectAll("path.highlightHexagon")
+        .attr("d", d => {
+            // Recalculate the path string for hexagons using the current map zoom
+            const pathData = d.hexBoundary.map(latLng => {
+                const point = map.latLngToLayerPoint(L.latLng(latLng));
+                return [point.x, point.y];
+            });
+            const lineGenerator = d3.line();
+            return lineGenerator(pathData) + "Z"; // Close the path
+        })
+        .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
+        .style("fill", d => getHexFill(d, mapId))
+        .style("fill", d => HIGHLIGHT_COLOR) // Apply the gradient fill
+        .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
 
 }
 
@@ -101,7 +122,9 @@ function setDataSettingsOnMap(pathData, map) {
         })
 }
 
-function drawH3Hexagons(dataByH3, map) {
+function drawH3Hexagons(dataByH3, hexSet, map) {
+    const appState = new AppState()
+    const selectedH3s = appState.getState("selectedH3s")
     const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
         hexBoundary: cellToBoundary(h3),
         h3,
@@ -134,13 +157,7 @@ function drawH3Hexagons(dataByH3, map) {
         .join("path")
         .attr("style", "pointer-events: auto;")
         .attr("class", "hexagon")
-        .attr("d", d => {
-            // Generate a D3 path string from the hexagon coordinates
-            const lineGenerator = d3.line()
-                .x(d => map.latLngToLayerPoint([d[0], d[1]]).x)
-                .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
-            return lineGenerator(d.hexBoundary) + "Z"; // Close the path
-        })
+        .attr("d", d => generateHexPath(d, map))
         .style("fill", d => getHexFill(d, mapId)) // Apply the gradient fill
         .style("fill-opacity", d => opacityScale(d.count))
         .style("stroke", "#CCCCCC")
@@ -167,8 +184,47 @@ function drawH3Hexagons(dataByH3, map) {
             d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
         })
         .on("click", (e, d) => {
-            console.log(d)
+            if (selectedH3s.has(d.h3)) {
+                selectedH3s.delete(d.h3)
+            } else {
+                selectedH3s.add(d.h3)
+            }
+            generateMaps()
         })
+
+    if (hexSet.size === 0) return
+
+    const shownH3s = new Set(hexData.map(it => it.h3))
+
+    const highlightHexData = [...hexSet].filter(hex => !shownH3s.has(hex)).map(hex => (
+        {
+            hexBoundary: cellToBoundary(hex),
+            h3: hex,
+        }
+    ))
+
+    // Esto dibuja los contornos de los hex sin fill (y de los selected hex)
+    g.selectAll("path.highlightHexagon")
+        .data(highlightHexData)
+        .join("path")
+        .attr("style", "pointer-events: auto;")
+        .attr("class", "highlightHexagon")
+        .attr("d", d => generateHexPath(d, map))
+        .style("fill", d => HIGHLIGHT_COLOR) // Apply the gradient fill
+        .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
+        .style("stroke", "#CCCCCC")
+        .style("stroke-width", 0.5)
+        .style("stroke-opacity", 0.8)
+        .on("click", (e, d) => {
+            const selectedH3s = appState.getState("selectedH3s")
+            if (selectedH3s.has(d.h3)) {
+                selectedH3s.delete(d.h3)
+            } else {
+                selectedH3s.add(d.h3)
+            }
+            generateMaps()
+        })
+
 }
 
 function getFlowAngle(flowObj, map) {
@@ -198,9 +254,6 @@ function getAngleCoords(angle) {
 }
 
 function addHexColorGradient(h3, originPercentage, defs, mapId) {
-    if (h3 === '87b2c5c5affffff') {
-        console.log(originPercentage)
-    }
     const destinationPercentage = 100 - originPercentage
 
     const gradient = defs
@@ -226,7 +279,16 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 }
 
 function getHexFill(hex, mapId) {
+    if ((new AppState()).getState("selectedH3s").has(hex.h3))
+        return HIGHLIGHT_COLOR
     return `url(#colorGradient${hex.h3}${mapId})`
+}
+
+function generateHexPath(d, map) {
+    const lineGenerator = d3.line()
+        .x(d => map.latLngToLayerPoint([d[0], d[1]]).x)
+        .y(d => map.latLngToLayerPoint([d[0], d[1]]).y);
+    return lineGenerator(d.hexBoundary) + "Z"; // Close the path
 }
 
 
