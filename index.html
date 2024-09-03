@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
-            href=" https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css "
+            href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"
             rel="stylesheet"
         />
         <link rel="stylesheet" href="./style.css" />
@@ -19,31 +19,36 @@
             crossorigin="anonymous"
         />
     </head>
-    <body class="bg-light vh-100">
+    <body class="bg-light d-flex flex-column min-vh-100">
         <div include="navbar/navbar.html"></div>
-        <div class="container h-100" id="mapMatrixContainer">
-            <div class="row h-100 align-items-center">
-                <div class="col-md-12" id="rowsContainer">
-                    <!-- nombres columnas -->
-                    <div
-                        class="mb-4 mt-4 row align-items-center justify-content-center"
-                    >
-                        <div class="col-2 text-center">
-                            Porcentaje de datos por tramo
+        <div class="d-flex flex-grow-1">
+            <!-- Permanent Sidebar -->
+            <div class="bg-dark text-white p-3" id="permanentSidebar">
+                <!-- Include the sidebar content directly -->
+                <div class="sidebar-content">
+                    <div include="navbar/offcanvas.html"></div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-grow-1" id="mapMatrixContainer">
+                <div class="container-fluid h-100">
+                    <div class="row h-100 align-items-center">
+                        <div class="col-md-12" id="rowsContainer">
+                            <!-- Column Names -->
+                            <div class="mb-4 mt-4 row align-items-center justify-content-center">
+                                <div class="col-2 text-center">
+                                    Porcentaje de datos por tramo
+                                </div>
+                                <div class="col-2 text-center">Q1</div>
+                                <div class="col-2 text-center">Q2</div>
+                                <div class="col-2 text-center">Q3</div>
+                                <div class="col-2 text-center">Q4</div>
+                            </div>
+                            <!-- Rows of Maps -->
+                            <!-- Injected by JavaScript -->
                         </div>
-                        <div class="col-2 text-center">Q1</div>
-                        <div class="col-2 text-center">Q2</div>
-                        <div class="col-2 text-center">Q3</div>
-                        <div class="col-2 text-center">Q4</div>
-                        <!-- 
-                        <div class="col-2 text-center" id="aggregatedColTitle">
-                            Mixtura
-                            <svg id="color-scale" width="100%" height="35"></svg>
-                        </div>
-                        -->
                     </div>
-                    <!-- filas de mapas -->
-                    <!-- Inyectado por javascript -->
                 </div>
             </div>
         </div>
@@ -54,6 +59,6 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
         ></script>
+        <script defer src="./index.js" type="module"></script>
     </body>
-    <script defer src="./index.js" type="module"></script>
 </html>

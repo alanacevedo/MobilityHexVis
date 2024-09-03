@@ -1,21 +1,14 @@
 <div
-    class="offcanvas offcanvas-start"
-    tabindex="-1"
-    id="offcanvasDarkNavbar"
+    class="bg-dark text-white p-3"
+    id="permanentSidebar"
     aria-labelledby="offcanvasDarkNavbarLabel"
 >
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">
+    <div class="sidebar-header">
+        <h5 class="sidebar-title" id="offcanvasDarkNavbarLabel">
             Configuración
         </h5>
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-        ></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="sidebar-body">
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item">
@@ -56,9 +49,7 @@
                     </label>
                 </li>
 
-
                 <li class="nav-item">
-                    <a class="nav-link active">Parámetros Clustering</a>
 
                     <div class="form-floating mb-3">
                         <select id="resolutionInput" class="form-select form-select-sm">
@@ -67,11 +58,10 @@
                             <option value="7">7</option>
                             <option value="8">8</option>
                             <option value="9">9</option>
-                          </select>
+                        </select>
                         <label for="resolutionInput">Resolución hexágonos</label>
                     </div>
                 </li>
-                
             </ul>
         </div>
     </div>
