@@ -38,11 +38,12 @@ async function initializeState() {
 
 async function updateData() {
     const state = new AppState()
-    const data = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
+    const { data, hexIndex } = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 
     state.setState("data", data)
+    state.setState("hexIndex", hexIndex)
     state.setState("baseGroupPercentages", baseGroupPercentages)
     state.setState("totalEntries", totalEntries)
 }

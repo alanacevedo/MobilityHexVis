@@ -3,7 +3,18 @@ import { app } from "../firebase.js";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import JSZip from "jszip";
 
-// todo: change to firebase storage
+// Function to create the hex index
+function createHexIndex(data) {
+    const hexIndex = new Map();
+    data.forEach((entry) => {
+        if (!hexIndex.has(entry.h3_O)) hexIndex.set(entry.h3_O, new Set());
+        if (!hexIndex.has(entry.h3_D)) hexIndex.set(entry.h3_D, new Set());
+        hexIndex.get(entry.h3_O).add(entry);
+        hexIndex.get(entry.h3_D).add(entry);
+    });
+    return hexIndex;
+}
+
 async function loadODData(startHour, endHour, resolution) {
     try {
         const storage = getStorage(app);
@@ -16,7 +27,9 @@ async function loadODData(startHour, endHour, resolution) {
         const zipContent = await JSZip.loadAsync(blob);
         const fileName = Object.keys(zipContent.files)[0];
         const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
-        return deserializeBinary(binaryArrayBuffer)
+        const data = await deserializeBinary(binaryArrayBuffer);
+        const hexIndex = createHexIndex(data);
+        return { data, hexIndex };
     } catch (error) {
         console.error(error)
     }

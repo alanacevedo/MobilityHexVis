@@ -127,61 +127,60 @@ function getDataByGroup(data) {
 function getDataByH3(data) {
     const appState = new AppState()
     const selectedH3s = appState.getState("selectedH3s")
+    const hexIndex = appState.getState("hexIndex")
     const dataByHex = {}
     const hexSet = new Set()
 
-    for (const entry of data) {
-        hexSet.add(entry.h3_O)
-        hexSet.add(entry.h3_D)
+    const showOriginHex = appState.getState("showOriginHex")
+    const showDestinationHex = appState.getState("showDestinationHex")
 
-        // TODO: do something with this once necessary
-        if (entry.distance === 0)
-            continue
+    const processHex = (hexId, type, entry) => {
+        if (!(hexId in dataByHex)) dataByHex[hexId] = {}
+        if (!(type in dataByHex[hexId])) {
+            dataByHex[hexId][type] = {
+                count: 0,
+                normGroup: 0,
+                normTotal: 0,
+            }
+        }
+        const hexObj = dataByHex[hexId][type]
+        hexObj.count += entry.count
+        hexObj.normGroup += entry.normGroup
+        hexObj.normTotal += entry.normTotal
+    }
 
-        if (
-            appState.getState("showOriginHex") && (
+    const processEntries = (entries) => {
+        for (const entry of entries) {
+            hexSet.add(entry.h3_O)
+            hexSet.add(entry.h3_D)
+
+            if (entry.distance === 0) continue
+
+            if (showOriginHex && (
                 selectedH3s.size === 0 ||
                 (!selectedH3s.has(entry.h3_O) && selectedH3s.has(entry.h3_D))
             )) {
+                processHex(entry.h3_O, 'origin', entry)
+            }
 
-            const originHex = entry.h3_O
-            if (!(originHex in dataByHex))
-                dataByHex[originHex] = {}
-
-            if (!('origin' in dataByHex[originHex]))
-                dataByHex[originHex].origin = {
-                    count: 0,
-                    normGroup: 0,
-                    normTotal: 0,
-                }
-
-            const originObj = dataByHex[originHex].origin
-            originObj.count += entry.count
-            originObj.normGroup += entry.normGroup
-            originObj.normTotal += entry.normTotal
+            if (showDestinationHex && (
+                selectedH3s.size === 0 ||
+                (selectedH3s.has(entry.h3_O) && !selectedH3s.has(entry.h3_D))
+            )) {
+                processHex(entry.h3_D, 'destination', entry)
+            }
         }
+    }
 
-        if (appState.getState("showDestinationHex") && (
-            selectedH3s.size === 0 ||
-            (selectedH3s.has(entry.h3_O) && !selectedH3s.has(entry.h3_D))
-        )) {
-            const destinationHex = entry.h3_D
-            if (!(destinationHex in dataByHex))
-                dataByHex[destinationHex] = {}
-
-            if (!('destination' in dataByHex[destinationHex]))
-                dataByHex[destinationHex].destination = {
-                    count: 0,
-                    normGroup: 0,
-                    normTotal: 0,
-                }
-
-            const destinationObj = dataByHex[destinationHex].destination
-            destinationObj.count += entry.count
-            destinationObj.normGroup += entry.normGroup
-            destinationObj.normTotal += entry.normTotal
+    if (selectedH3s.size === 0) {
+        processEntries(data)
+    } else {
+        const relevantEntries = new Set()
+        for (const selectedH3 of selectedH3s) {
+            const relatedEntries = hexIndex.get(selectedH3) || []
+            relatedEntries.forEach(entry => relevantEntries.add(entry))
         }
-
+        processEntries(relevantEntries)
     }
 
     return { dataByHex, hexSet }
