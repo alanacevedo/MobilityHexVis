@@ -81,7 +81,7 @@ function updateBoundariesChart(data) {
     drawBoundariesChart(boundariesChartCtxNode, chartData)
 }
 
-function generateMaps() {
+function generateMaps({ updateDistributionChart = true } = {}) {
 
     const state = new AppState()
     const mapMatrix = state.getState("mapMatrix")
@@ -99,7 +99,7 @@ function generateMaps() {
     }
     rowDataSlices.push(data.slice(prevIndex))
 
-    displayRows(mapMatrix, rowDataSlices, boundaries)
+    displayRows(mapMatrix, rowDataSlices, boundaries, updateDistributionChart)
 }
 
 function addColorGradientSvg() {

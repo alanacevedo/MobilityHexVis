@@ -203,7 +203,7 @@ function removeMapRow(removalIndex, mapMatrix) {
     mapMatrix.splice(removalIndex, 1)
 }
 
-function displayRows(mapMatrix, rowDataSlices, boundaries) {
+function displayRows(mapMatrix, rowDataSlices, boundaries, updateDistributionChart) {
     const rowCount = rowDataSlices.length
 
     while (mapMatrix.length < rowCount) {
@@ -222,11 +222,14 @@ function displayRows(mapMatrix, rowDataSlices, boundaries) {
     const distChartDivs = document.querySelectorAll(".distChartDiv")
     const appState = new AppState()
     const totalEntries = appState.getState("totalEntries")
-    for (let i = 0; i < rowCount; i++) {
-        const distChartCtxNode = createChartCanvasChild(distChartDivs[i])
-        const rangeString = rangeStrings[i]
-        const rowGroupPercentages = getGroupPercentages(rowDataSlices[i], totalEntries)
-        drawDistributionChart(distChartCtxNode, rowGroupPercentages, rangeString)
+
+    if (updateDistributionChart) {
+        for (let i = 0; i < rowCount; i++) {
+            const distChartCtxNode = createChartCanvasChild(distChartDivs[i])
+            const rangeString = rangeStrings[i]
+            const rowGroupPercentages = getGroupPercentages(rowDataSlices[i], totalEntries)
+            drawDistributionChart(distChartCtxNode, rowGroupPercentages, rangeString)
+        }
     }
 
 }

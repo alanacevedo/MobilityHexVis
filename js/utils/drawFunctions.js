@@ -189,7 +189,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
             } else {
                 selectedH3s.add(d.h3)
             }
-            generateMaps()
+            generateMaps({ updateDistributionChart: false })
         })
 
     if (hexSet.size === 0) return
@@ -222,7 +222,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
             } else {
                 selectedH3s.add(d.h3)
             }
-            generateMaps()
+            generateMaps({ updateDistributionChart: false })
         })
 
 }
