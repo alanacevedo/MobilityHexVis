@@ -95,19 +95,12 @@ function addMap(mapDiv, mapMatrix) {
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
 
-    // TODO: Get count of distance 0 fluxes for each hexagon. Idea: mapa adicional en donde se muestre el gini de viajes internos.
-
     for (let i = 0; i < mapRow.length; i++) {
         const map = mapRow[i]
         const groupData = dataByGroup[i + 1] ?? []
         const { dataByHex, hexSet } = getDataByH3(groupData)
         drawH3Hexagons(dataByHex, hexSet, map)
-
-
-        //setDataSettingsOnMap(pathData, map)
-        //updateSvgPaths(map, "line")
     }
-
 }
 
 function getDataByGroup(data) {
@@ -178,10 +171,21 @@ function getDataByH3(data) {
         const relevantEntries = new Set()
         for (const selectedH3 of selectedH3s) {
             const relatedEntries = hexIndex.get(selectedH3) || []
-            relatedEntries.forEach(entry => relevantEntries.add(entry))
+            relatedEntries.forEach(entry => {
+                if (data.includes(entry)) {  // Only include entries that are in the current data slice
+                    relevantEntries.add(entry)
+                }
+            })
         }
-        processEntries(relevantEntries)
+        processEntries([...relevantEntries])
     }
+
+    // Ensure all hexagons in the current view are included in hexSet
+    // this is to render the outlines of those hexagons that do not have any flow
+    data.forEach(entry => {
+        hexSet.add(entry.h3_O)
+        hexSet.add(entry.h3_D)
+    })
 
     return { dataByHex, hexSet }
 }
