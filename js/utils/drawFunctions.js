@@ -151,6 +151,10 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         addHexColorGradient(h3, originPercentage, defs, mapId)
     }
 
+    let isDragging = false;
+    let mouseDownTime;
+    const CLICK_THRESHOLD = 200; // milliseconds
+
     // Bind data and draw hexagons
     g.selectAll("path.hexagon")
         .data(hexData)
@@ -158,11 +162,34 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         .attr("style", "pointer-events: auto;")
         .attr("class", "hexagon")
         .attr("d", d => generateHexPath(d, map))
-        .style("fill", d => getHexFill(d, mapId)) // Apply the gradient fill
+        .style("fill", d => getHexFill(d, mapId))
         .style("fill-opacity", d => opacityScale(d.count))
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
         .style("stroke-opacity", 0.8)
+        .on("mousedown", function (event) {
+            mouseDownTime = new Date().getTime();
+            isDragging = false;
+        })
+        .on("mousemove", function () {
+            isDragging = true;
+        })
+        .on("mouseup", function (event, d) {
+            const mouseUpTime = new Date().getTime();
+            const timeDiff = mouseUpTime - mouseDownTime;
+
+            if (!isDragging && timeDiff < CLICK_THRESHOLD) {
+                // This is a click, not a drag
+                if (selectedH3s.has(d.h3)) {
+                    selectedH3s.delete(d.h3);
+                } else {
+                    selectedH3s.add(d.h3);
+                }
+                generateMaps({ updateDistributionChart: false });
+            }
+
+            isDragging = false;
+        })
         .on("mouseover", function (event, d) {
             // this contiene el elemento path, event es el evento, d contiene los datos
             tooltip
@@ -182,14 +209,6 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
             tooltip.transition().duration(150).style("opacity", 0)
 
             d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
-        })
-        .on("click", (e, d) => {
-            if (selectedH3s.has(d.h3)) {
-                selectedH3s.delete(d.h3)
-            } else {
-                selectedH3s.add(d.h3)
-            }
-            generateMaps({ updateDistributionChart: false })
         })
 
     if (hexSet.size === 0) return
@@ -215,14 +234,29 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
         .style("stroke-opacity", 0.8)
-        .on("click", (e, d) => {
-            const selectedH3s = appState.getState("selectedH3s")
-            if (selectedH3s.has(d.h3)) {
-                selectedH3s.delete(d.h3)
-            } else {
-                selectedH3s.add(d.h3)
+        .on("mousedown", function (event) {
+            mouseDownTime = new Date().getTime();
+            isDragging = false;
+        })
+        .on("mousemove", function () {
+            isDragging = true;
+        })
+        .on("mouseup", function (event, d) {
+            const mouseUpTime = new Date().getTime();
+            const timeDiff = mouseUpTime - mouseDownTime;
+
+            if (!isDragging && timeDiff < CLICK_THRESHOLD) {
+                // This is a click, not a drag
+                const selectedH3s = appState.getState("selectedH3s");
+                if (selectedH3s.has(d.h3)) {
+                    selectedH3s.delete(d.h3);
+                } else {
+                    selectedH3s.add(d.h3);
+                }
+                generateMaps({ updateDistributionChart: false });
             }
-            generateMaps({ updateDistributionChart: false })
+
+            isDragging = false;
         })
 
 }

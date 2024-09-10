@@ -12,9 +12,11 @@ import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
 import { v4 } from "uuid"
 
-const MAPS_PER_ROW = 4
+const MAPS_PER_ROW = 5
 
-function addMapRow(insertionIndex, mapMatrix) {
+function addMapRow(insertionIndex) {
+    const state = new AppState()
+    const mapMatrix = state.getState("mapMatrix")
     const container = d3.select("#rowsContainer")
     const mapRows = container.selectAll(".mapRow")
     const referenceRowDiv = mapRows.filter((d, i) => i === insertionIndex)
@@ -42,7 +44,7 @@ function addMapRow(insertionIndex, mapMatrix) {
         mapDiv.classList.add("leafletMap")
         colDiv.appendChild(mapDiv)
 
-        const map = addMap(mapDiv, mapMatrix)
+        const map = addMap(mapDiv)
         mapRow.push(map)
     }
 
@@ -50,7 +52,11 @@ function addMapRow(insertionIndex, mapMatrix) {
     return
 }
 
-function setViewToAllMaps(mapMatrix, center, zoom, originalMap) {
+function setViewToAllMaps(center, zoom, originalMap) {
+    const state = new AppState()
+    const mapMatrix = state.getState("mapMatrix")
+    const globalMap = state.getState("globalMap")
+
     for (const mapRow of mapMatrix) {
         if (!mapRow) continue;
         for (const map of mapRow) {
@@ -58,10 +64,14 @@ function setViewToAllMaps(mapMatrix, center, zoom, originalMap) {
                 map.setView(center, zoom, { animate: false })
         }
     }
+
+    if (globalMap && globalMap != originalMap) {
+        globalMap.setView(center, zoom, { animate: false })
+    }
 }
 
 // agregar un mapa leaflet en la división con id mapDiv. Esto no agrega los datos aún.
-function addMap(mapDiv, mapMatrix) {
+export function addMap(mapDiv) {
     const map = L.map(mapDiv, { attributionControl: false, zoomControl: false, uuid: v4() })
         .setView(INITIAL_CENTER, INITIAL_ZOOM)
 
@@ -80,12 +90,12 @@ function addMap(mapDiv, mapMatrix) {
 
 
     map.on('zoomend', (e) => {
-        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom())
+        setViewToAllMaps(map.getCenter(), map.getZoom())
         updateSvgPaths(map, "line")
     })
 
     map.on("move", (e, d) => {
-        setViewToAllMaps(mapMatrix, map.getCenter(), map.getZoom(), map)
+        setViewToAllMaps(map.getCenter(), map.getZoom(), map)
     })
 
     return map
@@ -101,6 +111,14 @@ function displayDataOnRow(rowDataSlice, mapRow) {
         const { dataByHex, hexSet } = getDataByH3(groupData)
         drawH3Hexagons(dataByHex, hexSet, map)
     }
+}
+
+function displayDataOnGlobalMap() {
+    const state = new AppState()
+    const data = state.getState("data")
+    const { dataByHex, hexSet } = getDataByH3(data)
+    const globalMap = state.getState("globalMap")
+    drawH3Hexagons(dataByHex, hexSet, globalMap)
 }
 
 function getDataByGroup(data) {
@@ -190,7 +208,9 @@ function getDataByH3(data) {
     return { dataByHex, hexSet }
 }
 
-function removeMapRow(removalIndex, mapMatrix) {
+function removeMapRow(removalIndex) {
+    const state = new AppState()
+    const mapMatrix = state.getState("mapMatrix")
     const container = d3.select("#rowsContainer")
     const mapRows = container.selectAll(".mapRow")
     const referenceRowDiv = mapRows.filter((d, i) => i === removalIndex)
@@ -203,20 +223,36 @@ function removeMapRow(removalIndex, mapMatrix) {
     mapMatrix.splice(removalIndex, 1)
 }
 
-function displayRows(mapMatrix, rowDataSlices, boundaries, updateDistributionChart) {
+function displayRows(rowDataSlices, boundaries, updateDistributionChart) {
+    const state = new AppState()
+    const mapMatrix = state.getState("mapMatrix")
     const rowCount = rowDataSlices.length
 
+    const globalMapDiv = document.getElementById('globalMap');
+    if (!globalMapDiv._leaflet_id) {
+        const globalMap = addMap(globalMapDiv);
+        state.setState("globalMap", globalMap);
+    }
+
+    displayDataOnGlobalMap()
+
     while (mapMatrix.length < rowCount) {
-        addMapRow(mapMatrix.length, mapMatrix)
+        addMapRow(mapMatrix.length)
     }
 
     while (mapMatrix.length > rowCount) {
-        removeMapRow(mapMatrix.length - 1, mapMatrix)
+        removeMapRow(mapMatrix.length - 1)
     }
 
     for (let i = 0; i < rowCount; i++) {
         displayDataOnRow(rowDataSlices[i], mapMatrix[i])
     }
+
+
+
+
+
+    // TODO: add mixtura chart
 
     const rangeStrings = getRangeStringsFromBoundaries(boundaries)
     const distChartDivs = document.querySelectorAll(".distChartDiv")

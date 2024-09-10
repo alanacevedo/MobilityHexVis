@@ -1,6 +1,5 @@
 <div
-    class="bg-dark text-white p-3"
-    id="permanentSidebar"
+    class="bg-dark text-white"
     aria-labelledby="offcanvasDarkNavbarLabel"
 >
     <div class="sidebar-header">
@@ -61,6 +60,11 @@
                         </select>
                         <label data-bs-theme="dark" for="resolutionInput">Resolución hexágonos</label>
                     </div>
+                </li>
+
+                <li class="nav-item mt-3">
+                    <h6>Mapa completo</h6>
+                    <div id="globalMap" class="leafletMap" style="height: 300px;"></div>
                 </li>
             </ul>
         </div>

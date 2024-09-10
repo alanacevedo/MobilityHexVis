@@ -99,7 +99,7 @@ function generateMaps({ updateDistributionChart = true } = {}) {
     }
     rowDataSlices.push(data.slice(prevIndex))
 
-    displayRows(mapMatrix, rowDataSlices, boundaries, updateDistributionChart)
+    displayRows(rowDataSlices, boundaries, updateDistributionChart)
 }
 
 function addColorGradientSvg() {
