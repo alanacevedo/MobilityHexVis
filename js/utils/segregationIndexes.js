@@ -21,9 +21,7 @@ function addSimpsonIndexToFlow(flow) {
     }
 }
 
-function addGiniIndexToFlow(flow) {
-    const counts = flow.counts
-
+function getGiniIndex(counts) {
     /**
      * Calcula el índice de Gini a partir de un objeto 'counts' donde las llaves 
      * corresponden a cuartiles socioeconómicos (u otras categorías) y los valores 
@@ -51,16 +49,11 @@ function addGiniIndexToFlow(flow) {
     // https://en.wikipedia.org/wiki/Gini_coefficient#Alternative_expressions
     const gini = 1 - (2 / (n - 1)) * (n - numerator / cumulativeValue);
 
-    flow.total = n
-    flow.index = gini
 
     if (!(gini >= 0 && gini <= 1)) console.error("Gini inválido", gini, flow)
 
-    return;
+    return gini
 }
 
-const test = { counts: { 4: 7000 } }
-addGiniIndexToFlow(test)
-console.log("test", test)
 
-export { addSimpsonIndexToFlow, addGiniIndexToFlow } 
+export { addSimpsonIndexToFlow, getGiniIndex } 

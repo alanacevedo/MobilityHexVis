@@ -3,7 +3,6 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { setDataSettingsOnMap, updateSvgPaths, drawH3Hexagons } from "./drawFunctions.js";
-import { addSimpsonIndexToFlow, addGiniIndexToFlow } from "./segregationIndexes.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
 import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
@@ -11,6 +10,7 @@ import { AppState } from "../appState.js";
 import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
 import { v4 } from "uuid"
+import { getGiniIndex } from "./segregationIndexes.js";
 
 const MAPS_PER_ROW = 5
 
@@ -105,12 +105,16 @@ export function addMap(mapDiv) {
 function displayDataOnRow(rowDataSlice, mapRow) {
     const dataByGroup = getDataByGroup(rowDataSlice)
 
-    for (let i = 0; i < mapRow.length; i++) {
+    for (let i = 0; i < mapRow.length - 1; i++) {
         const map = mapRow[i]
         const groupData = dataByGroup[i + 1] ?? []
         const { dataByHex, hexSet } = getDataByH3(groupData)
         drawH3Hexagons(dataByHex, hexSet, map)
     }
+
+    const giniMap = mapRow[mapRow.length - 1]
+    const giniDataByHex = getGiniIndexByH3(rowDataSlice)
+    drawH3Hexagons(giniDataByHex, new Set(), giniMap)
 }
 
 function displayDataOnGlobalMap() {
@@ -208,6 +212,28 @@ function getDataByH3(data) {
     return { dataByHex, hexSet }
 }
 
+function getGiniIndexByH3(data) {
+    const giniByHex = {};
+    const hexSet = new Set();
+
+    data.forEach(entry => {
+        const { h3_O, h3_D, group, count } = entry;
+
+        [h3_O, h3_D].forEach(h3 => {
+            if (!giniByHex[h3]) giniByHex[h3] = { counts: {} };
+            if (!giniByHex[h3].counts[group]) giniByHex[h3].counts[group] = 0;
+            giniByHex[h3].counts[group] += count;
+            hexSet.add(h3);
+        });
+    });
+
+    Object.values(giniByHex).forEach(hex => {
+        hex.gini = getGiniIndex(hex.counts)
+    });
+
+    return giniByHex;
+}
+
 function removeMapRow(removalIndex) {
     const state = new AppState()
     const mapMatrix = state.getState("mapMatrix")
@@ -248,11 +274,6 @@ function displayRows(rowDataSlices, boundaries, updateDistributionChart) {
         displayDataOnRow(rowDataSlices[i], mapMatrix[i])
     }
 
-
-
-
-
-    // TODO: add mixtura chart
 
     const rangeStrings = getRangeStringsFromBoundaries(boundaries)
     const distChartDivs = document.querySelectorAll(".distChartDiv")

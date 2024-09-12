@@ -61,7 +61,6 @@ function getScales() {
         "stroke-opacity": d3.scaleLinear().domain([0, 0.002]).range([0.1, 1]),
         "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
         // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
-        "stroke": d3.scaleSequential(d3.interpolateWarm).domain([1, 0.3]), // Inversión de dominio para que mayor desigualdad sea oscuro  
     }
 
     return scales
@@ -128,9 +127,11 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
         hexBoundary: cellToBoundary(h3),
         h3,
-        count: (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0),
+        count: hexObj.gini
+            ? Object.values(hexObj.counts).reduce((sum, count) => sum + count, 0)
+            : (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0),
         ...hexObj
-    }))
+    }));
     const totalCount = hexData.reduce((acc, hexObj) => acc + hexObj.count, 0)
     const maxCount = Math.max(...hexData.map(hexObj => hexObj.count))
 
@@ -195,11 +196,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
             tooltip
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 20) + "px")
-                .html(`
-                    ${d.origin ? `Orígenes: ${Number(d.origin.count)}.<br>` : ''}
-                    ${d.destination ? `Destinos: ${Number(d.destination.count)}.<br>` : ''}
-                    ${d.count ? `% datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%` : ''}`
-                )
+                .html(getTooltipContent(d, totalCount))
 
             tooltip.transition().duration(150).style("opacity", 0.8)
 
@@ -312,9 +309,17 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 
 }
 
+// Inversión de dominio para que mayor desigualdad sea oscuro  
+const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]).clamp(true);
+
 function getHexFill(hex, mapId) {
+    if (hex.gini) {
+        return colorScale(hex.gini)
+    }
+
     if ((new AppState()).getState("selectedH3s").has(hex.h3))
         return HIGHLIGHT_COLOR
+
     return `url(#colorGradient${hex.h3}${mapId})`
 }
 
@@ -325,5 +330,23 @@ function generateHexPath(d, map) {
     return lineGenerator(d.hexBoundary) + "Z"; // Close the path
 }
 
+function getTooltipContent(d, totalCount) {
+    if (d.gini) {
+        const groupCounts = Object.entries(d.counts)
+            .map(([group, count]) => `Group ${group}: ${count}`)
+            .join('<br>');
+        return `
+            ${groupCounts}<br>
+            Gini Index: ${d.gini.toFixed(2)}
+        `;
+    } else {
+        return `
+            ${d.origin ? `Orígenes: ${Number(d.origin.count)}.<br>` : ''}
+            ${d.destination ? `Destinos: ${Number(d.destination.count)}.<br>` : ''}
+            ${d.count ? `% datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%` : ''}
+        `;
+    }
+}
 
-export { updateSvgPaths, setDataSettingsOnMap, getScales, drawH3Hexagons }
+
+export { updateSvgPaths, setDataSettingsOnMap, drawH3Hexagons }
