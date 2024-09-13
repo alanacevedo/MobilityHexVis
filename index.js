@@ -5,6 +5,7 @@ import { setupSideMenu } from "./js/utils/domFunctions.js";
 import { initializeState } from "./js/appState.js";
 import "./js/plugins/tcrs-moving-tooltip.min.js"
 import 'toolcool-range-slider';
+import { addColorGradientSvg } from "./js/utils/domFunctions.js";
 
 initializeLoadingOverlay()
 showLoadingOverlay()
@@ -20,6 +21,7 @@ await initializeState()
 
 // displays maps with default values
 generateMaps()
+addColorGradientSvg()
 
 // timeout para que se pueda cargar recursivamente todo el HTML
 setTimeout(() => {

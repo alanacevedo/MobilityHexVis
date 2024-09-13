@@ -128,7 +128,7 @@ function addColorGradientSvg() {
         .attr("y2", "0%");
 
     // Añadir los pasos de color al gradiente
-    for (let i = 0; i <= 80; i++) {
+    for (let i = 0; i <= 100; i++) {
         gradient.append("stop")
             .attr("offset", `${i}%`)
             .attr("stop-color", colorScale((i / 100)));

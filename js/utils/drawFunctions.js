@@ -135,9 +135,6 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     const totalCount = hexData.reduce((acc, hexObj) => acc + hexObj.count, 0)
     const maxCount = Math.max(...hexData.map(hexObj => hexObj.count))
 
-    // TODO: definir mejor la escala
-    const opacityScale = d3.scaleLinear().domain([0, maxCount * 0.1]).range([0.25, 0.7]).clamp(true);
-
     const mapId = map.options.uuid
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
     svg.selectAll("defs").remove();
@@ -164,8 +161,8 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         .attr("class", "hexagon")
         .attr("d", d => generateHexPath(d, map))
         .style("fill", d => getHexFill(d, mapId))
-        .style("fill-opacity", d => opacityScale(d.count))
-        .style("stroke", "#CCCCCC")
+        .style("fill-opacity", d => getHexFillOpacity(d, mapId, maxCount))
+        .style("stroke", d => getHexStroke(d))
         .style("stroke-width", 0.5)
         .style("stroke-opacity", 0.8)
         .on("mousedown", function (event) {
@@ -205,7 +202,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
 
-            d3.select(this).transition().duration(150).style('fill-opacity', d => opacityScale(d.count))
+            d3.select(this).transition().duration(150).style('fill-opacity', d => getHexFillOpacity(d, mapId, maxCount))
         })
 
     if (hexSet.size === 0) return
@@ -310,7 +307,7 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 }
 
 // Inversión de dominio para que mayor desigualdad sea oscuro  
-const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]).clamp(true);
+const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]);
 
 function getHexFill(hex, mapId) {
     if (hex.gini) {
@@ -321,6 +318,22 @@ function getHexFill(hex, mapId) {
         return HIGHLIGHT_COLOR
 
     return `url(#colorGradient${hex.h3}${mapId})`
+}
+
+
+function getHexFillOpacity(hex, mapId, maxCount) {
+    if (hex.gini) {
+        return 0.8
+    }
+    const opacityScale = d3.scaleLinear().domain([0, maxCount * 0.1]).range([0.25, 0.7]).clamp(true);
+    return opacityScale(hex.count)
+}
+
+function getHexStroke(hex) {
+    if (hex.gini) {
+        return "gray"
+    }
+    return "#CCCCCC"
 }
 
 function generateHexPath(d, map) {
