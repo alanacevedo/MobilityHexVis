@@ -216,8 +216,11 @@ function getGiniIndexByH3(data) {
     const giniByHex = {};
     const hexSet = new Set();
 
-    data.forEach(entry => {
-        const { h3_O, h3_D, group, count } = entry;
+    for (const entry of data) {
+        const { h3_O, h3_D, group, count, distance } = entry;
+
+        // Ignore flows where distance is 0 (same origin and destination)
+        if (distance === 0) continue;
 
         [h3_O, h3_D].forEach(h3 => {
             if (!giniByHex[h3]) giniByHex[h3] = { counts: {} };
@@ -225,7 +228,7 @@ function getGiniIndexByH3(data) {
             giniByHex[h3].counts[group] += count;
             hexSet.add(h3);
         });
-    });
+    }
 
     Object.values(giniByHex).forEach(hex => {
         hex.gini = getGiniIndex(hex.counts)
