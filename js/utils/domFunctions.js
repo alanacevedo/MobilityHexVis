@@ -54,6 +54,13 @@ function setupSideMenu() {
         generateMaps()
     })
 
+    const showComunaBoundariesCheckbox = d3.select("#showComunaBoundariesCheckbox").node()
+    showComunaBoundariesCheckbox.checked = state.getState("showComunaBoundaries")
+    showComunaBoundariesCheckbox.addEventListener("input", (e) => {
+        state.setState("showComunaBoundaries", e.target.checked)
+        generateMaps()
+    })
+
     const resolutionInput = d3.select("#resolutionInput").node()
     resolutionInput.value = state.getState("resolution")
     resolutionInput.onchange = async (e) => {

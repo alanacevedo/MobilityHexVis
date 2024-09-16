@@ -1,4 +1,6 @@
 import * as d3 from "d3";
+import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
+import { geoPath } from "d3-geo";
 import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
 import { colorMap } from "../static.js";
 import { polygonSmooth, polygon } from "@turf/turf";
@@ -18,13 +20,6 @@ function updateSvgPaths(map, displayTypeString) {
     const mapId = map.options.uuid
     const appState = new AppState()
     const selectedH3s = appState.getState("selectedH3s")
-
-    /*
-    // esto para lineas
-    g.selectAll("path")
-        .attr("d", linkData => getPathFromLinkData(linkData, displayTypeString, map))
-        .style("stroke-width", d => zoom - 6)
-        */
 
     g.selectAll("path.hexagon")
         .attr("d", d => {
@@ -54,6 +49,19 @@ function updateSvgPaths(map, displayTypeString) {
         .style("fill", d => HIGHLIGHT_COLOR) // Apply the gradient fill
         .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
 
+    // Update comuna boundaries
+    const projection = d3.geoTransform({
+        point: function (lon, lat) {
+            const point = map.latLngToLayerPoint(new L.LatLng(lat, lon));
+            this.stream.point(point.x, point.y);
+        }
+    });
+
+    const path = d3.geoPath().projection(projection);
+
+    g.selectAll("path.comunaBoundary")
+        .attr("d", path)
+        .style("stroke-width", zoom / 8) // Adjust stroke width based on zoom level
 }
 
 function getScales() {
@@ -350,7 +358,7 @@ function getTooltipContent(d, totalCount) {
             .join('<br>');
         return `
             ${groupCounts}<br>
-            Gini Index: ${d.gini.toFixed(2)}
+            Índice de Gini: ${d.gini.toFixed(2)}
         `;
     } else {
         return `
@@ -361,5 +369,57 @@ function getTooltipContent(d, totalCount) {
     }
 }
 
+function drawComunaBoundaries(map) {
+    const appState = new AppState();
+    const svg = d3.select(map.getPanes().overlayPane).select("svg");
+    const g = svg.select("g");
+    const tooltip = d3.select(".tooltip")
 
-export { updateSvgPaths, setDataSettingsOnMap, drawH3Hexagons }
+
+    const showComunaBoundaries = appState.getState("showComunaBoundaries");
+    if (!showComunaBoundaries) {
+        g.selectAll("path.comunaBoundary").remove();
+        return;
+    }
+
+    const comunas = appState.getState("comunas");
+    const zoom = map.getZoom()
+
+    // Define custom projection
+    const projection = d3.geoTransform({
+        point: function (lon, lat) {
+            const point = map.latLngToLayerPoint(new L.LatLng(lat, lon));
+            this.stream.point(point.x, point.y);
+        }
+    });
+
+    // Create path generator
+    const path = d3.geoPath().projection(projection);
+
+    g.selectAll("path.comunaBoundary")
+        .data(comunas.features)
+        .join("path")
+        .attr("style", "pointer-events: auto;")
+        .attr("class", "comunaBoundary")
+        .attr("d", path)
+        .style("fill", "none")
+        .style("stroke", "#FFFF00")
+        .style("stroke-width", zoom / 8)
+        .style("stroke-opacity", 0.8)
+        .on("mouseover", function (event, d) {
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", .9);
+            tooltip.html(d.properties.NOM_COM)
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", function (d) {
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
+}
+
+
+export { updateSvgPaths, setDataSettingsOnMap, drawH3Hexagons, drawComunaBoundaries }

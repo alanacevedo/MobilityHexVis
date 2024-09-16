@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
-import { setDataSettingsOnMap, updateSvgPaths, drawH3Hexagons } from "./drawFunctions.js";
+import { setDataSettingsOnMap, updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "./drawFunctions.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
 import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
@@ -110,11 +110,13 @@ function displayDataOnRow(rowDataSlice, mapRow) {
         const groupData = dataByGroup[i + 1] ?? []
         const { dataByHex, hexSet } = getDataByH3(groupData)
         drawH3Hexagons(dataByHex, hexSet, map)
+        drawComunaBoundaries(map)
     }
 
     const giniMap = mapRow[mapRow.length - 1]
     const giniDataByHex = getGiniIndexByH3(rowDataSlice)
     drawH3Hexagons(giniDataByHex, new Set(), giniMap)
+    drawComunaBoundaries(giniMap)
 }
 
 function displayDataOnGlobalMap() {
@@ -123,6 +125,7 @@ function displayDataOnGlobalMap() {
     const { dataByHex, hexSet } = getDataByH3(data)
     const globalMap = state.getState("globalMap")
     drawH3Hexagons(dataByHex, hexSet, globalMap)
+    drawComunaBoundaries(globalMap)
 }
 
 function getDataByGroup(data) {

@@ -19,6 +19,7 @@
     "csv-parser": "^3.0.0",
     "d3": "^7.9.0",
     "d3-arrow": "^0.0.25",
+    "d3-geo": "^3.1.1",
     "firebase": "^10.13.0",
     "geokdbush-tk": "^2.0.4",
     "gradient-path": "^2.3.0",

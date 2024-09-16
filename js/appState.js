@@ -1,4 +1,4 @@
-import { loadODData } from "./loadData"
+import { loadODData, loadComunas } from "./loadData"
 import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils"
 let instance
 
@@ -32,6 +32,7 @@ async function initializeState() {
     state.setState("mapMatrix", [])
     state.setState("showOriginHex", true)
     state.setState("showDestinationHex", true)
+    state.setState("showComunaBoundaries", false)
     state.setState("selectedH3s", new Set())
     await updateData()
 }
@@ -39,6 +40,7 @@ async function initializeState() {
 async function updateData() {
     const state = new AppState()
     const { data, hexIndex } = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
+    const comunas = await loadComunas()
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 
@@ -46,6 +48,7 @@ async function updateData() {
     state.setState("hexIndex", hexIndex)
     state.setState("baseGroupPercentages", baseGroupPercentages)
     state.setState("totalEntries", totalEntries)
+    state.setState("comunas", comunas)
 }
 
 export { AppState, initializeState, updateData }

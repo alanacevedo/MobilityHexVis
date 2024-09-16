@@ -35,6 +35,12 @@ async function loadODData(startHour, endHour, resolution) {
     }
 }
 
+async function loadComunas() {
+    const rawJson = await fetch('/data/comunas_metropolitana.json')
+    const comunas = await rawJson.json()
+    return comunas
+}
+
 const deserializeBinary = async (buffer) => {
     const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
     const protoText = await response.text();
@@ -46,4 +52,4 @@ const deserializeBinary = async (buffer) => {
     return decoded_object.entries
 }
 
-export { loadODData, deserializeBinary }
+export { loadODData, deserializeBinary, loadComunas }
