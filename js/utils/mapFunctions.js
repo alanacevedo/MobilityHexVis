@@ -2,12 +2,10 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
-import { setDataSettingsOnMap, updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "./drawFunctions.js";
+import { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "./drawFunctions.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
-import { getSnnFlowClusters } from "../clustering/snnFlowClustering.js";
 import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
 import { AppState } from "../appState.js";
-import { Chart } from "chart.js";
 import { getGroupPercentages } from "./charts/distribution/utils.js";
 import { v4 } from "uuid"
 import { getGiniIndex } from "./segregationIndexes.js";
@@ -91,7 +89,7 @@ export function addMap(mapDiv) {
 
     map.on('zoomend', (e) => {
         setViewToAllMaps(map.getCenter(), map.getZoom())
-        updateSvgPaths(map, "line")
+        updateSvgPaths(map)
     })
 
     map.on("move", (e, d) => {

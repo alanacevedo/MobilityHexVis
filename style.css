@@ -44,9 +44,3 @@ div {
     min-width: 250px; /* Ensures a minimum readable width */
     max-width: 350px; /* Prevents the sidebar from becoming too wide */
 }
-
-/*
-.distChartCanvas {
-    background-color: rgba(39, 38, 38, 255);
-}
-*/

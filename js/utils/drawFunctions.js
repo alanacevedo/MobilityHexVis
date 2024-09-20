@@ -1,10 +1,6 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { geoPath } from "d3-geo";
-import { getPathFromLinkData, projectFlow } from "./projectPoint.js";
-import { colorMap } from "../static.js";
-import { polygonSmooth, polygon } from "@turf/turf";
-import { cellToLatLng, cellToBoundary } from "h3-js"
+import { cellToBoundary } from "h3-js"
 import { AppState } from "../appState.js";
 import { generateMaps } from "./domFunctions.js";
 
@@ -14,7 +10,8 @@ const DESTINATION_COLOR = "#FF00FF"
 const HIGHLIGHT_COLOR = "#FFFF00"
 
 
-function updateSvgPaths(map, displayTypeString) {
+function updateSvgPaths(map) {
+    // Updates paths to match current zoom
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
     const mapId = map.options.uuid
@@ -64,70 +61,6 @@ function updateSvgPaths(map, displayTypeString) {
         .style("stroke-width", zoom / 8) // Adjust stroke width based on zoom level
 }
 
-function getScales() {
-    const scales = {
-        "stroke-opacity": d3.scaleLinear().domain([0, 0.002]).range([0.1, 1]),
-        "stroke-width": d3.scaleLinear().domain([0, 1]).range([1.3, 7]),
-        // https://d3js.org/d3-scale-chromatic/sequential#interpolateWarm
-    }
-
-    return scales
-}
-
-function setDataSettingsOnMap(pathData, map) {
-    const scales = getScales()
-    const svg = d3.select(map.getPanes().overlayPane).select("svg");
-    const g = svg.select("g");
-    const tooltip = d3.select(".tooltip")
-
-    const defs = d3.select(map.getPanes().overlayPane).select("svg").append("svg:defs")
-
-    pathData.forEach(flowObj => {
-        const angle = getFlowAngle(flowObj, map)
-        const angleCoords = getAngleCoords(angle)
-
-        const gradient = defs.append("linearGradient")
-            .attr("id", "gradient" + flowObj.id)
-            .attr("x1", angleCoords.x1)
-            .attr("y1", angleCoords.y1)
-            .attr("x2", angleCoords.x2)
-            .attr("y2", angleCoords.y2)
-
-        gradient.append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", "#008080"); // destination color
-
-        gradient.append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", "#FFA500"); // origin color
-    })
-
-
-    g.selectAll("path") // ("path.cat" + cat)
-        .data(pathData)
-        .join("path")
-        //.attr("class", "cat" + cat) esto
-        .attr("style", "pointer-events: auto;")
-        .style("stroke", d => `url(#gradient${d.id})`)
-        .style("stroke-opacity", d => scales["stroke-opacity"](d.norm_total))
-        .on("mouseover", function (event, d) {
-            // this contiene el elemento path, event es el evento, d contiene los datos
-
-            tooltip
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 20) + "px")
-                .html(`Distancia: ${Number(d.distance).toFixed(2)} km. <br> Ocurrencias: ${Number(d.count)}`)
-
-            tooltip.transition().duration(150).style("opacity", 0.8)
-
-            //d3.select(this).style('stroke', '#00688B')
-        })
-        .on("mouseout", function (event, d) {
-            tooltip.transition().duration(150).style("opacity", 0)
-
-            //d3.select(this).style('stroke', d => colorMap[d.group]);
-        })
-}
 
 function drawH3Hexagons(dataByH3, hexSet, map) {
     const appState = new AppState()
@@ -263,31 +196,6 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
 }
 
-function getFlowAngle(flowObj, map) {
-    const { start, end } = projectFlow(flowObj, map)
-
-    const dx = end.x - start.x
-    const dy = end.y - start.y
-
-    // Use arctangent to get the angle in radians
-    const angleInRadians = Math.atan2(dy, dx)
-
-    // Optionally convert to degrees if needed
-    const angleInDegrees = angleInRadians * 180 / Math.PI
-
-    return angleInDegrees;
-}
-
-function getAngleCoords(angle) {
-    var anglePI = (angle) * (Math.PI / 180);
-    var angleCoords = {
-        'x1': Math.round(50 + Math.sin(anglePI) * 50) + '%',
-        'y1': Math.round(50 + Math.cos(anglePI) * 50) + '%',
-        'x2': Math.round(50 + Math.sin(anglePI + Math.PI) * 50) + '%',
-        'y2': Math.round(50 + Math.cos(anglePI + Math.PI) * 50) + '%',
-    }
-    return angleCoords
-}
 
 function addHexColorGradient(h3, originPercentage, defs, mapId) {
     const destinationPercentage = 100 - originPercentage
@@ -422,4 +330,4 @@ function drawComunaBoundaries(map) {
 }
 
 
-export { updateSvgPaths, setDataSettingsOnMap, drawH3Hexagons, drawComunaBoundaries }
+export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries }

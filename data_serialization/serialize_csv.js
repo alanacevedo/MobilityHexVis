@@ -66,22 +66,3 @@ for (const resolution of [5, 6, 7, 8, 9]) {
         }
     }
 }
-
-/*
-await serializeCsvToProtobuf(7, 8, 15)
-//const zipBuffer = fs.readFileSync(`${BASE_DIR}/h3_7/compressed/od_9_15_7.zip`)
-const zipBuffer = fs.readFileSync(`./public/od_8_15_7.zip`)
-const zip = new JSZip();
-const zipContent = await zip.loadAsync(zipBuffer);
-const fileName = Object.keys(zipContent.files)[0];
-const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
-console.log(binaryArrayBuffer)
-const root = await protobuf.load("./data_serialization/data.proto")
-const DataEntries = root.lookupType("DataEntries")
-const decoded_message = DataEntries.decode(new Uint8Array(binaryArrayBuffer))
-const decoded_object = DataEntries.toObject(decoded_message, { defaults: true })
-console.log(decoded_object.entries[0].h3_O)
-console.log(decoded_object.entries.slice(0, 1).map(obj => ({
-    ...obj
-})))
-*/
