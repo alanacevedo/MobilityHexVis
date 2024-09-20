@@ -65,6 +65,7 @@ function updateSvgPaths(map) {
 function drawH3Hexagons(dataByH3, hexSet, map) {
     const appState = new AppState()
     const selectedH3s = appState.getState("selectedH3s")
+    const isSelectHexMode = appState.getState("selectionMode") === "hex"
     const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
         hexBoundary: cellToBoundary(h3),
         h3,
@@ -98,7 +99,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     g.selectAll("path.hexagon")
         .data(hexData)
         .join("path")
-        .attr("style", "pointer-events: auto;")
+        .attr("style", d => `pointer-events: ${isSelectHexMode ? 'auto' : 'none'};`)
         .attr("class", "hexagon")
         .attr("d", d => generateHexPath(d, map))
         .style("fill", d => getHexFill(d, mapId))
@@ -119,12 +120,15 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
             if (!isDragging && timeDiff < CLICK_THRESHOLD) {
                 // This is a click, not a drag
-                if (selectedH3s.has(d.h3)) {
-                    selectedH3s.delete(d.h3);
-                } else {
-                    selectedH3s.add(d.h3);
+                if (isSelectHexMode) {
+                    console.log("wena")
+                    if (selectedH3s.has(d.h3)) {
+                        selectedH3s.delete(d.h3);
+                    } else {
+                        selectedH3s.add(d.h3);
+                    }
+                    generateMaps({ updateDistributionChart: false });
                 }
-                generateMaps({ updateDistributionChart: false });
             }
 
             isDragging = false;
@@ -138,12 +142,16 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
             tooltip.transition().duration(150).style("opacity", 0.8)
 
-            d3.select(this).transition().duration(150).style('fill-opacity', 1)
+            if (isSelectHexMode) {
+                d3.select(this).transition().duration(150).style('fill-opacity', 1)
+            }
         })
         .on("mouseout", function (event, d) {
             tooltip.transition().duration(150).style("opacity", 0)
 
-            d3.select(this).transition().duration(150).style('fill-opacity', d => getHexFillOpacity(d, mapId, maxCount))
+            if (isSelectHexMode) {
+                d3.select(this).transition().duration(150).style('fill-opacity', d => getHexFillOpacity(d, mapId, maxCount))
+            }
         })
 
     if (hexSet.size === 0) return
@@ -182,13 +190,16 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
             if (!isDragging && timeDiff < CLICK_THRESHOLD) {
                 // This is a click, not a drag
-                const selectedH3s = appState.getState("selectedH3s");
-                if (selectedH3s.has(d.h3)) {
-                    selectedH3s.delete(d.h3);
-                } else {
-                    selectedH3s.add(d.h3);
+                if (isSelectHexMode) {
+
+                    const selectedH3s = appState.getState("selectedH3s");
+                    if (selectedH3s.has(d.h3)) {
+                        selectedH3s.delete(d.h3);
+                    } else {
+                        selectedH3s.add(d.h3);
+                    }
+                    generateMaps({ updateDistributionChart: false });
                 }
-                generateMaps({ updateDistributionChart: false });
             }
 
             isDragging = false;
@@ -283,15 +294,20 @@ function drawComunaBoundaries(map) {
     const g = svg.select("g");
     const tooltip = d3.select(".tooltip")
 
-
     const showComunaBoundaries = appState.getState("showComunaBoundaries");
-    if (!showComunaBoundaries) {
+    const selectionMode = appState.getState("selectionMode");
+
+    if (!showComunaBoundaries && selectionMode !== "comuna") {
         g.selectAll("path.comunaBoundary").remove();
         return;
     }
 
     const comunas = appState.getState("comunas");
     const zoom = map.getZoom()
+
+    // Calculate maxCount
+    const hexagons = g.selectAll("path.hexagon").data();
+    const maxCount = Math.max(...hexagons.map(d => d.count));
 
     // Define custom projection
     const projection = d3.geoTransform({
@@ -304,29 +320,75 @@ function drawComunaBoundaries(map) {
     // Create path generator
     const path = d3.geoPath().projection(projection);
 
-    g.selectAll("path.comunaBoundary")
+    // Ensure the comuna group is created after the hexagon group
+    let comunaGroup = g.select(".comuna-group");
+    if (comunaGroup.empty()) {
+        comunaGroup = g.append("g").attr("class", "comuna-group");
+    }
+
+    // Draw comuna boundaries
+    comunaGroup.selectAll("path.comunaBoundary")
         .data(comunas.features)
         .join("path")
-        .attr("style", "pointer-events: auto;")
         .attr("class", "comunaBoundary")
         .attr("d", path)
-        .style("fill", "none")
+        .style("fill", "transparent")
         .style("stroke", "#FFFF00")
         .style("stroke-width", zoom / 8)
         .style("stroke-opacity", 0.8)
+        .style("pointer-events", "all")
+        .style("z-index", 1000)  // Ensure it's above hexagons
         .on("mouseover", function (event, d) {
+            event.stopPropagation();  // Prevent event from bubbling to elements below
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
             tooltip.html(d.properties.NOM_COM)
                 .style("left", (event.pageX) + "px")
                 .style("top", (event.pageY - 28) + "px");
+
+            if (selectionMode === "comuna") {
+                const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
+                if (!comunaHexes) return
+                g.selectAll("path.hexagon")
+                    .filter(hexD => comunaHexes.has(hexD.h3))
+                    .transition().duration(150).style('fill-opacity', 1);
+            }
         })
-        .on("mouseout", function (d) {
+        .on("mouseout", function (event, d) {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
+
+            if (selectionMode === "comuna") {
+                const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
+                if (!comunaHexes) return
+                g.selectAll("path.hexagon")
+                    .transition().duration(150)
+                    .style('fill-opacity', d => getHexFillOpacity(d, map.options.uuid, maxCount));
+            }
+        })
+        .on("click", function (event, d) {
+            event.stopPropagation();  // Prevent event from bubbling to elements below
+            if (selectionMode === "comuna") {
+                const selectedH3s = appState.getState("selectedH3s");
+                const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
+                if (!comunaHexes) return
+
+                // Toggle the selection state of the entire comuna
+                const allSelected = [...comunaHexes].every(hex => selectedH3s.has(hex));
+                if (allSelected) {
+                    comunaHexes.forEach(hex => selectedH3s.delete(hex));
+                } else {
+                    comunaHexes.forEach(hex => selectedH3s.add(hex));
+                }
+
+                generateMaps({ updateDistributionChart: false });
+            }
         });
+
+    // Ensure comuna boundaries are always on top
+    comunaGroup.raise();
 }
 
 

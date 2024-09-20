@@ -1,7 +1,10 @@
 import protobuf from 'protobufjs';
 import { app } from "../firebase.js";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import { cellToLatLng } from "h3-js"
 import JSZip from "jszip";
+import { point, booleanPointInPolygon } from '@turf/turf';
+
 
 // Function to create the hex index
 function createHexIndex(data) {
@@ -14,6 +17,59 @@ function createHexIndex(data) {
     });
     return hexIndex;
 }
+
+
+const deserializeBinary = async (buffer) => {
+    const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
+    const protoText = await response.text();
+    const root = protobuf.parse(protoText).root;
+    const DataEntries = root.lookupType("DataEntries")
+
+    const decoded_message = DataEntries.decode(new Uint8Array(buffer))
+    const decoded_object = DataEntries.toObject(decoded_message, { defaults: true, longs: String })
+    return decoded_object.entries
+}
+
+
+async function loadComunas() {
+    const rawJson = await fetch('/data/comunas_metropolitana.json')
+    const comunas = await rawJson.json() // comunas is a FeatureCollection geoJson object.
+    return comunas
+}
+
+function getHexSet(data) {
+    const hexSet = new Set()
+    for (const entry of data) {
+        hexSet.add(entry.h3_O)
+        hexSet.add(entry.h3_D)
+    }
+    return hexSet
+}
+
+
+function createComunaHexIndex(comunas, data) {
+    const hexSet = getHexSet(data)
+    const comunaHexIndex = new Map()
+
+    for (const hex of hexSet) {
+        const [lat, lng] = cellToLatLng(hex)
+        const hexPoint = point([lng, lat])  // Note: point() expects [longitude, latitude]
+
+        for (const comuna of comunas.features) {
+            if (booleanPointInPolygon(hexPoint, comuna.geometry)) {
+                const comunaName = comuna.properties.NOM_COM;
+                if (!comunaHexIndex.has(comunaName)) {
+                    comunaHexIndex.set(comunaName, new Set())
+                }
+                comunaHexIndex.get(comunaName).add(hex)
+                break  // Exit the inner loop once we've found the matching comuna
+            }
+        }
+    }
+    console.log(comunaHexIndex)
+    return comunaHexIndex
+}
+
 
 async function loadODData(startHour, endHour, resolution) {
     try {
@@ -28,28 +84,11 @@ async function loadODData(startHour, endHour, resolution) {
         const fileName = Object.keys(zipContent.files)[0];
         const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
         const data = await deserializeBinary(binaryArrayBuffer);
-        const hexIndex = createHexIndex(data);
-        return { data, hexIndex };
+        return data
     } catch (error) {
         console.error(error)
     }
 }
 
-async function loadComunas() {
-    const rawJson = await fetch('/data/comunas_metropolitana.json')
-    const comunas = await rawJson.json()
-    return comunas
-}
 
-const deserializeBinary = async (buffer) => {
-    const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
-    const protoText = await response.text();
-    const root = protobuf.parse(protoText).root;
-    const DataEntries = root.lookupType("DataEntries")
-
-    const decoded_message = DataEntries.decode(new Uint8Array(buffer))
-    const decoded_object = DataEntries.toObject(decoded_message, { defaults: true, longs: String })
-    return decoded_object.entries
-}
-
-export { loadODData, deserializeBinary, loadComunas }
+export { loadODData, deserializeBinary, loadComunas, createHexIndex, createComunaHexIndex }

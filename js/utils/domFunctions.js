@@ -61,6 +61,13 @@ function setupSideMenu() {
         generateMaps()
     })
 
+    const selectionModeCheckbox = d3.select("#selectionModeCheckbox").node()
+    selectionModeCheckbox.checked = state.getState("selectionMode") === "comuna"
+    selectionModeCheckbox.addEventListener("input", (e) => {
+        state.setState("selectionMode", e.target.checked ? "comuna" : "hex")
+        generateMaps()
+    })
+
     const resolutionInput = d3.select("#resolutionInput").node()
     resolutionInput.value = state.getState("resolution")
     resolutionInput.onchange = async (e) => {

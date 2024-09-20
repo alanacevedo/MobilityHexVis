@@ -1,4 +1,4 @@
-import { loadODData, loadComunas } from "./loadData"
+import { loadODData, loadComunas, createComunaHexIndex, createHexIndex } from "./loadData"
 import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils"
 let instance
 
@@ -25,6 +25,9 @@ class AppState {
 async function initializeState() {
     const state = new AppState()
 
+    const comunas = await loadComunas()
+    state.setState("comunas", comunas)
+
     state.setState("startHour", 5)
     state.setState("endHour", 12)
     state.setState("resolution", 7)
@@ -34,21 +37,24 @@ async function initializeState() {
     state.setState("showDestinationHex", true)
     state.setState("showComunaBoundaries", false)
     state.setState("selectedH3s", new Set())
+    state.setState("selectionMode", "hex")
     await updateData()
 }
 
 async function updateData() {
     const state = new AppState()
-    const { data, hexIndex } = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
-    const comunas = await loadComunas()
+    const data = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
+    const hexIndex = createHexIndex(data);
+    const comunas = state.getState("comunas")
+    const comunaHexIndex = createComunaHexIndex(comunas, data);
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 
     state.setState("data", data)
     state.setState("hexIndex", hexIndex)
+    state.setState("comunaHexIndex", comunaHexIndex)
     state.setState("baseGroupPercentages", baseGroupPercentages)
     state.setState("totalEntries", totalEntries)
-    state.setState("comunas", comunas)
 }
 
 export { AppState, initializeState, updateData }
