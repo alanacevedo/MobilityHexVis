@@ -10,9 +10,9 @@
     <div class="sidebar-body">
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                <li class="nav-item">
-                    <a class="nav-link active mb-5">Rango Horario</a>
-                    <div class="mb-5 mt-5 pt-3">
+                <li class="nav-item d-flex align-items-center mt-2">
+                    <a class="nav-link active me-3">Rango Horario</a>
+                    <div class="flex-grow-1">
                         <tc-range-slider
                             id="hourRangeInput"
                             min="0"
@@ -64,7 +64,7 @@
 
                 <li class="nav-item">
 
-                    <div class="form-floating mb-3">
+                    <div class="form-floating mt-3 mb-3">
                         <!-- https://h3geo.org/docs/core-library/restable/#edge-lengths -->
                         <select id="resolutionInput" class="form-select form-select-sm" data-bs-theme="dark">
                             <option value="5">5 - Largo de arista: 9,85 km</option>
@@ -76,6 +76,18 @@
                         <label data-bs-theme="dark" for="resolutionInput">Resolución hexágonos</label>
                     </div>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active">Colores</a>
+                    <div id="colorPickers">
+                        <div class="pickers">
+                            <div id="originColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para orígenes"></div>
+                            <div id="destinationColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para destinos"></div>
+                        </div>
+                    </div>
+                </li>
+
+                
 
                 <li class="nav-item mt-3">
                     <h6>Mapa completo</h6>

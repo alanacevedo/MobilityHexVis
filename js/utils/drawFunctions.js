@@ -82,7 +82,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     svg.selectAll("defs").remove();
     const defs = svg.append("defs")
     const g = svg.select("g");
-    const tooltip = d3.select(".tooltip")
+    const tooltip = d3.select("#mapTooltip")
 
     for (const [h3, hexObj] of Object.entries(dataByH3)) {
         const originCount = hexObj.origin?.count ?? 0
@@ -238,6 +238,33 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 
 }
 
+function updateHexColorGradients() {
+    const state = new AppState()
+    const mapMatrix = state.getState("mapMatrix")
+    const originColor = state.getState("originColor")
+    const destinationColor = state.getState("destinationColor")
+
+    // Flatten the mapMatrix and include the global map
+    const allMaps = [...mapMatrix.flat(), state.getState("globalMap")]
+
+    allMaps.forEach(map => {
+        if (!map) return; // Skip if map is undefined (e.g., if global map is not set)
+
+        const svg = d3.select(map.getPanes().overlayPane).select("svg")
+        const defs = svg.select("defs")
+
+        defs.selectAll("linearGradient").each(function () {
+            const gradient = d3.select(this)
+            gradient.select("stop:nth-child(1)")
+                .attr("stop-color", originColor)
+            gradient.select("stop:nth-child(2)")
+                .attr("stop-color", destinationColor)
+            gradient.select("stop:nth-child(3)")
+                .attr("stop-color", destinationColor)
+        })
+    })
+}
+
 // Inversión de dominio para que mayor desigualdad sea oscuro  
 const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]);
 
@@ -297,7 +324,7 @@ function drawComunaBoundaries(map) {
     const appState = new AppState();
     const svg = d3.select(map.getPanes().overlayPane).select("svg");
     const g = svg.select("g");
-    const tooltip = d3.select(".tooltip")
+    const tooltip = d3.select("#mapTooltip")
 
     const showComunaBoundaries = appState.getState("showComunaBoundaries");
     const selectionMode = appState.getState("selectionMode");
@@ -420,4 +447,4 @@ function drawComunaBoundaries(map) {
 }
 
 
-export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries }
+export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries, updateHexColorGradients }

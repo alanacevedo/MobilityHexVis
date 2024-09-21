@@ -1,16 +1,17 @@
 import * as d3 from "d3";
+import Picker from 'vanilla-picker';
 import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
 import { displayRows } from "./mapFunctions.js";
 import { AppState, updateData } from "../appState.js";
 import { drawBoundariesChart, getChartData } from "./charts/boundaries/boundariesChart.js";
 import Chart from 'chart.js/auto';
 import { hideLoadingOverlay, showLoadingOverlay } from "./loadingOverlay.js";
-
+import { updateHexColorGradients } from "./drawFunctions.js";
 
 function addTooltipDiv() {
     d3.select("body").append('div')
-        .attr('class', 'tooltip')
-        .attr('id', 'tooltip')
+        .attr('class', 'mapTooltip')
+        .attr('id', 'mapTooltip')
 
 }
 
@@ -44,28 +45,28 @@ function setupSideMenu() {
     showOriginCheckbox.checked = state.getState("showOriginHex")
     showOriginCheckbox.addEventListener("input", (e) => {
         state.setState("showOriginHex", e.target.checked)
-        generateMaps()
+        generateMaps({ updateDistributionChart: false })
     })
 
     const showDestinationCheckbox = d3.select("#showDestinationHexCheckbox").node()
     showDestinationCheckbox.checked = state.getState("showDestinationHex")
     showDestinationCheckbox.addEventListener("input", (e) => {
         state.setState("showDestinationHex", e.target.checked)
-        generateMaps()
+        generateMaps({ updateDistributionChart: false });
     })
 
     const showComunaBoundariesCheckbox = d3.select("#showComunaBoundariesCheckbox").node()
     showComunaBoundariesCheckbox.checked = state.getState("showComunaBoundaries")
     showComunaBoundariesCheckbox.addEventListener("input", (e) => {
         state.setState("showComunaBoundaries", e.target.checked)
-        generateMaps()
+        generateMaps({ updateDistributionChart: false });
     })
 
     const selectionModeCheckbox = d3.select("#selectionModeCheckbox").node()
     selectionModeCheckbox.checked = state.getState("selectionMode") === "comuna"
     selectionModeCheckbox.addEventListener("input", (e) => {
         state.setState("selectionMode", e.target.checked ? "comuna" : "hex")
-        generateMaps()
+        generateMaps({ updateDistributionChart: false });
     })
 
     const resolutionInput = d3.select("#resolutionInput").node()
@@ -75,10 +76,59 @@ function setupSideMenu() {
         state.setState("resolution", Number(e.target.value))
         state.setState("selectedH3s", new Set())
         await updateData()
-        generateMaps()
+        generateMaps({ updateDistributionChart: false });
         hideLoadingOverlay()
     }
 
+
+    const originColorPickerNode = d3.select("#originColorPicker").node()
+    const originColorPicker = new Picker({
+        parent: originColorPickerNode,
+        color: state.getState("originColor"),
+        alpha: false,
+        popup: 'top',
+        onOpen: () => {
+            const tooltip = bootstrap.Tooltip.getInstance(originColorPickerNode);
+            if (tooltip) {
+                tooltip.hide();
+            }
+        }
+    })
+    originColorPicker.onChange = (color) => {
+        state.setState("originColor", color.hex)
+        originColorPickerNode.style.backgroundColor = color.hex
+        updateHexColorGradients()
+    }
+    originColorPickerNode.style.backgroundColor = state.getState("originColor")
+
+    const destinationColorPickerNode = d3.select("#destinationColorPicker").node()
+    const destinationColorPicker = new Picker({
+        parent: destinationColorPickerNode,
+        color: state.getState("destinationColor"),
+        alpha: false,
+        popup: 'top',
+        onOpen: () => {
+            const tooltip = bootstrap.Tooltip.getInstance(destinationColorPickerNode);
+            if (tooltip) {
+                tooltip.hide();
+            }
+        }
+    })
+    destinationColorPicker.onChange = (color) => {
+        state.setState("destinationColor", color.hex)
+        destinationColorPickerNode.style.backgroundColor = color.hex
+        updateHexColorGradients()
+    }
+    destinationColorPickerNode.style.backgroundColor = state.getState("destinationColor")
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover',
+            placement: 'bottom'
+        })
+    })
 
 }
 
@@ -98,7 +148,6 @@ function updateBoundariesChart(data) {
 function generateMaps({ updateDistributionChart = true } = {}) {
 
     const state = new AppState()
-    const mapMatrix = state.getState("mapMatrix")
     const data = state.getState("data")
     const boundaries = state.getState("boundaries").toSorted((x, y) => (x - y))
 

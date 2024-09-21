@@ -38,6 +38,8 @@ async function initializeState() {
     state.setState("showComunaBoundaries", false)
     state.setState("selectedH3s", new Set())
     state.setState("selectionMode", "hex")
+    state.setState("originColor", "#00FFFF")
+    state.setState("destinationColor", "#FF00FF")
     await updateData()
 }
 
