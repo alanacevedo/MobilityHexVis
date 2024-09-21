@@ -99,7 +99,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     g.selectAll("path.hexagon")
         .data(hexData)
         .join("path")
-        .attr("style", d => `pointer-events: ${isSelectHexMode ? 'auto' : 'none'};`)
+        .attr("style", d => `pointer-events: auto`)
         .attr("class", "hexagon")
         .attr("d", d => generateHexPath(d, map))
         .style("fill", d => getHexFill(d, mapId))
@@ -204,6 +204,11 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
             isDragging = false;
         })
+
+    if (isSelectHexMode) {
+        g.selectAll("path.hexagon").raise()
+        g.selectAll("path.highlightHexagon").raise()
+    }
 
 }
 
@@ -326,6 +331,10 @@ function drawComunaBoundaries(map) {
         comunaGroup = g.append("g").attr("class", "comuna-group");
     }
 
+    let isDragging = false;
+    let mouseDownTime;
+    const CLICK_THRESHOLD = 200;
+
     // Draw comuna boundaries
     comunaGroup.selectAll("path.comunaBoundary")
         .data(comunas.features)
@@ -337,7 +346,6 @@ function drawComunaBoundaries(map) {
         .style("stroke-width", zoom / 8)
         .style("stroke-opacity", 0.8)
         .style("pointer-events", "all")
-        .style("z-index", 1000)  // Ensure it's above hexagons
         .on("mouseover", function (event, d) {
             event.stopPropagation();  // Prevent event from bubbling to elements below
             tooltip.transition()
@@ -368,9 +376,23 @@ function drawComunaBoundaries(map) {
                     .style('fill-opacity', d => getHexFillOpacity(d, map.options.uuid, maxCount));
             }
         })
-        .on("click", function (event, d) {
-            event.stopPropagation();  // Prevent event from bubbling to elements below
-            if (selectionMode === "comuna") {
+        .on("mousedown", function (event) {
+            mouseDownTime = new Date().getTime();
+            isDragging = false;
+        })
+        .on("mousemove", function () {
+            isDragging = true;
+        })
+        .on("mouseup", function (event, d) {
+            if (selectionMode !== "comuna") {
+                isDragging = false
+                return
+            }
+
+            const mouseUpTime = new Date().getTime();
+            const timeDiff = mouseUpTime - mouseDownTime;
+
+            if (!isDragging && timeDiff < CLICK_THRESHOLD && selectionMode === "comuna") {
                 const selectedH3s = appState.getState("selectedH3s");
                 const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
                 if (!comunaHexes) return
@@ -385,10 +407,16 @@ function drawComunaBoundaries(map) {
 
                 generateMaps({ updateDistributionChart: false });
             }
+            isDragging = false
         });
 
     // Ensure comuna boundaries are always on top
-    comunaGroup.raise();
+    if (selectionMode === "comuna") {
+        comunaGroup.raise();
+    } else {
+        g.selectAll("path.hexagon").raise()
+        g.selectAll("path.highlightHexagon").raise()
+    }
 }
 
 
