@@ -46,8 +46,10 @@ div {
 
 #colorPickers .pickers {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     padding: .5em;
+    align-items: center;
 }
 
 #colorPickers .colorPicker {
@@ -55,7 +57,6 @@ div {
     height: 30px;
     border: 1px solid #ccc;
     cursor: pointer;
-    position: relative; /* Add this line */
 }
 
 /* Add these new styles */
@@ -137,5 +138,28 @@ div {
 .tooltip.bs-tooltip-start .tooltip-arrow::before,
 .tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
     border-left-color: rgba(33, 37, 41, 0.9);
+}
+
+#mixturaColorScalePicker {
+    width: 100px; /* Make it longer */
+    height: 30px; /* Keep the same height as other pickers */
+    flex-grow: 1; /* Allow it to grow and take remaining space */
+    max-width: 200px; /* Set a maximum width if needed */
+}
+
+.color-scale-dropdown {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1000;
+    display: none;
+}
+
+.color-scale-option {
+    width: 100px;
+    height: 20px;
+    margin-bottom: 5px;
+    cursor: pointer;
 }
 

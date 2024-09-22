@@ -1,3 +1,4 @@
+import * as d3 from "d3"
 import { loadODData, loadComunas, createComunaHexIndex, createHexIndex } from "./loadData"
 import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils"
 let instance
@@ -42,6 +43,7 @@ async function initializeState() {
     state.setState("destinationColor", "#FF00FF")
     state.setState("highlightColor", "#FFFF00")
     state.setState("comunaBoundaryColor", "#FFFF00")
+    state.setState("mixturaColorScale", d3.interpolateWarm)
     await updateData()
 }
 

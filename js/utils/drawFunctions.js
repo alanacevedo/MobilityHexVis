@@ -3,6 +3,7 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { cellToBoundary } from "h3-js"
 import { AppState } from "../appState.js";
 import { generateMaps } from "./domFunctions.js";
+import { updateColorScaleSvg } from "./domFunctions.js";
 
 
 function updateSvgPaths(map) {
@@ -260,19 +261,19 @@ function updateHexColorGradients() {
     })
 }
 
-// Inversión de dominio para que mayor desigualdad sea oscuro  
-const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]);
 
 function getHexFill(hex, mapId) {
-    const appState = new AppState()
+    const appState = new AppState();
     if (hex.gini) {
-        return colorScale(hex.gini)
+        const mixturaColorScale = appState.getState("mixturaColorScale") || d3.interpolateWarm;
+        const colorScale = d3.scaleSequential(mixturaColorScale).domain([1, 0.5]);
+        return colorScale(hex.gini);
     }
 
-    if ((new AppState()).getState("selectedH3s").has(hex.h3))
-        return HIGHLIGHT_COLOR
+    if (appState.getState("selectedH3s").has(hex.h3))
+        return appState.getState("highlightColor");
 
-    return `url(#colorGradient${hex.h3}${mapId})`
+    return `url(#colorGradient${hex.h3}${mapId})`;
 }
 
 
@@ -470,5 +471,25 @@ function updateComunaBoundaryColor(newColor) {
     });
 }
 
+function updateMixturaColorScale() {
+    const state = new AppState();
+    const mixturaColorScale = state.getState("mixturaColorScale") || d3.interpolateWarm;
+    const colorScale = d3.scaleSequential(mixturaColorScale).domain([1, 0.5]);
+
+    d3.select("#mixturaColorScalePicker")
+        .style("background", `linear-gradient(to right, ${d3.range(0, 1, 0.01).map(t => mixturaColorScale(t)).join(',')})`);
+
+
+    updateColorScaleSvg();
+    // Update the color scale for all maps
+    const allMaps = [...state.getState("mapMatrix").flat(), state.getState("globalMap")].filter(Boolean);
+    allMaps.forEach(map => {
+        const svg = d3.select(map.getPanes().overlayPane).select("svg");
+        svg.selectAll("path.hexagon")
+            .filter(d => d.gini !== undefined)
+            .style("fill", d => colorScale(d.gini));
+    });
+}
+
 // Export these new functions
-export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries, updateHexColorGradients, updateHighlightColor, updateComunaBoundaryColor }
+export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries, updateHexColorGradients, updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale }

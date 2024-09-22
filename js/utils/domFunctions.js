@@ -7,7 +7,7 @@ import { drawBoundariesChart, getChartData } from "./charts/boundaries/boundarie
 import Chart from 'chart.js/auto';
 import { hideLoadingOverlay, showLoadingOverlay } from "./loadingOverlay.js";
 import { updateHexColorGradients } from "./drawFunctions.js";
-import { updateHighlightColor, updateComunaBoundaryColor } from "./drawFunctions.js";
+import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "./drawFunctions.js";
 
 function addTooltipDiv() {
     d3.select("body").append('div')
@@ -171,6 +171,48 @@ function setupSideMenu() {
         })
     })
 
+    const mixturaColorScalePickerNode = d3.select("#mixturaColorScalePicker").node();
+    const colorScales = [
+        { name: 'Warm', scale: d3.interpolateWarm },
+        { name: 'Plasma', scale: d3.interpolatePlasma },
+        { name: 'Viridis', scale: d3.interpolateViridis },
+        { name: 'Cool', scale: d3.interpolateCool },
+        { name: 'Cividis', scale: d3.interpolateCividis },
+        { name: 'Blues', scale: d3.interpolateBlues },
+        { name: 'Greens', scale: d3.interpolateGreens },
+        { name: 'Purples', scale: d3.interpolatePurples },
+
+    ];
+
+    const dropdown = d3.select("body")
+        .append("div")
+        .attr("class", "color-scale-dropdown");
+
+    colorScales.forEach(scale => {
+        dropdown.append("div")
+            .attr("class", "color-scale-option")
+            .style("background", `linear-gradient(to right, ${d3.range(0, 1, 0.01).map(t => scale.scale(t)).join(',')})`)
+            .on("click", () => {
+                state.setState("mixturaColorScale", scale.scale);
+                updateMixturaColorScale();
+                dropdown.style("display", "none");
+            });
+    });
+
+    mixturaColorScalePickerNode.addEventListener("click", (event) => {
+        const rect = mixturaColorScalePickerNode.getBoundingClientRect();
+        dropdown.style("left", `${rect.left}px`)
+            .style("top", `${rect.bottom}px`)
+            .style("display", "block");
+        event.stopPropagation();
+    });
+
+    document.addEventListener("click", () => {
+        dropdown.style("display", "none");
+    });
+
+    updateMixturaColorScale();
+
 }
 
 function updateBoundariesChart(data) {
@@ -208,43 +250,45 @@ function generateMaps({ updateDistributionChart = true } = {}) {
 
 function addColorGradientSvg() {
     const svg = d3.select("#color-scale");
-
-    const width = svg.node().getBoundingClientRect().width; // Obtener el ancho dinámico del contenedor
-    const height = 10; // Reducir la altura del rectángulo para que no ocupe mucho espacio vertical
+    const width = svg.node().getBoundingClientRect().width;
+    const height = 10;
     const margin = { left: 0, right: 0, top: 0, bottom: 0 };
 
-    // Crear un grupo para la escala de color
+    // Clear existing content
+    svg.selectAll("*").remove();
+
+    // Create a group for the color scale
     const gradientGroup = svg.append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Definir la escala de color secuencial
-    const colorScale = d3.scaleSequential(d3.interpolateWarm)
-        .domain([0, 1]);
+    // Get the current mixtura color scale
+    const state = new AppState();
+    const mixturaColorScale = state.getState("mixturaColorScale") || d3.interpolateWarm;
 
-    // Definir el gradiente en el SVG
+    // Define the gradient in the SVG
     const defs = svg.append("defs");
 
     const gradient = defs.append("linearGradient")
-        .attr("id", "gradient")
+        .attr("id", "mixturaGradient")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "0%");
 
-    // Añadir los pasos de color al gradiente
+    // Add color stops to the gradient
     for (let i = 0; i <= 100; i++) {
         gradient.append("stop")
             .attr("offset", `${i}%`)
-            .attr("stop-color", colorScale((i / 100)));
+            .attr("stop-color", mixturaColorScale(i / 100)); // Remove the inversion
     }
 
-    // Dibujar el rectángulo con el gradiente de color
+    // Draw the rectangle with the gradient
     gradientGroup.append("rect")
         .attr("width", width)
         .attr("height", height)
-        .style("fill", "url(#gradient)");
+        .style("fill", "url(#mixturaGradient)");
 
-    // Añadir etiquetas a los extremos de la escala
+    // Add labels to the ends of the scale
     gradientGroup.append("text")
         .attr("x", 0)
         .attr("y", height + 15)
@@ -260,4 +304,23 @@ function addColorGradientSvg() {
         .text("Alta");
 }
 
-export { addTooltipDiv, setupSideMenu, generateMaps, addColorGradientSvg }
+function updateColorScaleSvg() {
+    const svg = d3.select("#color-scale");
+    const width = svg.node().getBoundingClientRect().width;
+
+    // Get the current mixtura color scale
+    const state = new AppState();
+    const mixturaColorScale = state.getState("mixturaColorScale") || d3.interpolateWarm;
+
+    // Update the gradient
+    const gradient = svg.select("#mixturaGradient");
+    gradient.selectAll("stop").remove();
+
+    for (let i = 0; i <= 100; i++) {
+        gradient.append("stop")
+            .attr("offset", `${i}%`)
+            .attr("stop-color", mixturaColorScale(i / 100)); // Remove the inversion
+    }
+}
+
+export { addTooltipDiv, setupSideMenu, generateMaps, addColorGradientSvg, updateColorScaleSvg }
