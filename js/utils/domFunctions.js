@@ -7,6 +7,7 @@ import { drawBoundariesChart, getChartData } from "./charts/boundaries/boundarie
 import Chart from 'chart.js/auto';
 import { hideLoadingOverlay, showLoadingOverlay } from "./loadingOverlay.js";
 import { updateHexColorGradients } from "./drawFunctions.js";
+import { updateHighlightColor, updateComunaBoundaryColor } from "./drawFunctions.js";
 
 function addTooltipDiv() {
     d3.select("body").append('div')
@@ -120,6 +121,46 @@ function setupSideMenu() {
         updateHexColorGradients()
     }
     destinationColorPickerNode.style.backgroundColor = state.getState("destinationColor")
+
+    const highlightColorPickerNode = d3.select("#highlightColorPicker").node()
+    const highlightColorPicker = new Picker({
+        parent: highlightColorPickerNode,
+        color: state.getState("highlightColor"),
+        alpha: false,
+        popup: 'top',
+        onOpen: () => {
+            const tooltip = bootstrap.Tooltip.getInstance(highlightColorPickerNode);
+            if (tooltip) {
+                tooltip.hide();
+            }
+        }
+    })
+    highlightColorPicker.onChange = (color) => {
+        state.setState("highlightColor", color.hex)
+        highlightColorPickerNode.style.backgroundColor = color.hex
+        updateHighlightColor(color.hex);
+    }
+    highlightColorPickerNode.style.backgroundColor = state.getState("highlightColor")
+
+    const comunaBoundaryColorPickerNode = d3.select("#comunaBoundaryColorPicker").node()
+    const comunaBoundaryColorPicker = new Picker({
+        parent: comunaBoundaryColorPickerNode,
+        color: state.getState("comunaBoundaryColor"),
+        alpha: false,
+        popup: 'top',
+        onOpen: () => {
+            const tooltip = bootstrap.Tooltip.getInstance(comunaBoundaryColorPickerNode);
+            if (tooltip) {
+                tooltip.hide();
+            }
+        }
+    })
+    comunaBoundaryColorPicker.onChange = (color) => {
+        state.setState("comunaBoundaryColor", color.hex)
+        comunaBoundaryColorPickerNode.style.backgroundColor = color.hex
+        updateComunaBoundaryColor(color.hex);
+    }
+    comunaBoundaryColorPickerNode.style.backgroundColor = state.getState("comunaBoundaryColor")
 
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

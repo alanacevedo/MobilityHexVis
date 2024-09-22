@@ -40,6 +40,8 @@ async function initializeState() {
     state.setState("selectionMode", "hex")
     state.setState("originColor", "#00FFFF")
     state.setState("destinationColor", "#FF00FF")
+    state.setState("highlightColor", "#FFFF00")
+    state.setState("comunaBoundaryColor", "#FFFF00")
     await updateData()
 }
 

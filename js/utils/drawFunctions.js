@@ -5,11 +5,6 @@ import { AppState } from "../appState.js";
 import { generateMaps } from "./domFunctions.js";
 
 
-const ORIGIN_COLOR = "#00FFFF"
-const DESTINATION_COLOR = "#FF00FF"
-const HIGHLIGHT_COLOR = "#FFFF00"
-
-
 function updateSvgPaths(map) {
     // Updates paths to match current zoom
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
@@ -43,7 +38,6 @@ function updateSvgPaths(map) {
         })
         .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
         .style("fill", d => getHexFill(d, mapId))
-        .style("fill", d => HIGHLIGHT_COLOR) // Apply the gradient fill
         .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
 
     // Update comuna boundaries
@@ -172,7 +166,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
         .attr("style", "pointer-events: auto;")
         .attr("class", "highlightHexagon")
         .attr("d", d => generateHexPath(d, map))
-        .style("fill", d => HIGHLIGHT_COLOR) // Apply the gradient fill
+        .style("fill", d => appState.getState("highlightColor")) // Apply the gradient fill
         .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
         .style("stroke", "#CCCCCC")
         .style("stroke-width", 0.5)
@@ -214,6 +208,7 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
 
 
 function addHexColorGradient(h3, originPercentage, defs, mapId) {
+    const appState = new AppState()
     const destinationPercentage = 100 - originPercentage
 
     const gradient = defs
@@ -226,15 +221,15 @@ function addHexColorGradient(h3, originPercentage, defs, mapId) {
 
     gradient.append("stop")
         .attr("offset", originPercentage + "%")
-        .attr("stop-color", ORIGIN_COLOR);
+        .attr("stop-color", appState.getState("originColor"));
 
     gradient.append("stop")
         .attr("offset", originPercentage + "%")
-        .attr("stop-color", DESTINATION_COLOR);
+        .attr("stop-color", appState.getState("destinationColor"));
 
     gradient.append("stop")
         .attr("offset", destinationPercentage + "%")
-        .attr("stop-color", DESTINATION_COLOR);
+        .attr("stop-color", appState.getState("destinationColor"));
 
 }
 
@@ -269,6 +264,7 @@ function updateHexColorGradients() {
 const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([1, 0.5]);
 
 function getHexFill(hex, mapId) {
+    const appState = new AppState()
     if (hex.gini) {
         return colorScale(hex.gini)
     }
@@ -369,7 +365,7 @@ function drawComunaBoundaries(map) {
         .attr("class", "comunaBoundary")
         .attr("d", path)
         .style("fill", "transparent")
-        .style("stroke", "#FFFF00")
+        .style("stroke", appState.getState("comunaBoundaryColor"))
         .style("stroke-width", zoom / 8)
         .style("stroke-opacity", 0.8)
         .style("pointer-events", "all")
@@ -446,5 +442,33 @@ function drawComunaBoundaries(map) {
     }
 }
 
+// Add these new functions at the end of the file
 
-export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries, updateHexColorGradients }
+function updateHighlightColor(newColor) {
+    const state = new AppState();
+    const mapMatrix = state.getState("mapMatrix");
+    const globalMap = state.getState("globalMap");
+    const allMaps = [...mapMatrix.flat(), globalMap].filter(Boolean);
+
+    allMaps.forEach(map => {
+        const svg = d3.select(map.getPanes().overlayPane).select("svg");
+        svg.selectAll("path.highlightHexagon")
+            .style("fill", newColor);
+    });
+}
+
+function updateComunaBoundaryColor(newColor) {
+    const state = new AppState();
+    const mapMatrix = state.getState("mapMatrix");
+    const globalMap = state.getState("globalMap");
+    const allMaps = [...mapMatrix.flat(), globalMap].filter(Boolean);
+
+    allMaps.forEach(map => {
+        const svg = d3.select(map.getPanes().overlayPane).select("svg");
+        svg.selectAll("path.comunaBoundary")
+            .style("stroke", newColor);
+    });
+}
+
+// Export these new functions
+export { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries, updateHexColorGradients, updateHighlightColor, updateComunaBoundaryColor }
