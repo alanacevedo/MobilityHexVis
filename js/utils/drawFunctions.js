@@ -7,39 +7,35 @@ import { updateColorScaleSvg } from "./domFunctions.js";
 
 
 function updateSvgPaths(map) {
-    // Updates paths to match current zoom
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
     const mapId = map.options.uuid
     const appState = new AppState()
     const selectedH3s = appState.getState("selectedH3s")
 
+    // Update hexagons
     g.selectAll("path.hexagon")
         .attr("d", d => {
-            // Recalculate the path string for hexagons using the current map zoom
             const pathData = d.hexBoundary.map(latLng => {
                 const point = map.latLngToLayerPoint(L.latLng(latLng));
                 return [point.x, point.y];
             });
             const lineGenerator = d3.line();
-            return lineGenerator(pathData) + "Z"; // Close the path
+            return lineGenerator(pathData) + "Z";
         })
-        .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
-        .style("fill", d => getHexFill(d, mapId))
+        .style("stroke-width", 0.5)
 
+    // Update highlight hexagons
     g.selectAll("path.highlightHexagon")
         .attr("d", d => {
-            // Recalculate the path string for hexagons using the current map zoom
             const pathData = d.hexBoundary.map(latLng => {
                 const point = map.latLngToLayerPoint(L.latLng(latLng));
                 return [point.x, point.y];
             });
             const lineGenerator = d3.line();
-            return lineGenerator(pathData) + "Z"; // Close the path
+            return lineGenerator(pathData) + "Z";
         })
-        .style("stroke-width", 0.5) // You can adjust the stroke width based on zoom if needed
-        .style("fill", d => getHexFill(d, mapId))
-        .style("fill-opacity", d => selectedH3s.has(d.h3) ? 1 : 0)
+        .style("stroke-width", 0.5)
 
     // Update comuna boundaries
     const projection = d3.geoTransform({
@@ -53,7 +49,10 @@ function updateSvgPaths(map) {
 
     g.selectAll("path.comunaBoundary")
         .attr("d", path)
-        .style("stroke-width", zoom / 8) // Adjust stroke width based on zoom level
+        .style("stroke-width", zoom / 8)
+
+    g.selectAll("path.comunaFill")
+        .attr("d", path)
 }
 
 
@@ -200,10 +199,6 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
             isDragging = false;
         })
 
-    if (isSelectHexMode) {
-        g.selectAll("path.hexagon").raise()
-        g.selectAll("path.highlightHexagon").raise()
-    }
 
 }
 
@@ -328,6 +323,7 @@ function drawComunaBoundaries(map) {
 
     if (!showComunaBoundaries && selectionMode !== "comuna") {
         g.selectAll("path.comunaBoundary").remove();
+        g.selectAll("path.comunaFill").remove();
         return;
     }
 
@@ -359,27 +355,24 @@ function drawComunaBoundaries(map) {
     let mouseDownTime;
     const CLICK_THRESHOLD = 200;
 
-    // Draw comuna boundaries
-    comunaGroup.selectAll("path.comunaBoundary")
+    // Draw comuna fills
+    comunaGroup.selectAll("path.comunaFill")
         .data(comunas.features)
         .join("path")
-        .attr("class", "comunaBoundary")
+        .attr("class", "comunaFill")
         .attr("d", path)
         .style("fill", "transparent")
-        .style("stroke", appState.getState("comunaBoundaryColor"))
-        .style("stroke-width", zoom / 8)
-        .style("stroke-opacity", 0.8)
-        .style("pointer-events", "all")
+        .style("pointer-events", selectionMode === "comuna" ? "all" : "none")
         .on("mouseover", function (event, d) {
-            event.stopPropagation();  // Prevent event from bubbling to elements below
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", .9);
-            tooltip.html(d.properties.NOM_COM)
-                .style("left", (event.pageX) + "px")
-                .style("top", (event.pageY - 28) + "px");
-
             if (selectionMode === "comuna") {
+                event.stopPropagation();
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(d.properties.NOM_COM)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+
                 const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
                 if (!comunaHexes) return
                 g.selectAll("path.hexagon")
@@ -388,11 +381,11 @@ function drawComunaBoundaries(map) {
             }
         })
         .on("mouseout", function (event, d) {
-            tooltip.transition()
-                .duration(500)
-                .style("opacity", 0);
-
             if (selectionMode === "comuna") {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+
                 const comunaHexes = appState.getState("comunaHexIndex").get(d.properties.NOM_COM);
                 if (!comunaHexes) return
                 g.selectAll("path.hexagon")
@@ -434,16 +427,36 @@ function drawComunaBoundaries(map) {
             isDragging = false
         });
 
-    // Ensure comuna boundaries are always on top
-    if (selectionMode === "comuna") {
-        comunaGroup.raise();
+    // Draw comuna boundaries
+    comunaGroup.selectAll("path.comunaBoundary")
+        .data(comunas.features)
+        .join("path")
+        .attr("class", "comunaBoundary")
+        .attr("d", path)
+        .style("fill", "none")
+        .style("stroke", appState.getState("comunaBoundaryColor"))
+        .style("stroke-width", zoom / 8)
+        .style("stroke-opacity", 0.9)
+        .style("pointer-events", "none");
+
+    // Ensure proper layering
+    if (selectionMode === "hex") {
+        comunaGroup.selectAll("path.comunaFill").lower();
+        g.selectAll("path.hexagon").raise();
+        g.selectAll("path.highlightHexagon").raise();
     } else {
-        g.selectAll("path.hexagon").raise()
-        g.selectAll("path.highlightHexagon").raise()
+        comunaGroup.selectAll("path.comunaFill").raise();
+        g.selectAll("path.hexagon").lower();
+        g.selectAll("path.highlightHexagon").lower();
     }
+
+    // Always raise comuna boundaries to the top
+    comunaGroup.selectAll("path.comunaBoundary").raise();
+
+    // Raise the entire comuna group to ensure boundaries are on top
+    comunaGroup.raise();
 }
 
-// Add these new functions at the end of the file
 
 function updateHighlightColor(newColor) {
     const state = new AppState();
