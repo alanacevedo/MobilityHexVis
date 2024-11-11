@@ -50,6 +50,7 @@ function getHexSet(data) {
 function createComunaHexIndex(comunas, data) {
     const hexSet = getHexSet(data)
     const comunaHexIndex = new Map()
+    const hexComunaIndex = new Map()
 
     for (const hex of hexSet) {
         const [lat, lng] = cellToLatLng(hex)
@@ -62,12 +63,12 @@ function createComunaHexIndex(comunas, data) {
                     comunaHexIndex.set(comunaName, new Set())
                 }
                 comunaHexIndex.get(comunaName).add(hex)
+                hexComunaIndex.set(hex, comunaName)
                 break  // Exit the inner loop once we've found the matching comuna
             }
         }
     }
-    console.log(comunaHexIndex)
-    return comunaHexIndex
+    return [comunaHexIndex, hexComunaIndex]
 }
 
 

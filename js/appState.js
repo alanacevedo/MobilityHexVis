@@ -52,13 +52,14 @@ async function updateData() {
     const data = await loadODData(state.getState("startHour"), state.getState("endHour"), state.getState("resolution"))
     const hexIndex = createHexIndex(data);
     const comunas = state.getState("comunas")
-    const comunaHexIndex = createComunaHexIndex(comunas, data);
+    const [comunaHexIndex, hexComunaIndex] = createComunaHexIndex(comunas, data);
     const totalEntries = getTotalEntries(data)
     const baseGroupPercentages = getGroupPercentages(data, totalEntries)
 
     state.setState("data", data)
     state.setState("hexIndex", hexIndex)
     state.setState("comunaHexIndex", comunaHexIndex)
+    state.setState("hexComunaIndex", hexComunaIndex)
     state.setState("baseGroupPercentages", baseGroupPercentages)
     state.setState("totalEntries", totalEntries)
 }

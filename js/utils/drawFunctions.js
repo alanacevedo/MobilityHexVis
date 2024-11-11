@@ -60,9 +60,11 @@ function drawH3Hexagons(dataByH3, hexSet, map) {
     const appState = new AppState()
     const selectedH3s = appState.getState("selectedH3s")
     const isSelectHexMode = appState.getState("selectionMode") === "hex"
+    const hexComunaIndex = appState.getState('hexComunaIndex')
     const hexData = Object.entries(dataByH3).map(([h3, hexObj]) => ({
         hexBoundary: cellToBoundary(h3),
         h3,
+        comuna: hexComunaIndex.get(h3),
         count: hexObj.gini
             ? Object.values(hexObj.counts).reduce((sum, count) => sum + count, 0)
             : (hexObj.origin?.count ?? 0) + (hexObj.destination?.count ?? 0),
@@ -307,7 +309,9 @@ function getTooltipContent(d, totalCount) {
         return `
             ${d.origin ? `Orígenes: ${Number(d.origin.count)}.<br>` : ''}
             ${d.destination ? `Destinos: ${Number(d.destination.count)}.<br>` : ''}
-            ${d.count ? `% datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%` : ''}
+            ${d.count ? `% Datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%. <br>` : ''}
+            ${d.comuna ? `Comuna: ${d.comuna}. <br>` : ''}
+            ${d.h3 ? `ID: ${d.h3}.` : ''}
         `;
     }
 }
