@@ -90,7 +90,8 @@ function drawBoundariesChart(ctxNode, chartData) {
                 y: {
                     title: {
                         display: true,
-                        text: "Porcentaje de ocurrencias (%)"
+                        text: "Porcentaje de ocurrencias (%)",
+                        color: 'white'
                     },
                     beginAtZero: true,
                     max: 100, // El máximo ahora es 100% para reflejar el porcentaje total
@@ -98,19 +99,24 @@ function drawBoundariesChart(ctxNode, chartData) {
                         color: gridLineColor,
                     },
                     ticks: {
-                        callback: (label) => label.toFixed(0) + '%' // Mostrar en porcentaje
+                        callback: (label) => label.toFixed(0) + '%', // Mostrar en porcentaje,
+                        color: 'white'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: "Distancia (km)"
+                        text: "Distancia (km)",
+                        color: 'white'
                     },
                     grid: {
                         color: gridLineColor
                     },
                     type: "linear",
-                    max: chartData.slice(-1)[0].x
+                    max: chartData.slice(-1)[0].x,
+                    ticks: {
+                        color: 'white'
+                    }
                 },
             },
             parsing: false,
