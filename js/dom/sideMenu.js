@@ -5,6 +5,7 @@ import { updateHexColorGradients } from "../utils/drawFunctions.js";
 import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "../utils/drawFunctions.js";
 import { AppState, updateData } from "../appState.js";
 import { drawBoundariesChart, getChartData } from "../utils/charts/boundaries/boundariesChart.js";
+import { generateMaps } from "../map/mapControl";
 import Chart from 'chart.js/auto';
 
 

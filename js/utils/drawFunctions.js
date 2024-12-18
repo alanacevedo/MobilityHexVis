@@ -2,16 +2,13 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { cellToBoundary } from "h3-js"
 import { AppState } from "../appState.js";
-import { generateMaps } from "../dom/maps.js";
+import { generateMaps } from "../map/mapControl.js";
 import { updateColorScaleSvg } from "../dom/colorGradientSvg.js";
 
 
 function updateSvgPaths(map) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")
     const zoom = map.getZoom()
-    const mapId = map.options.uuid
-    const appState = new AppState()
-    const selectedH3s = appState.getState("selectedH3s")
 
     // Update hexagons
     g.selectAll("path.hexagon")

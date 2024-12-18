@@ -1,7 +1,7 @@
 import Chart from 'chart.js/auto';
 import * as d3 from "d3";
 import { AppState } from '../../../appState';
-import { generateMaps } from "../../../dom/maps"
+import { generateMaps } from "../../../map/mapControl"
 
 const TOOLTIPID = 'chartjs-tooltip'
 

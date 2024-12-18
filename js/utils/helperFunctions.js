@@ -1,22 +1,4 @@
 
-// distance of direct edge between link start and end
-function distance(link) {
-    const dx2 = Math.pow(link.startX - link.endX, 2)
-    const dy2 = Math.pow(link.startY - link.endY, 2)
-
-    return Math.sqrt(dx2 + dy2)
-}
-
-function getMaxCount(linksData) {
-    let max_count = 0
-    Object.values(linksData).forEach(arr => {
-        const counts = arr.map(x => x[2])
-        max_count = Math.max(max_count, Math.max(...counts))
-    })
-
-    return max_count
-}
-
 // A partir de la data original, ordenada ascendentemente, y una o más distancias de boundary, también ordenadas ascendentemente,
 // retorna los índices de aquellos datos donde la distancia es la primera en ser mayor que cada boundary entregado
 function getBoundaryIndexesFromDistances(data, distances) {
@@ -64,4 +46,4 @@ function getRangeStringsFromBoundaries(boundaries) {
     return rangeStrings
 }
 
-export { getMaxCount, getBoundaryIndexesFromDistances, getRangeStringsFromBoundaries }
+export { getBoundaryIndexesFromDistances, getRangeStringsFromBoundaries }
