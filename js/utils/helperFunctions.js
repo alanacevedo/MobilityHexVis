@@ -1,5 +1,3 @@
-import * as d3 from "d3";
-import { categories } from "../static.js";
 
 // distance of direct edge between link start and end
 function distance(link) {

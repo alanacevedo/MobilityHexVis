@@ -1,6 +1,5 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { accessToken } from "../token.js";
 import { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "./drawFunctions.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
 import { drawDistributionChart } from "./charts/distribution/distributionChart.js";
@@ -14,6 +13,8 @@ const INITIAL_CENTER = [-33.471258, -70.646552]
 const INITIAL_ZOOM = 9
 const MAX_ZOOM = 12
 const MIN_ZOOM = 8
+
+const accessToken = import.meta.env.VITE_MAPBOX_TOKEN
 
 function addMapRow(insertionIndex) {
     const state = new AppState()
