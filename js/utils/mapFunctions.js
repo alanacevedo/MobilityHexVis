@@ -1,6 +1,5 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { INITIAL_CENTER, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from "../static.js";
 import { accessToken } from "../token.js";
 import { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "./drawFunctions.js";
 import { getRangeStringsFromBoundaries } from "./helperFunctions.js";
@@ -11,6 +10,10 @@ import { v4 } from "uuid"
 import { getGiniIndex } from "./segregationIndexes.js";
 
 const MAPS_PER_ROW = 5
+const INITIAL_CENTER = [-33.471258, -70.646552]
+const INITIAL_ZOOM = 9
+const MAX_ZOOM = 12
+const MIN_ZOOM = 8
 
 function addMapRow(insertionIndex) {
     const state = new AppState()
