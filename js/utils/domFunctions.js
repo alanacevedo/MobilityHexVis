@@ -9,12 +9,6 @@ import { hideLoadingOverlay, showLoadingOverlay } from "./loadingOverlay.js";
 import { updateHexColorGradients } from "./drawFunctions.js";
 import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "./drawFunctions.js";
 
-function addTooltipDiv() {
-    d3.select("body").append('div')
-        .attr('class', 'mapTooltip')
-        .attr('id', 'mapTooltip')
-
-}
 
 // Define cómo actuan ciertos elementos del dom ante eventos.
 function setupSideMenu() {
@@ -323,4 +317,4 @@ function updateColorScaleSvg() {
     }
 }
 
-export { addTooltipDiv, setupSideMenu, generateMaps, addColorGradientSvg, updateColorScaleSvg }
+export { setupSideMenu, generateMaps, addColorGradientSvg, updateColorScaleSvg }

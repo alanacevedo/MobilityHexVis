@@ -303,7 +303,9 @@ function getTooltipContent(d, totalCount) {
             .join('<br>');
         return `
             ${groupCounts}<br>
-            Índice de Gini: ${d.gini.toFixed(2)}
+            Índice de Gini: ${d.gini.toFixed(2)} <br>
+            ${d.comuna ? `Comuna: ${d.comuna}. <br>` : ''}
+            ${d.h3 ? `ID: ${d.h3}.` : ''}
         `;
     } else {
         return `
