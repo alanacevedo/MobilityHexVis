@@ -6,18 +6,6 @@ import JSZip from "jszip";
 import { point, booleanPointInPolygon } from '@turf/turf';
 
 
-// Function to create the hex index
-function createHexIndex(data) {
-    const hexIndex = new Map();
-    data.forEach((entry) => {
-        if (!hexIndex.has(entry.h3_O)) hexIndex.set(entry.h3_O, new Set());
-        if (!hexIndex.has(entry.h3_D)) hexIndex.set(entry.h3_D, new Set());
-        hexIndex.get(entry.h3_O).add(entry);
-        hexIndex.get(entry.h3_D).add(entry);
-    });
-    return hexIndex;
-}
-
 
 const deserializeBinary = async (buffer) => {
     const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
@@ -92,4 +80,4 @@ async function loadODData(startHour, endHour, resolution) {
 }
 
 
-export { loadODData, deserializeBinary, loadComunas, createHexIndex, createComunaHexIndex }
+export { loadODData, deserializeBinary, loadComunas, createComunaHexIndex }

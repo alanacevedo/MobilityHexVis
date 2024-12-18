@@ -1,10 +1,10 @@
 import "./js/plugins/tcrs-moving-tooltip.min.js"
 import 'toolcool-range-slider';
 
-import { injectAllHTML } from "./js/injectHTML.js";
+import { injectAllHTML } from "./js/dom/injectHTML.js";
 import { generateMaps } from "./js/utils/domFunctions.js";
 import { hideLoadingOverlay, initializeLoadingOverlay, showLoadingOverlay } from "./js/utils/loadingOverlay.js";
-import { setupSideMenu } from "./js/utils/domFunctions.js";
+import { setupSideMenu } from "./js/dom/sideMenu.js";
 import { initializeState } from "./js/appState.js";
 import { addColorGradientSvg } from "./js/utils/domFunctions.js";
 

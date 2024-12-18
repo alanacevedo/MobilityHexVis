@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { loadODData, loadComunas, createComunaHexIndex, createHexIndex } from "./loadData";
+import { loadODData, loadComunas, createComunaHexIndex } from "./loadData";
 import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils";
 
 // Singleton
@@ -72,6 +72,17 @@ async function updateData() {
         baseGroupPercentages,
         totalEntries,
     });
+}
+
+function createHexIndex(data) {
+    const hexIndex = new Map();
+    data.forEach((entry) => {
+        if (!hexIndex.has(entry.h3_O)) hexIndex.set(entry.h3_O, new Set());
+        if (!hexIndex.has(entry.h3_D)) hexIndex.set(entry.h3_D, new Set());
+        hexIndex.get(entry.h3_O).add(entry);
+        hexIndex.get(entry.h3_D).add(entry);
+    });
+    return hexIndex;
 }
 
 export { AppState, initializeState, updateData };
