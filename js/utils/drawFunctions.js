@@ -2,8 +2,8 @@ import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { cellToBoundary } from "h3-js"
 import { AppState } from "../appState.js";
-import { generateMaps } from "./domFunctions.js";
-import { updateColorScaleSvg } from "./domFunctions.js";
+import { generateMaps } from "../dom/maps.js";
+import { updateColorScaleSvg } from "../dom/colorGradientSvg.js";
 
 
 function updateSvgPaths(map) {

@@ -1,30 +1,6 @@
 import * as d3 from "d3";
-import { getBoundaryIndexesFromDistances } from "./helperFunctions.js";
-import { displayRows } from "./mapFunctions.js";
+
 import { AppState } from "../appState.js";
-
-
-
-
-function generateMaps({ updateDistributionChart = true } = {}) {
-
-    const state = new AppState()
-    const data = state.getState("data")
-    const boundaries = state.getState("boundaries").toSorted((x, y) => (x - y))
-
-    const rowDataSlices = []
-    let prevIndex = 0
-
-    const indexes = getBoundaryIndexesFromDistances(data, boundaries)
-
-    for (const index of indexes) {
-        rowDataSlices.push(data.slice(prevIndex, index))
-        prevIndex = index
-    }
-    rowDataSlices.push(data.slice(prevIndex))
-
-    displayRows(rowDataSlices, boundaries, updateDistributionChart)
-}
 
 function addColorGradientSvg() {
     const svg = d3.select("#color-scale");
@@ -84,7 +60,6 @@ function addColorGradientSvg() {
 
 function updateColorScaleSvg() {
     const svg = d3.select("#color-scale");
-    const width = svg.node().getBoundingClientRect().width;
 
     // Get the current mixtura color scale
     const state = new AppState();
@@ -101,4 +76,4 @@ function updateColorScaleSvg() {
     }
 }
 
-export { generateMaps, addColorGradientSvg, updateColorScaleSvg }
+export { addColorGradientSvg, updateColorScaleSvg }
