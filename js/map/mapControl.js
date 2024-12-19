@@ -1,7 +1,9 @@
 import * as d3 from "d3";
 import { v4 } from "uuid"
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { updateSvgPaths, drawH3Hexagons, drawComunaBoundaries } from "../utils/drawFunctions.js"
+import { updateSvgPaths } from "./draw/update.js";
+import { drawH3Hexagons } from "./draw/hexagon.js";
+import { drawComunaBoundaries } from "./draw/comuna.js";
 import { getRangeStringsFromBoundaries } from "../utils/helperFunctions.js";
 import { drawDistributionChart } from "../utils/charts/distribution/distributionChart.js";
 import { getGroupPercentages } from "../utils/charts/distribution/utils.js";

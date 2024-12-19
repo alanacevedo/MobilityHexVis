@@ -58,22 +58,5 @@ function addColorGradientSvg() {
         .text("Alta");
 }
 
-function updateColorScaleSvg() {
-    const svg = d3.select("#color-scale");
 
-    // Get the current mixtura color scale
-    const state = new AppState();
-    const mixturaColorScale = state.getState("mixturaColorScale") || d3.interpolateWarm;
-
-    // Update the gradient
-    const gradient = svg.select("#mixturaGradient");
-    gradient.selectAll("stop").remove();
-
-    for (let i = 0; i <= 100; i++) {
-        gradient.append("stop")
-            .attr("offset", `${i}%`)
-            .attr("stop-color", mixturaColorScale(i / 100)); // Remove the inversion
-    }
-}
-
-export { addColorGradientSvg, updateColorScaleSvg }
+export { addColorGradientSvg }

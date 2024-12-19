@@ -1,8 +1,7 @@
 import * as d3 from "d3";
 import Picker from 'vanilla-picker';
 import { hideLoadingOverlay, showLoadingOverlay } from "../utils/loadingOverlay"
-import { updateHexColorGradients } from "../utils/drawFunctions.js";
-import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "../utils/drawFunctions.js";
+import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "../map/draw/update";
 import { AppState, updateData } from "../appState.js";
 import { drawBoundariesChart, getChartData } from "../utils/charts/boundaries/boundariesChart.js";
 import { generateMaps } from "../map/mapControl";
@@ -232,6 +231,32 @@ function setupColorPickers() {
     });
 
     updateMixturaColorScale();
+}
+
+function updateHexColorGradients() {
+    const state = new AppState();
+    const mapMatrix = state.getState("mapMatrix");
+    const originColor = state.getState("originColor");
+    const destinationColor = state.getState("destinationColor");
+
+    // Flatten the mapMatrix and include the global map
+    const allMaps = [...mapMatrix.flat(), state.getState("globalMap")];
+
+    allMaps.forEach(map => {
+        if (!map) return;
+        const svg = d3.select(map.getPanes().overlayPane).select("svg");
+        const defs = svg.select("defs");
+
+        defs.selectAll("linearGradient").each(function () {
+            const gradient = d3.select(this);
+            gradient.select("stop:nth-child(1)")
+                .attr("stop-color", originColor);
+            gradient.select("stop:nth-child(2)")
+                .attr("stop-color", destinationColor);
+            gradient.select("stop:nth-child(3)")
+                .attr("stop-color", destinationColor);
+        });
+    });
 }
 
 export { setupSideMenu }
