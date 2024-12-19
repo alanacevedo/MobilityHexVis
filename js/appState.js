@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import { loadODData, loadComunas, createComunaHexIndex } from "./loadData";
-import { getGroupPercentages, getTotalEntries } from "./utils/charts/distribution/utils";
+import { getGroupPercentages, getTotalEntries } from "./charts/distribution/utils";
 
 // Singleton
 let instance;

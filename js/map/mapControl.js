@@ -4,11 +4,11 @@ import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
 import { updateSvgPaths } from "./draw/update.js";
 import { drawH3Hexagons } from "./draw/hexagon.js";
 import { drawComunaBoundaries } from "./draw/comuna.js";
-import { getRangeStringsFromBoundaries } from "../utils/helperFunctions.js";
-import { drawDistributionChart } from "../utils/charts/distribution/distributionChart.js";
-import { getGroupPercentages } from "../utils/charts/distribution/utils.js";
+import { getRangeStringsFromBoundaries } from "../charts/boundaries/utils.js";
+import { drawDistributionChart } from "../charts/distribution/distributionChart.js";
+import { getGroupPercentages } from "../charts/distribution/utils.js";
 import { AppState } from "../appState.js";
-import { getBoundaryIndexesFromDistances } from "../utils/helperFunctions.js";
+import { getBoundaryIndexesFromDistances } from "../charts/boundaries/utils.js";
 import { getDataByH3, getDataByGroup, getGiniIndexByH3 } from "./getData.js";
 import { addMapRow, removeMapRow } from "../dom/maps.js";
 import { createChartCanvasChild } from "../dom/chart.js";

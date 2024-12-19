@@ -3,7 +3,7 @@ import Picker from 'vanilla-picker';
 import { hideLoadingOverlay, showLoadingOverlay } from "../utils/loadingOverlay"
 import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "../map/draw/update";
 import { AppState, updateData } from "../appState.js";
-import { drawBoundariesChart, getChartData } from "../utils/charts/boundaries/boundariesChart.js";
+import { drawBoundariesChart, getChartData } from "../charts/boundaries/boundariesChart";
 import { generateMaps } from "../map/mapControl";
 import Chart from 'chart.js/auto';
 
@@ -20,7 +20,6 @@ function setupSideMenu() {
 
 function updateBoundariesChart(data) {
     const chartData = getChartData(data)
-    console.log(chartData)
     const boundariesChartCtxNode = document.getElementById('myChart');
 
     const chart = Chart.getChart(boundariesChartCtxNode)
