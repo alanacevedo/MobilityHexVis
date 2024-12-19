@@ -1,7 +1,7 @@
 import Chart from 'chart.js/auto';
 import * as d3 from "d3";
-import { AppState } from '../../appState';
-import { generateMaps } from "../../map/mapControl"
+import { AppState } from '@js/appState';
+import { generateMaps } from "@js/map/mapControl"
 
 const TOOLTIPID = 'chartjs-tooltip'
 
@@ -187,10 +187,6 @@ function getChartData(data) {
 
     return chartData;
 }
-
-
-
-
 
 function handleOnHover(event, activeElements, chartElement) {
     const tooltipNode = d3.select("#" + TOOLTIPID).node()

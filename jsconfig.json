@@ -6,6 +6,10 @@
         "jsx": "react",
         "strictNullChecks": true,
         "strictFunctionTypes": true,
+        "baseUrl": ".",
+        "paths": {
+            "@js/*": ["js/*"]
+        },
     },
     "exclude": [
         "node_modules",

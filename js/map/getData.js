@@ -1,6 +1,6 @@
 
-import { AppState } from "../appState.js";
-import { getGiniIndex } from "../utils/segregationIndexes.js";
+import { AppState } from "@js/appState.js";
+import { getGiniIndex } from "@js/utils/segregationIndexes.js";
 
 function getDataByGroup(data) {
     const dataByGroup = {}

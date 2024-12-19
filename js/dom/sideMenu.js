@@ -1,10 +1,10 @@
 import * as d3 from "d3";
 import Picker from 'vanilla-picker';
-import { hideLoadingOverlay, showLoadingOverlay } from "../utils/loadingOverlay"
-import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "../map/draw/update";
-import { AppState, updateData } from "../appState.js";
-import { drawBoundariesChart, getChartData } from "../charts/boundaries/boundariesChart";
-import { generateMaps } from "../map/mapControl";
+import { hideLoadingOverlay, showLoadingOverlay } from "@js/utils/loadingOverlay"
+import { updateHighlightColor, updateComunaBoundaryColor, updateMixturaColorScale } from "@js/map/draw/update";
+import { AppState, updateData } from "@js/appState.js";
+import { drawBoundariesChart, getChartData } from "@js/charts/boundaries/boundariesChart";
+import { generateMaps } from "@js/map/mapControl";
 import Chart from 'chart.js/auto';
 
 

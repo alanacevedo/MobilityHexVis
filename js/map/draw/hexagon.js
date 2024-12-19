@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { cellToBoundary } from "h3-js";
-import { AppState } from "../../appState";
+import { AppState } from "@js/appState";
+import { generateMaps } from "@js/map/mapControl";
 
 function drawH3Hexagons(dataByH3, hexSet, map) {
     const appState = new AppState();

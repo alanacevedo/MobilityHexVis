@@ -6,7 +6,6 @@ import JSZip from "jszip";
 import { point, booleanPointInPolygon } from '@turf/turf';
 
 
-
 const deserializeBinary = async (buffer) => {
     const response = await fetch("/data.proto", { headers: { 'Content-Type': 'text/plain' } });
     const protoText = await response.text();
@@ -17,7 +16,6 @@ const deserializeBinary = async (buffer) => {
     const decoded_object = DataEntries.toObject(decoded_message, { defaults: true, longs: String })
     return decoded_object.entries
 }
-
 
 async function loadComunas() {
     const rawJson = await fetch('/data/comunas_metropolitana.json')
@@ -33,7 +31,6 @@ function getHexSet(data) {
     }
     return hexSet
 }
-
 
 function createComunaHexIndex(comunas, data) {
     const hexSet = getHexSet(data)

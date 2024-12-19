@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { AppState } from "../appState.js";
-import { addMap } from "../map/mapControl.js";
+import { AppState } from "@js/appState.js";
+import { addMap } from "@js/map/mapControl.js";
 
 const MAPS_PER_ROW = 5
 

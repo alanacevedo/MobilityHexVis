@@ -1,5 +1,5 @@
 import Chart from 'chart.js/auto';
-import { AppState } from '../../appState';
+import { AppState } from '@js/appState';
 
 function drawDistributionChart(ctxNode, chartData, rangeString) {
     const appState = new AppState()

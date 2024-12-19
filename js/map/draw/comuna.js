@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { AppState } from "../../appState.js";
-import { generateMaps } from "../mapControl.js";
+import { AppState } from "@js/appState.js"
+import { generateMaps } from "@js/map/mapControl.js";
 
 function drawComunaBoundaries(map) {
     const appState = new AppState();

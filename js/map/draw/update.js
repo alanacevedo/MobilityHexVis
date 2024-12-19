@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { AppState } from "../../appState";
+import { AppState } from "@js/appState";
 
 function updateSvgPaths(map) {
     const g = d3.select(map.getPanes().overlayPane).select("svg").select("g")

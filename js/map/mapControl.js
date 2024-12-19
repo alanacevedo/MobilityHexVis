@@ -1,17 +1,17 @@
 import * as d3 from "d3";
 import { v4 } from "uuid"
 import * as L from 'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/+esm'
-import { updateSvgPaths } from "./draw/update.js";
-import { drawH3Hexagons } from "./draw/hexagon.js";
-import { drawComunaBoundaries } from "./draw/comuna.js";
-import { getRangeStringsFromBoundaries } from "../charts/boundaries/utils.js";
-import { drawDistributionChart } from "../charts/distribution/distributionChart.js";
-import { getGroupPercentages } from "../charts/distribution/utils.js";
-import { AppState } from "../appState.js";
-import { getBoundaryIndexesFromDistances } from "../charts/boundaries/utils.js";
-import { getDataByH3, getDataByGroup, getGiniIndexByH3 } from "./getData.js";
-import { addMapRow, removeMapRow } from "../dom/maps.js";
-import { createChartCanvasChild } from "../dom/chart.js";
+import { updateSvgPaths } from "@js/map/draw/update.js";
+import { drawH3Hexagons } from "@js/map/draw/hexagon.js";
+import { drawComunaBoundaries } from "@js/map/draw/comuna.js";
+import { getRangeStringsFromBoundaries } from "@js/charts/boundaries/utils.js";
+import { drawDistributionChart } from "@js/charts/distribution/distributionChart.js";
+import { getGroupPercentages } from "@js/charts/distribution/utils.js";
+import { AppState } from "@js/appState.js";
+import { getBoundaryIndexesFromDistances } from "@js/charts/boundaries/utils.js";
+import { getDataByH3, getDataByGroup, getGiniIndexByH3 } from "@js/map/getData.js";
+import { addMapRow, removeMapRow } from "@js/dom/maps.js";
+import { createChartCanvasChild } from "@js/dom/chart.js";
 
 const INITIAL_CENTER = [-33.471258, -70.646552]
 const INITIAL_ZOOM = 9

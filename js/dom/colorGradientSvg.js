@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-import { AppState } from "../appState.js";
+import { AppState } from "@js/appState.js";
 
 function addColorGradientSvg() {
     const svg = d3.select("#color-scale");
