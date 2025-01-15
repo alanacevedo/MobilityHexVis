@@ -30,6 +30,7 @@
     "long": "^5.2.3",
     "protobufjs": "^7.3.2",
     "toolcool-range-slider": "^4.0.28",
+    "uuid": "^11.0.5",
     "vanilla-picker": "^2.12.3"
   }
 }
