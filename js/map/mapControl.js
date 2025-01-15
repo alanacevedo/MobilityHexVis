@@ -141,6 +141,7 @@ function generateMaps({ updateDistributionChart = true } = {}) {
 
     const state = new AppState()
     const data = state.getState("data")
+    if (!data.length) return
     const boundaries = state.getState("boundaries").toSorted((x, y) => (x - y))
 
     const rowDataSlices = []

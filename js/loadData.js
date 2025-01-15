@@ -1,8 +1,6 @@
 import protobuf from 'protobufjs';
-import { app } from "../firebase.js";
-import { getDownloadURL, getStorage, ref } from "firebase/storage";
-import { cellToLatLng } from "h3-js"
-import JSZip from "jszip";
+import { cellToLatLng, latLngToCell, UNITS, greatCircleDistance } from "h3-js"
+import * as d3 from 'd3';
 import { point, booleanPointInPolygon } from '@turf/turf';
 
 
@@ -56,25 +54,82 @@ function createComunaHexIndex(comunas, data) {
     return [comunaHexIndex, hexComunaIndex]
 }
 
-
-async function loadODData(startHour, endHour, resolution) {
-    try {
-        const storage = getStorage(app);
-        const testRef = ref(storage, `h3_${resolution}/od_${startHour}_${endHour}_${resolution}.zip`)
-        const url = await getDownloadURL(testRef)
-
-        const response = await fetch(url);
-        const blob = await response.blob();
-
-        const zipContent = await JSZip.loadAsync(blob);
-        const fileName = Object.keys(zipContent.files)[0];
-        const binaryArrayBuffer = await zipContent.files[fileName].async("arraybuffer");
-        const data = await deserializeBinary(binaryArrayBuffer);
-        return data
-    } catch (error) {
-        console.error(error)
-    }
+function getHexDistance(h3_O, h3_D) {
+    return greatCircleDistance(
+        cellToLatLng(h3_O),
+        cellToLatLng(h3_D),
+        UNITS.km
+    )
 }
 
+
+async function loadODData(startHour, endHour, resolution) {
+  try {
+    let data = await d3.csv('/data/flows.csv'); 
+    
+    const hasStart = data.columns.includes('start_hour');
+    const hasEnd = data.columns.includes('end_hour');
+
+    if (hasStart && hasEnd) {
+      data = data.filter(d => {
+        const sHour = +d.start_hour;
+        const eHour = +d.end_hour;
+        return sHour === startHour && eHour === endHour;
+      });
+    }
+    
+    for (const flow of data) {
+      flow.lat_O = +flow.lat_O;
+      flow.lon_O = +flow.lon_O;
+      flow.lat_D = +flow.lat_D;
+      flow.lon_D = +flow.lon_D;
+      flow.group = +flow.group;
+      flow.count = +flow.count;
+
+      if (hasStart) flow.start_hour = +flow.start_hour;
+      if (hasEnd)   flow.end_hour = +flow.end_hour;
+
+      flow.h3_O = latLngToCell(flow.lat_O, flow.lon_O, resolution);
+      flow.h3_D = latLngToCell(flow.lat_D, flow.lon_D, resolution);
+    }
+
+    // Merge repeated flows by (h3_O, h3_D, group) and sum counts
+    const mergedMap = new Map();
+    for (const flow of data) {
+      const key = `${flow.h3_O}-${flow.h3_D}-${flow.group}`;
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, {
+          h3_O: flow.h3_O,
+          h3_D: flow.h3_D,
+          group: flow.group,
+          count: flow.count
+        });
+      } else {
+        mergedMap.get(key).count += flow.count;
+      }
+    }
+    const mergedData = Array.from(mergedMap.values());
+
+    for (const flow of mergedData) {
+      flow.distance = getHexDistance(flow.h3_O, flow.h3_D);
+    }
+
+    const sumOfAllCounts = d3.sum(mergedData, d => d.count);
+    const sumOfGroupCounts = d3.rollup(
+      mergedData,
+      flowsInGroup => d3.sum(flowsInGroup, f => f.count),
+      d => d.group
+    );
+    for (const flow of mergedData) {
+      flow.normTotal = flow.count / sumOfAllCounts;
+      flow.normGroup = flow.count / sumOfGroupCounts.get(flow.group);
+    }
+
+    return mergedData;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 
 export { loadODData, deserializeBinary, loadComunas, createComunaHexIndex }

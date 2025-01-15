@@ -105,19 +105,19 @@ function drawBoundariesChart(ctxNode, chartData) {
                 },
                 x: {
                     title: {
-                        display: true,
-                        text: "Distancia (km)",
-                        color: 'white'
+                      display: true,
+                      text: "Distancia (km)",
+                      color: 'white'
                     },
                     grid: {
-                        color: gridLineColor
+                      color: gridLineColor
                     },
                     type: "linear",
-                    max: chartData.slice(-1)[0].x,
+                    max: chartData.length === 0 ? 0 : chartData[chartData.length - 1].x,
                     ticks: {
-                        color: 'white'
+                      color: 'white'
                     }
-                },
+                  }
             },
             parsing: false,
             plugins: {
