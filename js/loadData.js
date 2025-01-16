@@ -2,6 +2,7 @@ import protobuf from 'protobufjs';
 import { cellToLatLng, latLngToCell, UNITS, greatCircleDistance } from "h3-js"
 import * as d3 from 'd3';
 import { point, booleanPointInPolygon } from '@turf/turf';
+import { asyncBufferFromUrl, parquetRead } from 'hyparquet';
 
 
 const deserializeBinary = async (buffer) => {
@@ -64,72 +65,57 @@ function getHexDistance(h3_O, h3_D) {
 
 
 async function loadODData(startHour, endHour, resolution) {
-  try {
-    let data = await d3.csv('/data/flows.csv'); 
-    
-    const hasStart = data.columns.includes('start_hour');
-    const hasEnd = data.columns.includes('end_hour');
-
-    if (hasStart && hasEnd) {
-      data = data.filter(d => {
-        const sHour = +d.start_hour;
-        const eHour = +d.end_hour;
-        return sHour === startHour && eHour === endHour;
+    try {
+      let parquetData = [];
+      await parquetRead({
+        file: await asyncBufferFromUrl({ url: '/data/flows.parquet' }),
+        onComplete: (raw) => { parquetData = raw; }
       });
-    }
-    
-    for (const flow of data) {
-      flow.lat_O = +flow.lat_O;
-      flow.lon_O = +flow.lon_O;
-      flow.lat_D = +flow.lat_D;
-      flow.lon_D = +flow.lon_D;
-      flow.group = +flow.group;
-      flow.count = +flow.count;
-
-      if (hasStart) flow.start_hour = +flow.start_hour;
-      if (hasEnd)   flow.end_hour = +flow.end_hour;
-
-      flow.h3_O = latLngToCell(flow.lat_O, flow.lon_O, resolution);
-      flow.h3_D = latLngToCell(flow.lat_D, flow.lon_D, resolution);
-    }
-
-    // Merge repeated flows by (h3_O, h3_D, group) and sum counts
-    const mergedMap = new Map();
-    for (const flow of data) {
-      const key = `${flow.h3_O}-${flow.h3_D}-${flow.group}`;
-      if (!mergedMap.has(key)) {
-        mergedMap.set(key, {
-          h3_O: flow.h3_O,
-          h3_D: flow.h3_D,
-          group: flow.group,
-          count: flow.count
-        });
-      } else {
-        mergedMap.get(key).count += flow.count;
+  
+      let data = parquetData.map(row => ({
+        lat_O: Number(row[0]),
+        lon_O: Number(row[1]),
+        lat_D: Number(row[2]),
+        lon_D: Number(row[3]),
+        group: row[4] !== undefined ? Number(row[4]) : undefined,
+        count: row[5] !== undefined ? Number(row[5]) : undefined,
+        start_hour: row[6] !== undefined ? Number(row[6]) : undefined,
+        end_hour: row[7] !== undefined ? Number(row[7]) : undefined
+      }));
+  
+      const hasStart = data.some(d => d.start_hour !== undefined);
+      const hasEnd = data.some(d => d.end_hour !== undefined);
+      if (hasStart && hasEnd) {
+        data = data.filter(d => d.start_hour === startHour && d.end_hour === endHour);
       }
+  
+      for (const f of data) {
+        f.h3_O = latLngToCell(f.lat_O, f.lon_O, resolution);
+        f.h3_D = latLngToCell(f.lat_D, f.lon_D, resolution);
+      }
+  
+      const merged = new Map();
+      for (const f of data) {
+        const k = `${f.h3_O}-${f.h3_D}-${f.group}`;
+        if (!merged.has(k)) merged.set(k, { ...f });
+        else merged.get(k).count += f.count;
+      }
+  
+      const mergedData = [...merged.values()];
+      for (const f of mergedData) f.distance = getHexDistance(f.h3_O, f.h3_D);
+  
+      const total = d3.sum(mergedData, d => d.count);
+      const groupTotals = d3.rollup(mergedData, v => d3.sum(v, x => x.count), d => d.group);
+      for (const f of mergedData) {
+        f.normTotal = f.count / total;
+        f.normGroup = f.count / groupTotals.get(f.group);
+      }
+  
+      return mergedData;
+    } catch (err) {
+      console.error(err);
+      return [];
     }
-    const mergedData = Array.from(mergedMap.values());
-
-    for (const flow of mergedData) {
-      flow.distance = getHexDistance(flow.h3_O, flow.h3_D);
-    }
-
-    const sumOfAllCounts = d3.sum(mergedData, d => d.count);
-    const sumOfGroupCounts = d3.rollup(
-      mergedData,
-      flowsInGroup => d3.sum(flowsInGroup, f => f.count),
-      d => d.group
-    );
-    for (const flow of mergedData) {
-      flow.normTotal = flow.count / sumOfAllCounts;
-      flow.normGroup = flow.count / sumOfGroupCounts.get(flow.group);
-    }
-
-    return mergedData;
-  } catch (error) {
-    console.error(error);
-    return [];
   }
-}
 
 export { loadODData, deserializeBinary, loadComunas, createComunaHexIndex }

@@ -24,6 +24,7 @@
     "geokdbush-tk": "^2.0.4",
     "gradient-path": "^2.3.0",
     "h3-js": "^4.1.0",
+    "hyparquet": "^1.8.1",
     "js-loading-overlay": "^1.2.0",
     "jszip": "^3.10.1",
     "kdbush": "^4.0.2",
