@@ -66,7 +66,7 @@ function drawDistributionChart(ctxNode, chartData, rangeString) {
                 },
                 title: {
                     display: true,
-                    text: `      ${rangeString}    ${rowPercentage.toFixed(0)}%  datos`,
+                    text: `      ${rangeString}    ${rowPercentage.toFixed(0)}%  of data`,
                     align: 'center'
                 },
                 tooltip: {
@@ -77,8 +77,8 @@ function drawDistributionChart(ctxNode, chartData, rangeString) {
                             const groupPercentage = chartData['group'][index + 1];
                             const globalPercentage = chartData['global'][index + 1];
                             return [
-                                `${groupPercentage.toFixed(1)}%  c/r tramo `,
-                                `${globalPercentage.toFixed(1)}%  c/r total: `
+                                `${groupPercentage.toFixed(1)}%  w.r.t interval `,
+                                `${globalPercentage.toFixed(1)}%  w.r.t total: `
                             ];
                         }
                     }

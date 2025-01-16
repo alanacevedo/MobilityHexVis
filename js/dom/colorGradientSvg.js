@@ -48,14 +48,14 @@ function addColorGradientSvg() {
         .attr("y", height + 15)
         .attr("text-anchor", "start")
         .style("font-size", "12px")
-        .text("Baja");
+        .text("Low");
 
     gradientGroup.append("text")
         .attr("x", width)
         .attr("y", height + 15)
         .attr("text-anchor", "end")
         .style("font-size", "12px")
-        .text("Alta");
+        .text("High");
 }
 
 

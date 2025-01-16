@@ -90,7 +90,7 @@ function drawBoundariesChart(ctxNode, chartData) {
                 y: {
                     title: {
                         display: true,
-                        text: "Porcentaje de ocurrencias (%)",
+                        text: "occurrence percentage (%)",
                         color: 'white'
                     },
                     beginAtZero: true,
@@ -106,7 +106,7 @@ function drawBoundariesChart(ctxNode, chartData) {
                 x: {
                     title: {
                       display: true,
-                      text: "Distancia (km)",
+                      text: "Distance (km)",
                       color: 'white'
                     },
                     grid: {

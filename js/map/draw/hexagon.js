@@ -207,16 +207,16 @@ function getTooltipContent(d, totalCount) {
             .join('<br>');
         return `
             ${groupCounts}<br>
-            Índice de Gini: ${d.gini.toFixed(2)} <br>
-            ${d.comuna ? `Comuna: ${d.comuna}. <br>` : ''}
+            Gini index: ${d.gini.toFixed(2)} <br>
+            ${d.comuna ? `Commune: ${d.comuna}. <br>` : ''}
             ${d.h3 ? `ID: ${d.h3}.` : ''}
         `;
     } else {
         return `
-            ${d.origin ? `Orígenes: ${Number(d.origin.count)}.<br>` : ''}
-            ${d.destination ? `Destinos: ${Number(d.destination.count)}.<br>` : ''}
-            ${d.count ? `% Datos: ${Number(d.count * 100 / totalCount).toFixed(2)}%. <br>` : ''}
-            ${d.comuna ? `Comuna: ${d.comuna}. <br>` : ''}
+            ${d.origin ? `Origins: ${Number(d.origin.count)}.<br>` : ''}
+            ${d.destination ? `Destinations: ${Number(d.destination.count)}.<br>` : ''}
+            ${d.count ? `% of data: ${Number(d.count * 100 / totalCount).toFixed(2)}%. <br>` : ''}
+            ${d.comuna ? `Commune: ${d.comuna}. <br>` : ''}
             ${d.h3 ? `ID: ${d.h3}.` : ''}
         `;
     }

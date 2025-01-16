@@ -4,14 +4,14 @@
 >
     <div class="sidebar-header">
         <h5 class="sidebar-title" id="offcanvasDarkNavbarLabel">
-            Configuración
+            Settings
         </h5>
     </div>
     <div class="sidebar-body">
         <div class="container">
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li class="nav-item d-flex align-items-center mt-2">
-                    <a class="nav-link active me-3">Rango Horario</a>
+                    <a class="nav-link active me-3">Time Range</a>
                     <div class="flex-grow-1">
                         <tc-range-slider
                             id="hourRangeInput"
@@ -29,7 +29,7 @@
                 <li class="nav-item">
                     <div id="chartjs-tooltip"></div>
                     <a class="nav-link active"
-                        >Límites de distancia (km.) para agrupación</a
+                        >Distance boundaries (km.)</a
                     >
                     <canvas id="myChart"></canvas>
                 </li>
@@ -38,19 +38,19 @@
                     <div class="checkbox-container">
                         <label>
                             <input type="checkbox" id="showOriginHexCheckbox"/> 
-                            Mostrar orígenes
+                            Show origins
                         </label>
                         <label>
                             <input type="checkbox" id="showDestinationHexCheckbox"/> 
-                            Mostrar destinos
+                            Show destinations
                         </label>
                         <label>
                             <input type="checkbox" id="showComunaBoundariesCheckbox"/> 
-                            Mostrar comunas
+                            Show communes
                         </label>
                         <label>
                             <input type="checkbox" id="selectionModeCheckbox"/> 
-                            Selección por comuna
+                            Show communes
                         </label>
                     </div>
                 </li>
@@ -60,25 +60,25 @@
                     <div class="form-floating mt-3 mb-3">
                         <!-- https://h3geo.org/docs/core-library/restable/#edge-lengths -->
                         <select id="resolutionInput" class="form-select form-select-sm" data-bs-theme="dark">
-                            <option value="5">5 - Largo de arista: 9,85 km</option>
-                            <option value="6">6 - Largo de arista: 3,72 km</option>
-                            <option value="7">7 - Largo de arista: 1,40 km</option>
-                            <option value="8">8 - Largo de arista: 0,53 km</option>
-                            <option value="9">9 - Largo de arista: 0,20 km</option>
+                            <option value="5">5 - Edge length: 9,85 km</option>
+                            <option value="6">6 - Edge length: 3,72 km</option>
+                            <option value="7">7 - Edge length: 1,40 km</option>
+                            <option value="8">8 - Edge length: 0,53 km</option>
+                            <option value="9">9 - Edge length: 0,20 km</option>
                         </select>
                         <label data-bs-theme="dark" for="resolutionInput">Resolución hexágonos</label>
                     </div>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link active">Colores</a>
+                    <a class="nav-link active">Colors</a>
                     <div id="colorPickers">
                         <div class="pickers">
-                            <div id="originColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para orígenes"></div>
-                            <div id="destinationColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para destinos"></div>
-                            <div id="highlightColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para hexágonos resaltados"></div>
-                            <div id="comunaBoundaryColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color para bordes de comunas"></div>
-                            <div id="mixturaColorScalePicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Escala de color para mixtura"></div>
+                            <div id="originColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Origin"></div>
+                            <div id="destinationColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Destination"></div>
+                            <div id="highlightColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Highlighted Hexagons"></div>
+                            <div id="comunaBoundaryColorPicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Commune boundaries"></div>
+                            <div id="mixturaColorScalePicker" class="colorPicker" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Mixture color scale"></div>
                         </div>
                     </div>
                 </li>
@@ -86,7 +86,7 @@
                 
 
                 <li class="nav-item mt-3">
-                    <h6>Mapa completo</h6>
+                    <h6>General Map</h6>
                     <div id="globalMap" class="leafletMap" style="height: 300px;"></div>
                 </li>
             </ul>
